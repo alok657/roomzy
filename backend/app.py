@@ -177,13 +177,13 @@ def get_pgs():
 
     pgs = []
 
-    import json
+    base_url = "https://roomzy-backend-phb5.onrender.com"
 
     for r in rows:
 
         images = []
 
-        # 🔥 SAFE IMAGE HANDLING
+        # SAFE IMAGE HANDLING
         if "images" in r.keys() and r["images"]:
             try:
                 images = json.loads(r["images"])
@@ -192,14 +192,22 @@ def get_pgs():
         else:
             images = [r["image"]]
 
+        # 🔥 FIX IMAGE URL
+        image = r["image"].replace("http://127.0.0.1:5000", base_url)
+
+        fixed_images = [
+            img.replace("http://127.0.0.1:5000", base_url)
+            for img in images
+        ]
+
         pgs.append({
             "id": r["id"],
             "pg_name": r["pg_name"],
             "city": r["city"],
             "rent": r["rent"],
             "description": r["description"],
-            "image": r["image"],
-            "images": images   # 🔥 IMPORTANT
+            "image": image,
+            "images": fixed_images
         })
 
     return jsonify(pgs)
@@ -220,7 +228,8 @@ def get_pg(id):
     if not row:
         return {"error": "PG not found"}
 
-    # 🔥 SAFE IMAGE HANDLING
+    base_url = "https://roomzy-backend-phb5.onrender.com"
+
     images = []
 
     if "images" in row.keys() and row["images"]:
@@ -231,14 +240,22 @@ def get_pg(id):
     else:
         images = [row["image"]]
 
+    # 🔥 FIX URL
+    image = row["image"].replace("http://127.0.0.1:5000", base_url)
+
+    fixed_images = [
+        img.replace("http://127.0.0.1:5000", base_url)
+        for img in images
+    ]
+
     return {
         "id": row["id"],
         "pg_name": row["pg_name"],
         "city": row["city"],
         "rent": row["rent"],
         "description": row["description"],
-        "image": row["image"],
-        "images": images,
+        "image": image,
+        "images": fixed_images,
         "owner_name": row["owner_name"],
         "owner_phone": row["owner_phone"]
     }
@@ -256,3 +273,4 @@ def delete_pg(id):
     conn.close()
 
     return {"message": "PG deleted successfully"}
+
