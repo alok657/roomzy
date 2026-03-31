@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Student Profile</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+font-family:Segoe UI;
+}
+
+body{
+margin:0;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(135deg,#667eea,#764ba2);
+padding:15px;
+overflow-y:auto;
+}
+
+.container{
+width:100%;
+max-width:320px;
+background:rgba(255,255,255,0.15);
+backdrop-filter:blur(15px);
+padding:18px;
+border-radius:15px;
+box-shadow:0 8px 25px rgba(0,0,0,0.25);
+color:white;
+animation:fadeIn 0.6s ease;
+}
+
+h2{
+text-align:center;
+margin-bottom:12px;
+font-size:18px;
+}
+
+input,select{
+width:100%;
+padding:9px;
+margin:6px 0;
+border:none;
+border-radius:8px;
+background:#f2f2f2;
+font-size:13px;
+outline:none;
+}
+
+input[type="file"]{
+font-size:12px;
+padding:6px;
+}
+
+button{
+width:100%;
+padding:10px;
+border:none;
+border-radius:8px;
+background:linear-gradient(90deg,#ff7a18,#ffb347);
+color:white;
+font-size:14px;
+cursor:pointer;
+margin-top:8px;
+}
+
+.input-group{
+position:relative;
+}
+
+.input-group i{
+position:absolute;
+top:50%;
+left:8px;
+transform:translateY(-50%);
+color:#666;
+font-size:13px;
+}
+
+.input-group input,
+.input-group select{
+padding-left:30px;
+}
+
+#msg{
+display:none;
+margin-top:8px;
+padding:8px;
+border-radius:6px;
+font-size:13px;
+font-weight:bold;
+text-align:center;
+}
+
+label{
+font-size:12px;
+display:block;
+margin-top:5px;
+}
+
+@keyframes fadeIn{
+from{opacity:0;transform:translateY(10px);}
+to{opacity:1;transform:translateY(0);}
+}
+
+</style>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Complete Your Profile</h2>
+
+<div class="input-group">
+<i class="fa fa-user"></i>
+<input id="name" placeholder="Full Name">
+</div>
+
+<div class="input-group">
+<i class="fa fa-phone"></i>
+<input id="phone" placeholder="Phone Number">
+</div>
+
+<div class="input-group">
+<i class="fa fa-building"></i>
+<input id="college" placeholder="College Name">
+</div>
+
+<label>🎓 Upload College ID</label>
+<input type="file" id="idCard">
+
+<div class="input-group">
+<i class="fa fa-location-dot"></i>
+<select id="state">
+<option value="">Select State</option>
+</select>
+</div>
+
+<div class="input-group">
+<i class="fa fa-location-dot"></i>
+<select id="city">
+<option value="">Select City</option>
+</select>
+</div>
+
+<button onclick="saveProfile()">Continue</button>
+
+<p id="msg"></p>
+
+</div>
+
+<script>
+
+/* 🔥 DATA */
+let data = {
+"Delhi": ["New Delhi","Dwarka","Rohini"],
+"UP": ["Noida","Ghaziabad","Lucknow"],
+"Haryana": ["Gurgaon","Faridabad"]
+}
+
+/* 🔥 ELEMENTS */
+let stateSelect = document.getElementById("state")
+let citySelect = document.getElementById("city")
+
+/* 🔥 LOAD STATES */
+for(let state in data){
+let opt = document.createElement("option")
+opt.value = state
+opt.text = state
+stateSelect.add(opt)
+}
+
+/* 🔥 LOAD CITIES */
+stateSelect.addEventListener("change",function(){
+
+citySelect.innerHTML = '<option value="">Select City</option>'
+
+if(data[this.value]){
+data[this.value].forEach(city=>{
+let opt = document.createElement("option")
+opt.value = city
+opt.text = city
+citySelect.add(opt)
+})
+}
+
+})
+
+/* 🔥 SAVE PROFILE */
+function saveProfile(){
+
+let name = document.getElementById("name").value.trim()
+let phone = document.getElementById("phone").value.trim()
+let location = document.getElementById("city").value
+let college = document.getElementById("college").value.trim()
+let idCard = document.getElementById("idCard").files.length
+
+let msg = document.getElementById("msg")
+
+// ❌ VALIDATION
+if(name=="" || phone=="" || location=="" || college=="" || idCard==0){
+
+msg.style.display="block"
+msg.style.background="#ff4d4d"
+msg.style.color="white"
+msg.innerText="❌ Please fill all details + upload ID card"
+
+setTimeout(()=>{
+msg.style.display="none"
+},2000)
+
+return
+}
+
+// ✅ SAVE
+localStorage.setItem("student_name",name)
+localStorage.setItem("student_phone",phone)
+localStorage.setItem("student_location",location)
+localStorage.setItem("student_college",college)
+localStorage.setItem("isVerified","true")
+
+// ✅ SUCCESS
+msg.style.display="block"
+msg.style.background="#28a745"
+msg.style.color="white"
+msg.innerText="✅ Profile Completed"
+
+setTimeout(()=>{
+window.location.href="student_home.html"
+},1000)
+
+}
+
+</script>
+
+</body>
+</html>

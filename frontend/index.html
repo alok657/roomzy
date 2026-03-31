@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Roomzy</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI;
+}
+
+body{
+
+height:100vh;
+
+background:linear-gradient(135deg,#667eea,#764ba2);
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+color:white;
+
+text-align:center;
+
+}
+
+/* main splash box */
+
+.container{
+
+animation:fadein 1s ease;
+
+}
+
+h1{
+
+font-size:60px;
+letter-spacing:2px;
+
+}
+
+p{
+
+margin-top:10px;
+font-size:18px;
+opacity:0.9;
+
+}
+
+/* icon */
+
+.icon{
+
+font-size:80px;
+margin-bottom:15px;
+
+}
+
+/* animation */
+
+@keyframes fadein{
+
+from{
+opacity:0;
+transform:scale(0.8);
+}
+
+to{
+opacity:1;
+transform:scale(1);
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="icon">🏠</div>
+
+<h1>Roomzy</h1>
+
+<p>Find Your Perfect PG Easily</p>
+
+</div>
+
+
+<script>
+
+/* 2 second splash */
+
+setTimeout(function(){
+
+window.location.href="signup.html"
+
+},2000)
+
+</script>
+
+</body>
+
+</html>

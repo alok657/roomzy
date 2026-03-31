@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Saved PGs</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Segoe UI;
+background:#f4f6f9;
+}
+
+.container{
+width:90%;
+margin:20px auto;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:10px;
+margin-bottom:15px;
+display:flex;
+gap:15px;
+align-items:center;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+cursor:pointer;
+transition:0.3s;
+position:relative;
+}
+
+.card:hover{
+transform:scale(1.02);
+}
+
+.card img{
+width:120px;
+height:80px;
+object-fit:cover;
+border-radius:8px;
+}
+
+/* 🔥 REMOVE BUTTON */
+.remove{
+position:absolute;
+right:10px;
+top:10px;
+background:red;
+color:white;
+border:none;
+padding:5px 8px;
+border-radius:6px;
+cursor:pointer;
+font-size:12px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>❤️ Saved PGs</h2>
+
+<div id="savedContainer"></div>
+
+</div>
+
+<script>
+
+// 🔥 LOAD SAVED DATA
+let saved = JSON.parse(localStorage.getItem("saved")) || []
+
+let container = document.getElementById("savedContainer")
+
+function loadSaved(){
+
+container.innerHTML = ""
+
+if(saved.length === 0){
+container.innerHTML = "<p>No saved PGs yet 😅</p>"
+return
+}
+
+saved.forEach((p, i)=>{
+
+container.innerHTML += `
+<div class="card" onclick="openPG(${p.id})">
+
+<img src="${p.img}">
+
+<div>
+<b>${p.name}</b>
+<p>${p.city}</p>
+<p>${p.rent}</p>
+</div>
+
+<button class="remove" onclick="removeSaved(${i}, event)">❌</button>
+
+</div>
+`
+
+})
+
+}
+
+// 🔥 REMOVE FUNCTION
+function removeSaved(index, event){
+
+event.stopPropagation()  // 🔥 card click stop
+
+saved.splice(index,1)
+
+localStorage.setItem("saved", JSON.stringify(saved))
+
+loadSaved()
+
+}
+
+// 🔥 OPEN PG DETAILS
+function openPG(id){
+window.location.href = "pg_details.html?id=" + id
+}
+
+// 🔥 INITIAL LOAD
+loadSaved()
+
+</script>
+
+</body>
+</html>

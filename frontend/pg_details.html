@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>PG Details</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+
+body{
+margin:0;
+font-family:Segoe UI;
+background:#f4f6f9;
+}
+
+.navbar{
+background:#1e88e5;
+color:white;
+padding:15px;
+}
+
+.container{
+width:90%;
+margin:20px auto;
+display:grid;
+grid-template-columns:2fr 1fr;
+gap:20px;
+}
+
+.left{
+background:white;
+padding:20px;
+border-radius:10px;
+}
+
+.left h2{
+margin-top:10px;
+}
+
+.left p{
+color:#555;
+}
+
+/* ✅ IMAGE BOX FIX */
+.img-box{
+position:relative;
+}
+
+/* ✅ MAIN IMAGE FIX */
+.main-img{
+width:100%;
+height:280px;
+object-fit:cover;
+border-radius:10px;
+display:block;
+}
+
+/* ✅ HEART STYLE */
+#heart{
+position:absolute;
+top:10px;
+right:10px;
+font-size:26px;
+cursor:pointer;
+background:white;
+padding:6px;
+border-radius:50%;
+box-shadow:0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* ✅ GALLERY FIX */
+.gallery{
+display:flex;
+gap:10px;
+margin-top:10px;
+}
+
+.gallery:empty{
+display:none;
+}
+
+.gallery img{
+width:80px;
+height:60px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.right{
+display:flex;
+flex-direction:column;
+gap:15px;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:10px;
+}
+
+.card button{
+margin-top:10px;
+}
+
+button{
+width:100%;
+padding:10px;
+background:#1e88e5;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+.features{
+margin-top:10px;
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:8px;
+}
+
+.features p{
+background:#eef4ff;
+padding:10px;
+border-radius:10px;
+font-size:14px;
+font-weight:500;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="navbar">🏠 Roomzy</div>
+
+<div class="container">
+
+<div class="left">
+
+<!-- ✅ IMAGE + HEART -->
+<div class="img-box">
+<img id="mainImg" class="main-img">
+
+<span id="heart" onclick="toggleSave()">🤍</span>
+</div>
+
+<!-- ✅ GALLERY -->
+<div class="gallery" id="gallery"></div>
+
+<h2 id="name"></h2>
+<p id="city"></p>
+<h3 id="rent"></h3>
+
+<h3>Description</h3>
+<p id="desc"></p>
+
+<h3>✨ Features</h3>
+
+<div class="features">
+<p>📶 Free WiFi</p>
+<p>🍽️ Food Included</p>
+<p>❄️ AC Rooms</p>
+<p>🧹 Daily Cleaning</p>
+</div>
+
+</div>
+
+<div class="right">
+
+<div class="card">
+<h3>👤 Owner Details</h3>
+<p><b>Name:</b> <span id="ownerName"></span></p>
+<p><b>Contact:</b> <span id="ownerPhone"></span></p>
+
+<button onclick="callOwner()">Call Owner</button>
+<button onclick="bookPG()">📅 Book Now</button>
+
+<button onclick="deletePG()" style="background:red; margin-top:10px;">
+❌ Delete PG
+</button>
+
+<p id="deleteMsg" style="
+display:none;
+color:red;
+font-weight:bold;
+margin-top:10px;
+"></p>
+
+<p id="bookMsg" style="
+display:none;
+color:green;
+font-weight:bold;
+margin-top:10px;
+"></p>
+</div>
+
+<h3>Add Review</h3>
+
+<input id="reviewInput" placeholder="Write your review..." style="width:100%; padding:8px; margin-top:5px;">
+<br><br>
+
+<select id="rating">
+<option value="5">⭐ 5</option>
+<option value="4">⭐ 4</option>
+<option value="3">⭐ 3</option>
+<option value="2">⭐ 2</option>
+<option value="1">⭐ 1</option>
+</select>
+
+<br><br>
+
+<button onclick="addReview()">Submit Review</button>
+
+<div id="reviewList" style="margin-top:10px;"></div>
+
+<div class="card">
+<h3>Reviews ⭐</h3>
+<p>⭐ 4.5 Comfortable stay</p>
+<p>⭐ 4.2 Clean rooms</p>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let id = new URLSearchParams(window.location.search).get("id")
+
+fetch("http://127.0.0.1:5000/get_pg/" + id)
+.then(res => res.json())
+.then(data => {
+
+console.log("DATA:", data) // debug
+
+let main = document.getElementById("mainImg")
+let gallery = document.getElementById("gallery")
+
+// ✅ SAFE MAIN IMAGE
+main.src = data.image || "https://via.placeholder.com/400"
+
+// ✅ SAFE IMAGES PARSE
+let images = []
+
+try{
+images = typeof data.images === "string" 
+? JSON.parse(data.images) 
+: data.images
+}catch{
+images = []
+}
+
+// ✅ GALLERY
+gallery.innerHTML = ""
+
+// ✅ SMART GALLERY FIX (WORKS IN ALL CASES)
+
+gallery.innerHTML = ""
+
+let finalImages = []
+
+try{
+finalImages = typeof data.images === "string"
+? JSON.parse(data.images)
+: data.images
+}catch{
+finalImages = []
+}
+
+// 🔥 CASE 1: backend images mil gayi
+if(finalImages && finalImages.length > 0){
+
+finalImages.forEach(img=>{
+
+let fullPath = img.startsWith("http")
+? img
+: "http://127.0.0.1:5000/static/images/" + img
+
+gallery.innerHTML += `
+<img src="${fullPath}" onclick="changeImg('${fullPath}')">
+`
+
+})
+
+}
+
+// 🔥 CASE 2: backend fail → fallback images (IMPORTANT)
+else{
+
+for(let i=1; i<=3; i++){
+
+let img = `http://127.0.0.1:5000/static/images/pg${id}_${i}.jpg`
+
+gallery.innerHTML += `
+<img src="${img}" onclick="changeImg('${img}')"
+onerror="this.style.display='none'">
+`
+
+}
+
+}
+
+// ✅ DETAILS SAFE
+document.getElementById("name").innerText = data.pg_name || "No Name"
+document.getElementById("city").innerText = data.city || "Unknown"
+document.getElementById("rent").innerText = "₹ " + (data.rent || "0")
+document.getElementById("desc").innerText = data.description || "No description"
+
+// ✅ OWNER SAFE
+document.getElementById("ownerName").innerText = data.owner_name || "N/A"
+
+let phone = (data.owner_phone || "0000000000").toString()
+let masked = phone.slice(0,3) + "xxxx" + phone.slice(-3)
+
+document.getElementById("ownerPhone").innerText = masked
+
+})
+.catch(err=>{
+console.log("ERROR:", err)
+alert("Error loading PG 😢")
+})
+
+function changeImg(src){
+document.getElementById("mainImg").src = src
+}
+
+function callOwner(){
+let phone = document.getElementById("ownerPhone").innerText
+window.location.href = "tel:" + phone
+}
+
+function bookPG(){
+
+let id = new URLSearchParams(window.location.search).get("id")
+
+let name = document.getElementById("name").innerText
+let city = document.getElementById("city").innerText
+let rent = document.getElementById("rent").innerText
+let img = document.getElementById("mainImg").src
+
+let bookings = JSON.parse(localStorage.getItem("bookings")) || []
+let msg = document.getElementById("bookMsg")
+
+let exists = bookings.find(b => b.id == id)
+
+if(exists){
+msg.style.display = "block"
+msg.innerText = "⚠️ Already Booked"
+setTimeout(()=> msg.style.display="none",2000)
+return
+}
+
+bookings.push({id,name,city,rent,img})
+localStorage.setItem("bookings", JSON.stringify(bookings))
+
+msg.style.display = "block"
+msg.innerText = "✅ Added to Bookings"
+setTimeout(()=> msg.style.display="none",2000)
+}
+
+function toggleSave(){
+
+let id = new URLSearchParams(window.location.search).get("id")
+
+let name = document.getElementById("name").innerText
+let city = document.getElementById("city").innerText
+let rent = document.getElementById("rent").innerText
+let img = document.getElementById("mainImg").src
+
+let saved = JSON.parse(localStorage.getItem("saved")) || []
+let heart = document.getElementById("heart")
+
+let exists = saved.find(p => p.id == id)
+
+if(exists){
+saved = saved.filter(p => p.id != id)
+heart.innerText = "🤍"
+}else{
+saved.push({id,name,city,rent,img})
+heart.innerText = "❤️"
+}
+
+localStorage.setItem("saved", JSON.stringify(saved))
+}
+
+window.onload = function(){
+let id = new URLSearchParams(window.location.search).get("id")
+let saved = JSON.parse(localStorage.getItem("saved")) || []
+let heart = document.getElementById("heart")
+
+if(saved.find(p => p.id == id)){
+heart.innerText = "❤️"
+}
+}
+
+function addReview(){
+
+let text = document.getElementById("reviewInput").value.trim()
+let rating = document.getElementById("rating").value
+
+if(text === ""){
+alert("Write something first 😅")
+return
+}
+
+let id = new URLSearchParams(window.location.search).get("id")
+
+let reviews = JSON.parse(localStorage.getItem("reviews")) || {}
+
+if(!reviews[id]){
+reviews[id] = []
+}
+
+reviews[id].push({
+text,
+rating
+})
+
+localStorage.setItem("reviews", JSON.stringify(reviews))
+
+document.getElementById("reviewInput").value = ""
+
+loadReviews()
+}
+
+function loadReviews(){
+
+let id = new URLSearchParams(window.location.search).get("id")
+
+let reviews = JSON.parse(localStorage.getItem("reviews")) || {}
+
+let list = document.getElementById("reviewList")
+
+list.innerHTML = ""
+
+if(!reviews[id]){
+list.innerHTML = "<p>No reviews yet 😅</p>"
+return
+}
+
+reviews[id].forEach(r=>{
+list.innerHTML += `
+<p>⭐ ${r.rating} - ${r.text}</p>
+`
+})
+}
+
+loadReviews()
+
+function deletePG(){
+
+let id = new URLSearchParams(window.location.search).get("id")
+
+fetch("http://127.0.0.1:5000/delete_pg/" + id,{
+method:"DELETE"
+})
+.then(res=>res.json())
+.then(data=>{
+
+// 🔥 direct redirect (instant)
+window.location.href = "student_home.html"
+
+})
+.catch(err=>{
+console.log("Delete error:", err)
+})
+
+}
+
+</script>
+
+</body>
+</html>

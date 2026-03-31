@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Bookings</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Segoe UI;
+background:#f4f6f9;
+}
+
+.container{
+width:90%;
+margin:20px auto;
+}
+
+h2{
+margin-bottom:15px;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:10px;
+margin-bottom:15px;
+display:flex;
+gap:15px;
+align-items:center;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+cursor:pointer;
+transition:0.3s;
+}
+
+.card:hover{
+transform:scale(1.02);
+}
+
+.card img{
+width:120px;
+height:80px;
+object-fit:cover;
+border-radius:8px;
+}
+
+.remove{
+margin-left:auto;
+background:red;
+color:white;
+border:none;
+padding:6px 10px;
+border-radius:6px;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>📅 Your Bookings</h2>
+
+<div id="bookingList"></div>
+
+</div>
+
+<script>
+
+let bookings = JSON.parse(localStorage.getItem("bookings")) || []
+
+let container = document.getElementById("bookingList")
+
+function loadBookings(){
+
+container.innerHTML = ""
+
+if(bookings.length === 0){
+container.innerHTML = "<p>No bookings yet 😅</p>"
+return
+}
+
+bookings.forEach((b,i)=>{
+
+container.innerHTML += `
+<div class="card" onclick="openPG(${b.id})">
+
+<img src="${b.img}">
+
+<div>
+<b>${b.name}</b>
+<p>${b.city}</p>
+<p>${b.rent}</p>
+</div>
+
+<button class="remove" onclick="removeBooking(${i}, event)">❌</button>
+
+</div>
+`
+
+})
+
+}
+
+// 🔥 OPEN PG DETAILS
+function openPG(id){
+window.location.href = "pg_details.html?id=" + id
+}
+
+// 🔥 REMOVE (button click pe card click na ho)
+function removeBooking(index, event){
+
+event.stopPropagation()
+
+bookings.splice(index,1)
+
+localStorage.setItem("bookings", JSON.stringify(bookings))
+
+loadBookings()
+
+}
+
+loadBookings()
+
+</script>
+
+</body>
+</html>

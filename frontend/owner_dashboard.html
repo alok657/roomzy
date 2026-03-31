@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Roomzy - Owner Dashboard</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background: linear-gradient(135deg,#667eea,#764ba2);
+}
+
+.container{
+width:340px;
+padding:25px;
+border-radius:20px;
+background: rgba(255,255,255,0.15);
+backdrop-filter: blur(10px);
+box-shadow:0 15px 35px rgba(0,0,0,0.2);
+text-align:center;
+}
+
+h2{
+color:white;
+margin-bottom:15px;
+font-size:20px;
+}
+
+input,textarea{
+width:100%;
+padding:10px;
+margin-bottom:10px;
+border:none;
+border-radius:10px;
+background:#f2f2f2;
+font-size:13px;
+}
+
+/* 🔥 LABEL STYLE */
+label{
+display:block;
+text-align:left;
+color:white;
+margin-bottom:3px;
+font-size:13px;
+}
+
+button{
+width:100%;
+padding:10px;
+border:none;
+border-radius:10px;
+background:linear-gradient(90deg,#ff7e5f,#feb47b);
+color:white;
+font-size:15px;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+transform:scale(1.03);
+}
+
+#msg{
+display:none;
+margin-top:15px;
+padding:10px;
+border-radius:8px;
+color:white;
+font-weight:bold;
+}
+
+#msg{
+position:fixed;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+background:#ff4d4d;
+color:white;
+padding:10px 15px;
+border-radius:8px;
+font-size:14px;
+display:none;
+z-index:999;
+}
+
+#msg{
+transition:0.3s;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Add New PG</h2>
+
+<input id="pg_name" placeholder="PG Name">
+<input id="city" placeholder="City">
+<input id="rent" placeholder="Rent">
+
+<!-- 🔥 PG IMAGE -->
+<label>🏠 PG Image</label>
+<input type="file" id="pgImage">
+
+<!-- 🔥 ROOM IMAGES -->
+<label>🛏️ Room Images</label>
+<input type="file" id="roomImages" multiple>
+
+<textarea id="description" placeholder="Description"></textarea>
+<input id="owner" placeholder="Owner Name">
+<input id="phone" placeholder="Owner Phone">
+
+<button onclick="addPG()">Add PG</button>
+
+<div id="msg"></div>
+
+</div>
+
+<script>
+
+function addPG(){
+
+let name=document.getElementById("pg_name").value.trim()
+let city=document.getElementById("city").value.trim()
+let rent=document.getElementById("rent").value.trim()
+let description=document.getElementById("description").value.trim()
+let owner=document.getElementById("owner").value.trim()
+let phone = document.getElementById("phone").value.trim()
+
+let pgImageInput=document.getElementById("pgImage")
+let roomImagesInput=document.getElementById("roomImages")
+
+let msg=document.getElementById("msg")
+
+if(name=="" || city=="" || rent=="" || description=="" || owner=="" || !pgImageInput.files[0]){
+
+msg.style.display="block"
+msg.style.background="#ff4d4d"
+msg.innerText="Please fill all details + select images"
+
+setTimeout(()=>{ msg.style.display="none" },2000)
+return
+}
+
+/* 🔥 READ PG IMAGE */
+let reader=new FileReader()
+
+reader.onload=function(){
+
+let pgImage=reader.result
+
+let roomImgs=[]
+let files=roomImagesInput.files
+
+if(files.length==0){
+    finish(pgImage, roomImgs)
+    return
+}
+
+let count=0
+
+for(let i=0;i<files.length;i++){
+
+let r=new FileReader()
+
+r.onload=function(){
+roomImgs.push(r.result)
+count++
+
+if(count===files.length){
+finish(pgImage, roomImgs)
+}
+}
+
+r.readAsDataURL(files[i])
+}
+
+}
+
+/* 🔥 FINAL SEND */
+function finish(pgImage, roomImgs){
+
+fetch("http://127.0.0.1:5000/add_pg",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+pg_name:name,
+city:city,
+rent:rent,
+image:pgImage,
+images:roomImgs,
+description:description,
+owner_name:owner,
+owner_phone:phone,
+owner_id: localStorage.getItem("owner_id"),
+})
+
+})
+
+.then(res=>res.json())
+
+.then(data=>{
+
+msg.style.display="block"
+msg.style.background="#28a745"
+msg.innerText=data.message || "PG Added Successfully"
+
+document.getElementById("pg_name").value=""
+document.getElementById("city").value=""
+document.getElementById("rent").value=""
+document.getElementById("description").value=""
+document.getElementById("owner").value=""
+document.getElementById("pgImage").value=""
+document.getElementById("roomImages").value=""
+
+setTimeout(()=>{ msg.style.display="none" },2000)
+
+})
+
+}
+
+reader.readAsDataURL(pgImageInput.files[0])
+
+}
+
+</script>
+
+</body>
+</html>

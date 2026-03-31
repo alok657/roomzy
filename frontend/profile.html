@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>My Profile</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+font-family:Segoe UI;
+}
+
+body{
+
+margin:0;
+height:100vh;
+
+background:linear-gradient(135deg,#667eea,#764ba2);
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+}
+
+.container{
+
+width:400px;
+
+background:rgba(255,255,255,0.15);
+backdrop-filter:blur(15px);
+
+padding:35px;
+
+border-radius:15px;
+
+box-shadow:0 8px 32px rgba(0,0,0,0.3);
+
+color:white;
+
+text-align:center;
+
+}
+
+h2{
+margin-bottom:20px;
+}
+
+input{
+
+width:100%;
+padding:12px;
+margin:10px 0;
+
+border:none;
+border-radius:6px;
+
+}
+
+button{
+
+width:100%;
+padding:12px;
+
+border:none;
+
+background:linear-gradient(90deg,#ff7a18,#ffb347);
+
+color:white;
+
+border-radius:6px;
+
+cursor:pointer;
+
+}
+
+img{
+
+width:80px;
+height:80px;
+
+border-radius:50%;
+
+margin-bottom:10px;
+
+}
+
+select{
+width:100%;
+padding:12px;
+margin:10px 0;
+border:none;
+border-radius:6px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>My Profile</h2>
+
+<img id="photoPreview" src="https://i.pravatar.cc/80">
+
+<input type="file" id="photo">
+
+<input id="name">
+
+<input id="phone">
+
+<input id="email" disabled>
+
+<select id="gender">
+<option value="">Select Gender</option>
+<option value="male">Male</option>
+<option value="female">Female</option>
+<option value="other">Other</option>
+</select>
+
+<button onclick="save()">Save Changes</button>
+
+<p id="msg" style="display:none; color:green; margin-top:10px;">
+✅ Profile Updated Successfully
+</p>
+
+</div>
+
+<script>
+
+document.getElementById("name").value = localStorage.getItem("student_name") || ""
+document.getElementById("phone").value = localStorage.getItem("student_phone") || ""
+document.getElementById("gender").value = localStorage.getItem("student_gender") || ""
+document.getElementById("email").value = localStorage.getItem("user_email") || ""
+
+let pic = localStorage.getItem("profile_pic")
+
+if(pic){
+    document.getElementById("photoPreview").src = pic
+}
+
+/* upload photo */
+document.getElementById("photo").addEventListener("change",function(){
+
+    let reader = new FileReader()
+
+    reader.onload = function(){
+        localStorage.setItem("profile_pic", reader.result)
+        document.getElementById("photoPreview").src = reader.result
+    }
+
+    reader.readAsDataURL(this.files[0])
+
+})
+
+
+function save(){
+
+    localStorage.setItem("student_name", document.getElementById("name").value)
+    localStorage.setItem("student_phone", document.getElementById("phone").value)
+    localStorage.setItem("student_gender", document.getElementById("gender").value)
+
+    // 🔥 MESSAGE SHOW
+    let msg = document.getElementById("msg")
+
+    msg.style.display = "block"
+
+    
+    setTimeout(()=>{
+        msg.style.display = "none"
+    }, 3000)
+}
+
+</script>
+
+</body>
+
+</html>

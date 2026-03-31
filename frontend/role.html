@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Select Role</title>
+
+<style>
+
+body{
+margin:0;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(135deg,#667eea,#764ba2);
+font-family:Segoe UI;
+}
+
+.container{
+background:white;
+padding:30px;
+border-radius:10px;
+text-align:center;
+}
+
+button{
+margin:10px;
+padding:12px 20px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+color:white;
+}
+
+.student{background:#1e88e5;}
+.owner{background:#22c55e;}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Select Your Role</h2>
+
+<button class="student" onclick="selectRole('student')">Student</button>
+<button class="owner" onclick="selectRole('owner')">Owner</button>
+
+</div>
+
+<script>
+
+function selectRole(role){
+
+localStorage.setItem("user_role",role)
+
+if(role=="student"){
+window.location.href="student_profile.html"
+}else{
+window.location.href="owner_dashboard.html"
+}
+
+}
+
+</script>
+
+</body>
+
+</html>

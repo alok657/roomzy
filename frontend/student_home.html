@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Roomzy</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+
+body{
+margin:0;
+font-family:Segoe UI;
+background:#eaf2ff;
+}
+
+.navbar{
+width:90%;
+margin:20px auto;
+background:white;
+padding:15px 25px;
+border-radius:20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+.nav-links a{
+margin-right:15px;
+text-decoration:none;
+color:#333;
+font-weight:500;
+}
+
+.profile{
+display:flex;
+align-items:center;
+gap:6px;
+}
+
+#verifiedBadge{
+display:none;
+background:#1da1f2;
+color:white;
+border-radius:50%;
+padding:2px 5px;
+font-size:10px;
+font-weight:bold;
+}
+
+.profile img{
+width:35px;
+height:35px;
+border-radius:50%;
+border:2px solid #1e88e5;
+}
+
+.hero{
+width:90%;
+margin:20px auto;
+background:linear-gradient(135deg,#4facfe,#00c6ff);
+padding:30px;
+border-radius:20px;
+color:white;
+}
+
+#map{
+height:300px;
+width:90%;
+margin:20px auto;
+border-radius:15px;
+}
+
+.main{
+width:90%;
+margin:auto;
+display:grid;
+grid-template-columns:3fr 1fr;
+gap:20px;
+}
+
+.pg-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+}
+
+.card{
+background:white;
+border-radius:12px;
+overflow:hidden;
+cursor:pointer;
+box-shadow:0 4px 15px rgba(0,0,0,0.1);
+transition:0.3s;
+position:relative;
+}
+
+.card:hover{
+transform:translateY(-5px);
+}
+
+.card img{
+width:100%;
+height:150px;
+object-fit:cover;
+}
+
+.verified{
+position:absolute;
+top:8px;
+left:8px;
+background:#22c55e;
+color:white;
+padding:4px 8px;
+font-size:12px;
+border-radius:6px;
+}
+
+.save-btn{
+position:absolute;
+top:8px;
+right:8px;
+background:white;
+border-radius:50%;
+padding:6px;
+cursor:pointer;
+box-shadow:0 2px 8px rgba(0,0,0,0.2);
+}
+
+.card-body{
+padding:10px;
+}
+
+.price{
+color:#1e88e5;
+font-weight:bold;
+}
+
+.facilities{
+margin-top:6px;
+display:flex;
+gap:10px;
+}
+
+.wifi{color:#1e88e5;}
+.food{color:#22c55e;}
+.ac{color:#6366f1;}
+.clean{color:#f59e0b;}
+
+.sidebar{
+display:flex;
+flex-direction:column;
+gap:15px;
+}
+
+.widget{
+background:white;
+padding:15px;
+border-radius:10px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.widget button{
+background:#1e88e5;
+color:white;
+border:none;
+padding:8px;
+border-radius:6px;
+cursor:pointer;
+width:100%;
+}
+
+.widget input{
+width:100%;
+padding:8px;
+margin-bottom:8px;
+border-radius:6px;
+border:1px solid #ddd;
+}
+
+
+
+</style>
+
+</head>
+
+<body>
+
+<div class="navbar">
+<h2>🏠 Roomzy</h2>
+
+<div class="nav-links">
+<a href="student_home.html">Home</a>
+<a href="saved.html">Saved</a>
+<a href="bookings.html">Bookings</a>
+</div>
+
+<div class="profile" onclick="openProfile()">
+<img id="profilePic" src="https://i.pravatar.cc/40">
+<span id="username"></span>
+<span id="verifiedBadge" style="display:none;">✔️</span>
+</div>
+</div>
+
+<div class="hero">
+<h2 id="welcome"></h2>
+<p>"Your Ideal Student Home, Just Step Away"</p>
+</div>
+
+<div id="map"></div>
+
+<div class="main">
+
+<div>
+<h3>Recommended PG</h3>
+<div class="pg-grid" id="pgContainer"></div>
+</div>
+
+<div class="sidebar">
+
+<div class="widget">
+<h3>Budget Calculator</h3>
+<input id="budget" placeholder="Monthly Budget ₹">
+<input id="travel" placeholder="Travel Cost ₹">
+<button onclick="calc()">Estimate Savings</button>
+<p id="result"></p>
+</div>
+
+<div class="widget">
+<h3>Safety Tips</h3>
+<p>✔ Verified Listings</p>
+<p>✔ Reviews</p>
+<p>✔ Safe Area</p>
+</div>
+
+<div class="widget">
+<h3>❤️ Saved Listings</h3>
+<p><span id="savedCount">0</span> Favorites</p>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+
+/* ✅ IMAGE ARRAY FIXED */
+
+const roomImages = [
+"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=60",
+"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=60",
+"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=60",
+"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=60",
+"https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=800&q=60",
+"https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=800&q=60"
+]
+
+/* USER */
+
+let name = localStorage.getItem("student_name") || "User"
+let pic = localStorage.getItem("profile_pic")
+
+document.getElementById("username").innerText = name
+document.getElementById("welcome").innerText = "Welcome, " + name + "!"
+
+if(pic){
+document.getElementById("profilePic").src = pic
+}
+
+let verified = localStorage.getItem("isVerified")
+
+if(verified === "true"){
+document.getElementById("verifiedBadge").style.display = "inline"
+}
+
+/* SAVED */
+
+let savedPGs = JSON.parse(localStorage.getItem("saved_pgs")) || []
+
+function toggleSave(id,e){
+e.stopPropagation()
+
+if(savedPGs.includes(id)){
+savedPGs = savedPGs.filter(p=>p!=id)
+}else{
+savedPGs.push(id)
+}
+
+localStorage.setItem("saved_pgs",JSON.stringify(savedPGs))
+updateSavedCount()
+loadPG()
+}
+
+function updateSavedCount(){
+document.getElementById("savedCount").innerText = savedPGs.length
+}
+
+updateSavedCount()
+
+/* MAP */
+
+const cityCoords={
+Delhi:[28.6139,77.2090],
+Noida:[28.5355,77.3910],
+Ghaziabad:[28.6692,77.4538]
+}
+
+let map=L.map('map').setView(cityCoords["Delhi"],11)
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map)
+
+/* CITY SELECT */
+
+let citySelect=document.createElement("select")
+citySelect.innerHTML=`
+<option value="Delhi">Delhi</option>
+<option value="Noida">Noida</option>
+<option value="Ghaziabad">Ghaziabad</option>
+`
+citySelect.style.margin="10px"
+citySelect.style.padding="8px"
+
+document.querySelector(".hero").appendChild(citySelect)
+
+/* 🔥 LOAD PG */
+
+function loadPG(){
+
+fetch("http://127.0.0.1:5000/get_pgs")
+.then(res=>res.json())
+.then(data=>{
+
+let filtered = data
+
+let container=document.getElementById("pgContainer")
+container.innerHTML=""
+
+map.eachLayer(l=>{
+if(l instanceof L.Marker) map.removeLayer(l)
+})
+
+map.setView(cityCoords[citySelect.value],12)
+
+filtered.forEach((pg,i)=>{
+
+let names = [
+"Sunrise PG",
+"Urban Nest",
+"Royal Stay",
+"Green View",
+"City Comfort",
+"Elite Stay",
+"Happy Homes",
+"Skyline PG",
+"Comfort Zone",
+"Dream Stay",
+"Peaceful PG",
+"Golden Nest",
+"Blue Haven",
+"Smart Living",
+"Royal Comfort"
+]
+
+let pgName = names[i % names.length]
+
+let index = i + 1   
+
+let lat=cityCoords[citySelect.value][0]+(Math.random()-0.5)/40
+let lon=cityCoords[citySelect.value][1]+(Math.random()-0.5)/40
+
+let marker=L.marker([lat,lon]).addTo(map)
+marker.on("click",()=>openPG(pg.id))   
+
+let img = `http://127.0.0.1:5000/static/images/pg${index}.jpg`
+
+container.innerHTML+=`
+<div class="card" onclick="openPG(${pg.id})">
+
+<div class="verified">✔ Verified</div>
+
+<div class="save-btn" onclick="toggleSave(${pg.id},event)">
+<i class="fa-solid fa-heart" style="color:${savedPGs.includes(pg.id)?'red':'#ccc'}"></i>
+</div>
+
+<img src="${pg.image}">
+
+<div class="card-body">
+<b>${pg.pg_name}</b>
+<p>${pg.city}</p>
+<div class="price">₹ ${pg.rent}</div>
+
+<div class="facilities">
+<i class="fa-solid fa-wifi wifi"></i>
+<i class="fa-solid fa-utensils food"></i>
+<i class="fa-solid fa-snowflake ac"></i>
+<i class="fa-solid fa-broom clean"></i>
+</div>
+
+</div>
+</div>
+`
+
+})
+
+})
+}
+
+loadPG()
+citySelect.addEventListener("change",loadPG)
+
+/* 🔥 MAP CLICK WORKING */
+
+map.on("click", function(e){
+
+let lat = e.latlng.lat
+let lng = e.latlng.lng
+
+fetch("http://127.0.0.1:5000/get_pgs")
+.then(res=>res.json())
+.then(data=>{
+
+let container=document.getElementById("pgContainer")
+container.innerHTML=""
+
+/* markers clear */
+map.eachLayer(l=>{
+if(l instanceof L.Marker) map.removeLayer(l)
+})
+
+/* new center */
+map.setView([lat,lng],13)
+
+/* user marker */
+L.marker([lat,lng]).addTo(map).bindPopup("Selected Location").openPopup()
+
+/* show PGs */
+data.forEach(pg=>{
+
+let mlat = lat + (Math.random()-0.5)/20
+let mlng = lng + (Math.random()-0.5)/20
+
+let marker=L.marker([mlat,mlng]).addTo(map)
+marker.on("click",()=>openPG(pg.id))
+
+let img = (pg.images && pg.images.length > 0) 
+? pg.images[0] 
+: pg.image
+
+container.innerHTML+=`
+<div class="card" onclick="openPG(${pg.id})">
+<img src="${img}">
+<div class="card-body">
+<b>${pg.pg_name}</b>
+<p>${pg.city}</p>
+</div>
+</div>
+`
+
+})
+
+})
+})
+
+function openPG(id){
+window.location.href="pg_details.html?id="+id
+}
+
+function openProfile(){
+window.location.href="profile.html"
+}
+
+function calc(){
+let b=parseInt(document.getElementById("budget").value)||0
+let t=parseInt(document.getElementById("travel").value)||0
+document.getElementById("result").innerText="Remaining ₹ "+(b-t)
+}
+
+</script>
+
+</body>
+</html>
