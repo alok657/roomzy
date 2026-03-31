@@ -333,7 +333,7 @@ document.querySelector(".hero").appendChild(citySelect)
 
 function loadPG(){
 
-fetch("http://127.0.0.1:5000/get_pgs")
+fetch("https://roomzy-backend-phb5.onrender.com/get_pgs")
 .then(res=>res.json())
 .then(data=>{
 
@@ -378,7 +378,7 @@ let lon=cityCoords[citySelect.value][1]+(Math.random()-0.5)/40
 let marker=L.marker([lat,lon]).addTo(map)
 marker.on("click",()=>openPG(pg.id))   
 
-let img = `http://127.0.0.1:5000/static/images/pg${index}.jpg`
+let img = `https://roomzy-backend-phb5.onrender.com/static/images/pg${index}.jpg`
 
 container.innerHTML+=`
 <div class="card" onclick="openPG(${pg.id})">
@@ -422,7 +422,7 @@ map.on("click", function(e){
 let lat = e.latlng.lat
 let lng = e.latlng.lng
 
-fetch("http://127.0.0.1:5000/get_pgs")
+fetch("https://roomzy-backend-phb5.onrender.com/get_pgs")
 .then(res=>res.json())
 .then(data=>{
 

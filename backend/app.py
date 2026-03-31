@@ -212,7 +212,6 @@ def get_pgs():
 
     return jsonify(pgs)
 
-
 import json
 
 @app.route("/get_pg/<int:id>")
