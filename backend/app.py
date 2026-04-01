@@ -12,12 +12,6 @@ def get_db():
     conn = psycopg2.connect(DATABASE_URL)
     return conn
 
-
-@app.route("/")
-def home():
-    return "Roomzy Backend Running ✅"
-
-
 # ================= DB SETUP =================
 @app.route("/setupdb")
 def setupdb():
