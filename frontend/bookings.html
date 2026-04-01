@@ -92,9 +92,12 @@ container.innerHTML += `
 <img src="${b.img}">
 
 <div>
-<b>${b.name}</b>
+<b>${b.pgName}</b>
 <p>${b.city}</p>
 <p>${b.rent}</p>
+
+<p><b>Name:</b> ${b.name}</p>
+<p><b>Date:</b> ${b.date}</p>
 </div>
 
 <button class="remove" onclick="removeBooking(${i}, event)">❌</button>

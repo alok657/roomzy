@@ -155,13 +155,27 @@ msg.innerText="Login successful"
 
 localStorage.setItem("user_email",data.email)
 localStorage.setItem("user_name",data.name)
-localStorage.setItem("user_role",data.role)
 
-setTimeout(()=>{
+// 🔥 LOCAL ROLE CHECK (IMPORTANT)
+let role = localStorage.getItem("user_role")
 
-window.location.href="role.html"
+if(role){
 
-},1000)
+    // 🔁 OLD USER → direct home
+    if(role === "student"){
+        window.location.href = "student_home.html"
+    }
+    else{
+        window.location.href = "owner_dashboard.html"
+    }
+
+}
+else{
+
+    // 🆕 NEW USER → role select page
+    window.location.href = "role.html"
+
+}
 
 }
 else{

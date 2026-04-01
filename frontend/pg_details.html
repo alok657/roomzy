@@ -178,7 +178,17 @@ font-weight:500;
 <p><b>Contact:</b> <span id="ownerPhone"></span></p>
 
 <button onclick="callOwner()">Call Owner</button>
-<button onclick="bookPG()">📅 Book Now</button>
+<button onclick="showForm()">📅 Book Now</button>
+
+<div id="bookingForm" style="display:none; margin-top:10px;">
+
+<input id="b_name" placeholder="Your Name" style="width:100%; padding:8px; margin:5px 0;">
+<input id="b_phone" placeholder="Phone Number" style="width:100%; padding:8px; margin:5px 0;">
+<input id="b_date" type="date" style="width:100%; padding:8px; margin:5px 0;">
+
+<button onclick="confirmBooking()">Confirm Booking</button>
+
+</div>
 
 <button onclick="deletePG()" style="background:red; margin-top:10px;">
 ❌ Delete PG
@@ -236,31 +246,12 @@ fetch("https://roomzy-backend-phb5.onrender.com/get_pg/" + id)
 .then(res => res.json())
 .then(data => {
 
-console.log("DATA:", data) // debug
+console.log("DATA:", data)
 
 let main = document.getElementById("mainImg")
 let gallery = document.getElementById("gallery")
 
-// ✅ SAFE MAIN IMAGE
 main.src = data.image || "https://via.placeholder.com/400"
-
-// ✅ SAFE IMAGES PARSE
-let images = []
-
-try{
-images = typeof data.images === "string" 
-? JSON.parse(data.images) 
-: data.images
-}catch{
-images = []
-}
-
-// ✅ GALLERY
-gallery.innerHTML = ""
-
-// ✅ SMART GALLERY FIX (WORKS IN ALL CASES)
-
-gallery.innerHTML = ""
 
 let finalImages = []
 
@@ -272,7 +263,8 @@ finalImages = typeof data.images === "string"
 finalImages = []
 }
 
-// 🔥 CASE 1: backend images mil gayi
+gallery.innerHTML = ""
+
 if(finalImages && finalImages.length > 0){
 
 finalImages.forEach(img=>{
@@ -288,8 +280,6 @@ gallery.innerHTML += `
 })
 
 }
-
-// 🔥 CASE 2: backend fail → fallback images (IMPORTANT)
 else{
 
 for(let i=1; i<=3; i++){
@@ -305,13 +295,11 @@ onerror="this.style.display='none'">
 
 }
 
-// ✅ DETAILS SAFE
 document.getElementById("name").innerText = data.pg_name || "No Name"
 document.getElementById("city").innerText = data.city || "Unknown"
 document.getElementById("rent").innerText = "₹ " + (data.rent || "0")
 document.getElementById("desc").innerText = data.description || "No description"
 
-// ✅ OWNER SAFE
 document.getElementById("ownerName").innerText = data.owner_name || "N/A"
 
 let phone = (data.owner_phone || "0000000000").toString()
@@ -461,14 +449,54 @@ method:"DELETE"
 })
 .then(res=>res.json())
 .then(data=>{
-
-// 🔥 direct redirect (instant)
 window.location.href = "student_home.html"
-
 })
 .catch(err=>{
 console.log("Delete error:", err)
 })
+
+}
+
+// 🔥 FIXED FUNCTIONS (OUTSIDE)
+function showForm(){
+document.getElementById("bookingForm").style.display = "block"
+}
+
+function confirmBooking(){
+
+let name = document.getElementById("b_name").value.trim()
+let phone = document.getElementById("b_phone").value.trim()
+let date = document.getElementById("b_date").value
+
+if(name=="" || phone=="" || date==""){
+alert("Fill all details")
+return
+}
+
+let id = new URLSearchParams(window.location.search).get("id")
+let pgName = document.getElementById("name").innerText
+let city = document.getElementById("city").innerText
+let rent = document.getElementById("rent").innerText
+let img = document.getElementById("mainImg").src
+
+let bookings = JSON.parse(localStorage.getItem("bookings")) || []
+
+bookings.push({
+id,
+pgName,
+city,
+rent,
+img,
+name,
+phone,
+date
+})
+
+localStorage.setItem("bookings", JSON.stringify(bookings))
+
+alert("✅ Booking Confirmed")
+
+window.location.href = "bookings.html"
 
 }
 

@@ -1,15 +1,15 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import sqlite3
+import psycopg2
 import json
 
-app = Flask(__name__,static_folder="static")
+app = Flask(__name__, static_folder="static")
 CORS(app)
 
-
+# 🔥 DATABASE CONNECT
 def get_db():
-    conn = sqlite3.connect("roomzy.db")
-    conn.row_factory = sqlite3.Row
+    DATABASE_URL = "postgresql://roomzy_db_user:pJTpwafq3fNUQT9XNeRGM76T5mncgx65@dpg-d76i815m5p6s73bnfsc0-a/roomzy_db"
+    conn = psycopg2.connect(DATABASE_URL)
     return conn
 
 
@@ -28,9 +28,9 @@ def setupdb():
     # USERS
     cur.execute("""
     CREATE TABLE IF NOT EXISTS users(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         name TEXT,
-        email TEXT,
+        email TEXT UNIQUE,
         password TEXT,
         role TEXT
     )
@@ -39,18 +39,22 @@ def setupdb():
     # PGS
     cur.execute("""
     CREATE TABLE IF NOT EXISTS pgs(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         pg_name TEXT,
         city TEXT,
         rent INTEGER,
         description TEXT,
         image TEXT,
         owner_name TEXT,
-        owner_phone TEXT
+        owner_phone TEXT,
+        images TEXT,
+        owner_id INTEGER
     )
     """)
 
     conn.commit()
+    conn.close()
+
     return "Database Ready ✅"
 
 
@@ -63,11 +67,13 @@ def signup():
     cur = conn.cursor()
 
     cur.execute(
-        "INSERT INTO users (name,email,password,role) VALUES (?,?,?,?)",
+        "INSERT INTO users (name,email,password,role) VALUES (%s,%s,%s,%s)",
         (data["name"], data["email"], data["password"], "")
     )
 
     conn.commit()
+    conn.close()
+
     return {"message": "Signup success"}
 
 
@@ -79,18 +85,20 @@ def login():
     cur = conn.cursor()
 
     cur.execute(
-        "SELECT * FROM users WHERE email=? AND password=?",
+        "SELECT * FROM users WHERE email=%s AND password=%s",
         (data["email"], data["password"])
     )
 
     user = cur.fetchone()
 
+    conn.close()
+
     if user:
         return {
             "status": "success",
-            "name": user["name"],
-            "email": user["email"],
-            "role": user["role"]
+            "name": user[1],
+            "email": user[2],
+            "role": user[4]
         }
     else:
         return {"status": "error", "message": "Invalid login"}
@@ -105,13 +113,12 @@ def add_pg():
     conn = get_db()
     cur = conn.cursor()
 
-    # 🔥 NEW
     owner_id = data.get("owner_id")
-    images = json.dumps(data.get("images", []))  # list → string
+    images = json.dumps(data.get("images", []))
 
     cur.execute("""
     INSERT INTO pgs (pg_name, city, rent, description, image, owner_name, owner_phone, images, owner_id)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
     """, (
         data["pg_name"],
         data["city"],
@@ -120,11 +127,13 @@ def add_pg():
         data["image"],
         data["owner_name"],
         data["owner_phone"],
-        images,          # 🔥 added
-        owner_id         # 🔥 added
+        images,
+        owner_id
     ))
 
     conn.commit()
+    conn.close()
+
     return {"message": "PG added"}
 
 
@@ -137,15 +146,16 @@ def add_demo_pgs():
 
     cur.execute("DELETE FROM pgs")
 
-    demo = []
-
     cities = ["Delhi","Noida","Ghaziabad","Gurgaon","Faridabad"]
 
     for i in range(1,41):
 
         city = cities[i % len(cities)]
 
-        demo.append((
+        cur.execute("""
+        INSERT INTO pgs(pg_name,city,rent,description,image,owner_name,owner_phone)
+        VALUES (%s,%s,%s,%s,%s,%s,%s)
+        """, (
             f"PG {i}",
             city,
             5000 + (i*100),
@@ -155,18 +165,13 @@ def add_demo_pgs():
             f"98765432{i:02d}"
         ))
 
-    for pg in demo:
-        cur.execute("""
-        INSERT INTO pgs(pg_name,city,rent,description,image,owner_name,owner_phone)
-        VALUES (?,?,?,?,?,?,?)
-        """, pg)
-
     conn.commit()
+    conn.close()
+
     return "40 PGs Added 🔥"
 
-    
 
-# ================= GET =================
+# ================= GET ALL =================
 @app.route("/get_pgs")
 def get_pgs():
 
@@ -176,25 +181,24 @@ def get_pgs():
     cur.execute("SELECT * FROM pgs")
     rows = cur.fetchall()
 
-    pgs = []
+    conn.close()
 
+    pgs = []
     base_url = "https://roomzy-backend-phb5.onrender.com"
 
     for r in rows:
 
         images = []
 
-        # SAFE IMAGE HANDLING
-        if "images" in r.keys() and r["images"]:
+        if r[8]:
             try:
-                images = json.loads(r["images"])
+                images = json.loads(r[8])
             except:
-                images = [r["image"]]
+                images = [r[5]]
         else:
-            images = [r["image"]]
+            images = [r[5]]
 
-        # 🔥 FIX IMAGE URL
-        image = r["image"].replace("http://127.0.0.1:5000", base_url)
+        image = r[5].replace("http://127.0.0.1:5000", base_url)
 
         fixed_images = [
             img.replace("http://127.0.0.1:5000", base_url)
@@ -202,46 +206,44 @@ def get_pgs():
         ]
 
         pgs.append({
-            "id": r["id"],
-            "pg_name": r["pg_name"],
-            "city": r["city"],
-            "rent": r["rent"],
-            "description": r["description"],
+            "id": r[0],
+            "pg_name": r[1],
+            "city": r[2],
+            "rent": r[3],
+            "description": r[4],
             "image": image,
             "images": fixed_images
         })
 
     return jsonify(pgs)
 
-import json
 
+# ================= GET SINGLE =================
 @app.route("/get_pg/<int:id>")
 def get_pg(id):
 
-    conn = sqlite3.connect("roomzy.db")
-    conn.row_factory = sqlite3.Row
+    conn = get_db()
     cur = conn.cursor()
 
-    cur.execute("SELECT * FROM pgs WHERE id=?", (id,))
+    cur.execute("SELECT * FROM pgs WHERE id=%s", (id,))
     row = cur.fetchone()
+
+    conn.close()
 
     if not row:
         return {"error": "PG not found"}
 
     base_url = "https://roomzy-backend-phb5.onrender.com"
 
-    images = []
-
-    if "images" in row.keys() and row["images"]:
+    if row[8]:
         try:
-            images = json.loads(row["images"])
+            images = json.loads(row[8])
         except:
-            images = [row["image"]]
+            images = [row[5]]
     else:
-        images = [row["image"]]
+        images = [row[5]]
 
-    # 🔥 FIX URL
-    image = row["image"].replace("http://127.0.0.1:5000", base_url)
+    image = row[5].replace("http://127.0.0.1:5000", base_url)
 
     fixed_images = [
         img.replace("http://127.0.0.1:5000", base_url)
@@ -249,28 +251,28 @@ def get_pg(id):
     ]
 
     return {
-        "id": row["id"],
-        "pg_name": row["pg_name"],
-        "city": row["city"],
-        "rent": row["rent"],
-        "description": row["description"],
+        "id": row[0],
+        "pg_name": row[1],
+        "city": row[2],
+        "rent": row[3],
+        "description": row[4],
         "image": image,
         "images": fixed_images,
-        "owner_name": row["owner_name"],
-        "owner_phone": row["owner_phone"]
+        "owner_name": row[6],
+        "owner_phone": row[7]
     }
 
+
+# ================= DELETE =================
 @app.route('/delete_pg/<int:id>', methods=['DELETE'])
 def delete_pg(id):
-    import sqlite3
-    conn = sqlite3.connect("roomzy.db")
+
+    conn = get_db()
     cur = conn.cursor()
 
-    # 🔥 delete PG
-    cur.execute("DELETE FROM pgs WHERE id=?", (id,))
+    cur.execute("DELETE FROM pgs WHERE id=%s", (id,))
 
     conn.commit()
     conn.close()
 
     return {"message": "PG deleted successfully"}
-

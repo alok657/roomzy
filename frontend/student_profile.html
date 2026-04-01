@@ -203,12 +203,12 @@ let name = document.getElementById("name").value.trim()
 let phone = document.getElementById("phone").value.trim()
 let location = document.getElementById("city").value
 let college = document.getElementById("college").value.trim()
-let idCard = document.getElementById("idCard").files.length
+let file = document.getElementById("idCard").files[0]
 
 let msg = document.getElementById("msg")
 
 // ❌ VALIDATION
-if(name=="" || phone=="" || location=="" || college=="" || idCard==0){
+if(name=="" || phone=="" || location=="" || college=="" || !file){
 
 msg.style.display="block"
 msg.style.background="#ff4d4d"
@@ -222,12 +222,25 @@ msg.style.display="none"
 return
 }
 
-// ✅ SAVE
-localStorage.setItem("student_name",name)
-localStorage.setItem("student_phone",phone)
-localStorage.setItem("student_location",location)
-localStorage.setItem("student_college",college)
-localStorage.setItem("isVerified","true")
+// 🔥 FILE READER (IMPORTANT)
+let reader = new FileReader()
+
+reader.onload = function(){
+
+let email = localStorage.getItem("user_email")
+
+// 🔥 ALL DATA EK OBJECT ME SAVE
+let profile = {
+    name: name,
+    phone: phone,
+    location: location,
+    college: college,
+    idCard: reader.result,   // image save
+    verified: true
+}
+
+// 🔥 SAVE (USER WISE)
+localStorage.setItem(email+"_profile", JSON.stringify(profile))
 
 // ✅ SUCCESS
 msg.style.display="block"
@@ -238,6 +251,10 @@ msg.innerText="✅ Profile Completed"
 setTimeout(()=>{
 window.location.href="student_home.html"
 },1000)
+
+}
+
+reader.readAsDataURL(file)
 
 }
 
