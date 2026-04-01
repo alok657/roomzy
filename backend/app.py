@@ -276,3 +276,11 @@ def delete_pg(id):
     conn.close()
 
     return {"message": "PG deleted successfully"}
+
+@app.route("/")
+def home():
+    return "Backend Running ✅"
+
+@app.route("/test")
+def test():
+    return "Test OK 🚀"
