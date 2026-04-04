@@ -338,6 +338,47 @@ def check_tables():
     conn.close()
     return str(columns)
 
+@app.route("/add_bulk_pgs")
+def add_bulk_pgs():
+    conn = get_db()
+    cur = conn.cursor()
+
+    names = [
+    "Sunrise PG","Urban Nest","Royal Stay","Green View","City Comfort",
+    "Elite Stay","Happy Homes","Skyline PG","Comfort Zone","Dream Stay",
+    "Peaceful PG","Golden Nest","Blue Haven","Smart Living","Royal Comfort"
+    ]
+
+    for i in range(15):
+        cur.execute(
+            """INSERT INTO pgs 
+            (pg_name, rent, city, owner_name, owner_phone, description, image, images) 
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)""",
+            (
+                names[i],
+                4000 + i*500,   # rent auto vary
+                "Delhi",
+                "Owner "+str(i+1),
+                "99999999"+str(i).zfill(2),
+                "Nice PG with good facilities",
+
+                # main image
+                f"https://roomzy-czyc.onrender.com/static/images/pg{i+1}.jpg",
+
+                # multiple images array
+                [
+                    f"https://roomzy-czyc.onrender.com/static/images/pg{i+1}_1.jpg",
+                    f"https://roomzy-czyc.onrender.com/static/images/pg{i+1}_2.jpg",
+                    f"https://roomzy-czyc.onrender.com/static/images/pg{i+1}_3.jpg"
+                ]
+            )
+        )
+
+    conn.commit()
+    conn.close()
+
+    return "15 PGs Added Successfully ✅🔥"
+
 
 # ================= TEST =================
 @app.route("/")
