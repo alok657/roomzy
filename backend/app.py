@@ -3,6 +3,7 @@ from flask_cors import CORS
 import psycopg2
 import json
 import os
+import requests
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -86,6 +87,18 @@ def signup():
         )
 
         conn.commit()
+
+        # 🔥🔥🔥 GOOGLE SHEET ADD (YAHI MAIN CHANGE HAI)
+        import requests
+
+        requests.post(
+            "https://script.google.com/macros/s/AKfycbVQFsD70dnTzQT1Uo8LL_NqSKgKk6wXaeU4M-ORcE6i3qEJo-2LpS36uZ1uwqql5UkRg/exec",
+            json={
+                "name": name,
+                "email": email
+            }
+        )
+
         conn.close()
 
         return {"message": "Signup success"}
