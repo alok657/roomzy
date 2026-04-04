@@ -300,33 +300,6 @@ def delete_pg(id):
 
     return {"message": "PG deleted successfully"}
 
-
-@app.route("/add_test_pg")
-def add_test_pg():
-    conn = get_db()
-    cur = conn.cursor()
-
-    cur.execute(
-        """INSERT INTO pgs 
-        (pg_name, rent, city, owner_name, owner_phone, description, image) 
-        VALUES (%s,%s,%s,%s,%s,%s)""",
-        (
-            "Demo PG",
-            6000,
-            "Delhi",
-            "Avi",
-            "9999999999",
-            "Nice PG",
-            ""
-        )
-    )
-
-    conn.commit()
-    conn.close()
-
-    return "PG Added ✅"
-
-
 @app.route("/check_tables")
 def check_tables():
     conn = get_db()
@@ -378,20 +351,6 @@ def add_bulk_pgs():
     conn.close()
 
     return "15 PGs Added Successfully ✅🔥"
-
-
-@app.route("/delete_demo")
-def delete_demo():
-    conn = get_db()
-    cur = conn.cursor()
-
-    cur.execute("DELETE FROM pgs WHERE pg_name='Demo PG'")
-
-    conn.commit()
-    conn.close()
-
-    return "Demo PG deleted ✅"
-
 
 # ================= TEST =================
 @app.route("/")
