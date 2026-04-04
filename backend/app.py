@@ -64,7 +64,6 @@ def signup():
     try:
         data = request.get_json()
 
-        # ✅ 1. Validation
         if not data:
             return {"error": "No data received"}, 400
 
@@ -78,7 +77,6 @@ def signup():
         conn = get_db()
         cur = conn.cursor()
 
-        # ✅ 2. Password hashing
         hashed_password = generate_password_hash(password)
 
         cur.execute(
@@ -88,23 +86,27 @@ def signup():
 
         conn.commit()
 
-        # 🔥🔥🔥 GOOGLE SHEET ADD (YAHI MAIN CHANGE HAI)
+        # 🔥 GOOGLE SHEET DEBUG VERSION
         import requests
 
-        requests.post(
-            "https://script.google.com/macros/s/AKfycbVQFsD70dnTzQT1Uo8LL_NqSKgKk6wXaeU4M-ORcE6i3qEJo-2LpS36uZ1uwqql5UkRg/exec",
-            json={
-                "name": name,
-                "email": email
-            }
-        )
+        try:
+            res = requests.post(
+                "https://script.google.com/macros/s/AKfycbyVQFsD7OdnTzQT1Uo8LL_NqSKgKk6wXaeU4M-ORcE6i3qEJo-2LpS36uZ1uwqqI5UkRg/exec",
+                json={
+                    "name": name,
+                    "email": email
+                }
+            )
+            print("SHEET RESPONSE:", res.text)
+        except Exception as e:
+            print("SHEET ERROR:", str(e))
 
         conn.close()
 
         return {"message": "Signup success"}
 
     except Exception as e:
-        print("ERROR:", str(e))   # 🔥 logs me dikhega
+        print("ERROR:", str(e))
         return {"error": str(e)}, 500
 
 # ================= LOGIN =================
