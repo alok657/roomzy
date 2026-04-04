@@ -309,7 +309,7 @@ def add_test_pg():
     cur.execute(
         """INSERT INTO pgs 
         (pg_name, rent, city, owner_name, owner_phone, description, image) 
-        VALUES (%s,%s,%s,%s,%s,%s,%s)""",
+        VALUES (%s,%s,%s,%s,%s,%s)""",
         (
             "Demo PG",
             6000,
