@@ -301,6 +301,22 @@ def delete_pg(id):
     return {"message": "PG deleted successfully"}
 
 
+@app.route("/add_test_pg")
+def add_test_pg():
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute(
+        "INSERT INTO pgs (name, price, location) VALUES (%s,%s,%s)",
+        ("Demo PG", 6000, "Delhi")
+    )
+
+    conn.commit()
+    conn.close()
+
+    return "PG Added ✅"
+
+
 # ================= TEST =================
 @app.route("/")
 def home():
