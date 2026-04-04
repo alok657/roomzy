@@ -411,6 +411,3 @@ def home():
 @app.route("/test")
 def test():
     return "Test OK 🚀"
-
-if __name__ == "__main__":
-    app.run(debug=True)
