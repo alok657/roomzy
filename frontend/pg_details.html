@@ -251,108 +251,82 @@ console.log("DATA:", data)
 let main = document.getElementById("mainImg")
 let gallery = document.getElementById("gallery")
 
-main.src = data.image || "https://via.placeholder.com/400"
+// 🟢 MAIN IMAGE
+main.src = data.image || "https://roomzy-czyc.onrender.com/static/images/default.jpg"
 
-let finalImages = []
+
+// 🟢 MULTIPLE IMAGES FIX
+let images = []
 
 try{
-finalImages = typeof data.images === "string"
-? JSON.parse(data.images)
-: data.images
+    images = typeof data.images === "string"
+    ? JSON.parse(data.images)
+    : data.images
 }catch{
-finalImages = []
+    images = []
 }
 
+// fallback
+if(!images || images.length === 0){
+    images = [data.image]
+}
+
+
+// 🟢 GALLERY SHOW
 gallery.innerHTML = ""
 
-if(finalImages && finalImages.length > 0){
+images.forEach(img=>{
 
-finalImages.forEach(img=>{
+    let fullPath = img.startsWith("http")
+    ? img
+    : "https://roomzy-czyc.onrender.com/static/images/" + img
 
-let fullPath = img.startsWith("http")
-? img
-: "https://https://roomzy-czyc.onrender.com.onrender.com/static/images/" + img
-
-gallery.innerHTML += `
-<img src="${fullPath}" onclick="changeImg('${fullPath}')">
-`
+    gallery.innerHTML += `
+    <img src="${fullPath}" onclick="changeImg('${fullPath}')">
+    `
 
 })
 
-}
-else{
 
-for(let i=1; i<=3; i++){
-
-let img = `https://https://roomzy-czyc.onrender.com.onrender.com/static/images/pg${id}_${i}.jpg`
-
-gallery.innerHTML += `
-<img src="${img}" onclick="changeImg('${img}')"
-onerror="this.style.display='none'">
-`
-
-}
-
-}
-
+// 🟢 TEXT DATA
 document.getElementById("name").innerText = data.pg_name || "No Name"
 document.getElementById("city").innerText = data.city || "Unknown"
 document.getElementById("rent").innerText = "₹ " + (data.rent || "0")
 document.getElementById("desc").innerText = data.description || "No description"
 
+// 🟢 OWNER FIX (REAL NAME + NUMBER)
 document.getElementById("ownerName").innerText = data.owner_name || "N/A"
 
 let phone = (data.owner_phone || "0000000000").toString()
+
 let masked = phone.slice(0,3) + "xxxx" + phone.slice(-3)
 
 document.getElementById("ownerPhone").innerText = masked
 
 })
 .catch(err=>{
+    
 console.log("ERROR:", err)
 alert("Error loading PG 😢")
 })
 
+
+// 🟢 IMAGE CHANGE
 function changeImg(src){
 document.getElementById("mainImg").src = src
 }
 
+
+// 🟢 CALL OWNER FIX
 function callOwner(){
 let phone = document.getElementById("ownerPhone").innerText
 window.location.href = "tel:" + phone
 }
 
-function bookPG(){
 
-let id = new URLSearchParams(window.location.search).get("id")
-
-let name = document.getElementById("name").innerText
-let city = document.getElementById("city").innerText
-let rent = document.getElementById("rent").innerText
-let img = document.getElementById("mainImg").src
-
-let bookings = JSON.parse(localStorage.getItem("bookings")) || []
-let msg = document.getElementById("bookMsg")
-
-let exists = bookings.find(b => b.id == id)
-
-if(exists){
-msg.style.display = "block"
-msg.innerText = "⚠️ Already Booked"
-setTimeout(()=> msg.style.display="none",2000)
-return
-}
-
-bookings.push({id,name,city,rent,img})
-localStorage.setItem("bookings", JSON.stringify(bookings))
-
-msg.style.display = "block"
-msg.innerText = "✅ Added to Bookings"
-setTimeout(()=> msg.style.display="none",2000)
-}
+// बाकी functions same rahenge 👇👇
 
 function toggleSave(){
-
 let id = new URLSearchParams(window.location.search).get("id")
 
 let name = document.getElementById("name").innerText
