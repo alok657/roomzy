@@ -380,6 +380,19 @@ def add_bulk_pgs():
     return "15 PGs Added Successfully ✅🔥"
 
 
+@app.route("/delete_demo")
+def delete_demo():
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("DELETE FROM pgs WHERE pg_name='Demo PG'")
+
+    conn.commit()
+    conn.close()
+
+    return "Demo PG deleted ✅"
+
+
 # ================= TEST =================
 @app.route("/")
 def home():
