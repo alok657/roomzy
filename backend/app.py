@@ -317,6 +317,18 @@ def add_test_pg():
     return "PG Added ✅"
 
 
+@app.route("/check_tables")
+def check_tables():
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name='pgs'")
+    columns = cur.fetchall()
+
+    conn.close()
+    return str(columns)
+
+
 # ================= TEST =================
 @app.route("/")
 def home():
