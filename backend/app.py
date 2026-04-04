@@ -2,15 +2,22 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import psycopg2
 import json
+import os
+
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__, static_folder="static")
 CORS(app)
 
-# 🔥 DATABASE CONNECT
+# ================= DB CONNECT =================
 def get_db():
-    DATABASE_URL = "postgresql://roomzy_db_user:pJTpwafq3fNUQT9XNeRGM76T5mncgx65@dpg-d76i815m5p6s73bnfsc0-a/roomzy_db"
-    conn = psycopg2.connect(DATABASE_URL)
-    return conn
+    DATABASE_URL = os.environ.get("DATABASE_URL")
+
+    if not DATABASE_URL:
+        raise Exception("DATABASE_URL not set ❌")
+
+    return psycopg2.connect(DATABASE_URL)
+
 
 # ================= DB SETUP =================
 @app.route("/setupdb")
@@ -19,7 +26,6 @@ def setupdb():
     conn = get_db()
     cur = conn.cursor()
 
-    # USERS
     cur.execute("""
     CREATE TABLE IF NOT EXISTS users(
         id SERIAL PRIMARY KEY,
@@ -30,7 +36,6 @@ def setupdb():
     )
     """)
 
-    # PGS
     cur.execute("""
     CREATE TABLE IF NOT EXISTS pgs(
         id SERIAL PRIMARY KEY,
@@ -52,7 +57,7 @@ def setupdb():
     return "Database Ready ✅"
 
 
-# ================= AUTH =================
+# ================= SIGNUP =================
 @app.route("/signup", methods=["POST"])
 def signup():
     data = request.get_json()
@@ -60,17 +65,22 @@ def signup():
     conn = get_db()
     cur = conn.cursor()
 
-    cur.execute(
-        "INSERT INTO users (name,email,password,role) VALUES (%s,%s,%s,%s)",
-        (data["name"], data["email"], data["password"], "")
-    )
+    hashed_password = generate_password_hash(data["password"])
 
-    conn.commit()
+    try:
+        cur.execute(
+            "INSERT INTO users (name,email,password,role) VALUES (%s,%s,%s,%s)",
+            (data["name"], data["email"], hashed_password, "student")
+        )
+        conn.commit()
+    except:
+        return {"message": "Email already exists ❌"}
+
     conn.close()
-
     return {"message": "Signup success"}
 
 
+# ================= LOGIN =================
 @app.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
@@ -79,15 +89,14 @@ def login():
     cur = conn.cursor()
 
     cur.execute(
-        "SELECT * FROM users WHERE email=%s AND password=%s",
-        (data["email"], data["password"])
+        "SELECT * FROM users WHERE email=%s",
+        (data["email"],)
     )
 
     user = cur.fetchone()
-
     conn.close()
 
-    if user:
+    if user and check_password_hash(user[3], data["password"]):
         return {
             "status": "success",
             "name": user[1],
@@ -108,6 +117,8 @@ def add_pg():
     cur = conn.cursor()
 
     owner_id = data.get("owner_id")
+
+    # 🔥 ensure images always list
     images = json.dumps(data.get("images", []))
 
     cur.execute("""
@@ -118,7 +129,7 @@ def add_pg():
         data["city"],
         data["rent"],
         data["description"],
-        data["image"],
+        data["image"],   # should be "/static/images/pg1.jpg"
         data["owner_name"],
         data["owner_phone"],
         images,
@@ -143,7 +154,6 @@ def add_demo_pgs():
     cities = ["Delhi","Noida","Ghaziabad","Gurgaon","Faridabad"]
 
     for i in range(1,41):
-
         city = cities[i % len(cities)]
 
         cur.execute("""
@@ -154,7 +164,7 @@ def add_demo_pgs():
             city,
             5000 + (i*100),
             f"Nice PG {i}",
-            f"https://source.unsplash.com/400x300/?room,bedroom&sig={i}",
+            f"https://source.unsplash.com/400x300/?room&sig={i}",
             f"Owner {i}",
             f"98765432{i:02d}"
         ))
@@ -174,30 +184,34 @@ def get_pgs():
 
     cur.execute("SELECT * FROM pgs")
     rows = cur.fetchall()
-
     conn.close()
 
+    base_url = request.host_url.rstrip("/")
     pgs = []
-    base_url = "https://roomzy-backend-phb5.onrender.com"
 
     for r in rows:
 
-        images = []
+        # 🔥 images parse
+        try:
+            images = json.loads(r[8]) if r[8] else []
+        except:
+            images = []
 
-        if r[8]:
-            try:
-                images = json.loads(r[8])
-            except:
-                images = [r[5]]
+        # 🔥 main image fix
+        if r[5] and r[5].startswith("/"):
+            image = base_url + r[5]
         else:
-            images = [r[5]]
+            image = r[5]
 
-        image = r[5].replace("http://127.0.0.1:5000", base_url)
-
+        # 🔥 gallery images fix
         fixed_images = [
-            img.replace("http://127.0.0.1:5000", base_url)
+            base_url + img if img.startswith("/") else img
             for img in images
         ]
+
+        # fallback
+        if not image:
+            image = base_url + "/static/images/default.jpg"
 
         pgs.append({
             "id": r[0],
@@ -221,28 +235,30 @@ def get_pg(id):
 
     cur.execute("SELECT * FROM pgs WHERE id=%s", (id,))
     row = cur.fetchone()
-
     conn.close()
 
     if not row:
         return {"error": "PG not found"}
 
-    base_url = "https://roomzy-backend-phb5.onrender.com"
+    base_url = request.host_url.rstrip("/")
 
-    if row[8]:
-        try:
-            images = json.loads(row[8])
-        except:
-            images = [row[5]]
+    try:
+        images = json.loads(row[8]) if row[8] else []
+    except:
+        images = []
+
+    if row[5] and row[5].startswith("/"):
+        image = base_url + row[5]
     else:
-        images = [row[5]]
-
-    image = row[5].replace("http://127.0.0.1:5000", base_url)
+        image = row[5]
 
     fixed_images = [
-        img.replace("http://127.0.0.1:5000", base_url)
+        base_url + img if img.startswith("/") else img
         for img in images
     ]
+
+    if not image:
+        image = base_url + "/static/images/default.jpg"
 
     return {
         "id": row[0],
@@ -265,12 +281,13 @@ def delete_pg(id):
     cur = conn.cursor()
 
     cur.execute("DELETE FROM pgs WHERE id=%s", (id,))
-
     conn.commit()
     conn.close()
 
     return {"message": "PG deleted successfully"}
 
+
+# ================= TEST =================
 @app.route("/")
 def home():
     return "Backend Running ✅"
