@@ -242,7 +242,7 @@ margin-top:10px;
 
 let id = new URLSearchParams(window.location.search).get("id")
 
-fetch("https://roomzy-backend-phb5.onrender.com/get_pg/" + id)
+fetch("https://https://roomzy-czyc.onrender.com.onrender.com/get_pg/" + id)
 .then(res => res.json())
 .then(data => {
 
@@ -271,7 +271,7 @@ finalImages.forEach(img=>{
 
 let fullPath = img.startsWith("http")
 ? img
-: "https://roomzy-backend-phb5.onrender.com/static/images/" + img
+: "https://https://roomzy-czyc.onrender.com.onrender.com/static/images/" + img
 
 gallery.innerHTML += `
 <img src="${fullPath}" onclick="changeImg('${fullPath}')">
@@ -284,7 +284,7 @@ else{
 
 for(let i=1; i<=3; i++){
 
-let img = `https://roomzy-backend-phb5.onrender.com/static/images/pg${id}_${i}.jpg`
+let img = `https://https://roomzy-czyc.onrender.com.onrender.com/static/images/pg${id}_${i}.jpg`
 
 gallery.innerHTML += `
 <img src="${img}" onclick="changeImg('${img}')"
@@ -444,7 +444,7 @@ function deletePG(){
 
 let id = new URLSearchParams(window.location.search).get("id")
 
-fetch("https://roomzy-backend-phb5.onrender.com/delete_pg/" + id,{
+fetch("https://https://roomzy-czyc.onrender.com.onrender.com/delete_pg/" + id,{
 method:"DELETE"
 })
 .then(res=>res.json())
