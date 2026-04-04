@@ -7,7 +7,7 @@ import os
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__, static_folder="static")
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # ================= DB CONNECT =================
 def get_db():
@@ -60,25 +60,39 @@ def setupdb():
 # ================= SIGNUP =================
 @app.route("/signup", methods=["POST"])
 def signup():
-    data = request.get_json()
-
-    conn = get_db()
-    cur = conn.cursor()
-
-    hashed_password = generate_password_hash(data["password"])
-
     try:
+        data = request.get_json()
+
+        # ✅ 1. Validation
+        if not data:
+            return {"error": "No data received"}, 400
+
+        name = data.get("name")
+        email = data.get("email")
+        password = data.get("password")
+
+        if not name or not email or not password:
+            return {"error": "All fields required"}, 400
+
+        conn = get_db()
+        cur = conn.cursor()
+
+        # ✅ 2. Password hashing
+        hashed_password = generate_password_hash(password)
+
         cur.execute(
             "INSERT INTO users (name,email,password,role) VALUES (%s,%s,%s,%s)",
-            (data["name"], data["email"], hashed_password, "student")
+            (name, email, hashed_password, "student")
         )
+
         conn.commit()
-    except:
-        return {"message": "Email already exists ❌"}
+        conn.close()
 
-    conn.close()
-    return {"message": "Signup success"}
+        return {"message": "Signup success"}
 
+    except Exception as e:
+        print("ERROR:", str(e))   # 🔥 logs me dikhega
+        return {"error": str(e)}, 500
 
 # ================= LOGIN =================
 @app.route("/login", methods=["POST"])
@@ -295,3 +309,6 @@ def home():
 @app.route("/test")
 def test():
     return "Test OK 🚀"
+
+if __name__ == "__main__":
+    app.run(debug=True)
