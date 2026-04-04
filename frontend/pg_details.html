@@ -242,7 +242,7 @@ margin-top:10px;
 
 let id = new URLSearchParams(window.location.search).get("id")
 
-fetch("https://https://roomzy-czyc.onrender.com.onrender.com/get_pg/" + id)
+fetch("https://https://roomzy-czyc.onrender.com/get_pg/" + id)
 .then(res => res.json())
 .then(data => {
 
@@ -444,7 +444,7 @@ function deletePG(){
 
 let id = new URLSearchParams(window.location.search).get("id")
 
-fetch("https://https://roomzy-czyc.onrender.com.onrender.com/delete_pg/" + id,{
+fetch("https://https://roomzy-czyc.onrender.com/delete_pg/" + id,{
 method:"DELETE"
 })
 .then(res=>res.json())
