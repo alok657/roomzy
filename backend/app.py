@@ -307,8 +307,18 @@ def add_test_pg():
     cur = conn.cursor()
 
     cur.execute(
-        "INSERT INTO pgs (name, price, location) VALUES (%s,%s,%s)",
-        ("Demo PG", 6000, "Delhi")
+        """INSERT INTO pgs 
+        (pg_name, rent, city, owner_name, owner_phone, description, image) 
+        VALUES (%s,%s,%s,%s,%s,%s,%s)""",
+        (
+            "Demo PG",
+            6000,
+            "Delhi",
+            "Avi",
+            "9999999999",
+            "Nice PG",
+            ""
+        )
     )
 
     conn.commit()
