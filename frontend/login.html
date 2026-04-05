@@ -104,11 +104,10 @@ Don't have an account?
 </div>
 
 </div>
-
 <script>
 
 function login(){
-
+    
 let email=document.getElementById("email").value.trim()
 let password=document.getElementById("password").value.trim()
 
@@ -146,32 +145,33 @@ password:password
 
 .then(data=>{
 
-// 🔥 IMPORTANT CHANGE — role check
-if(data.role){
+if(data.status=="success"){
 
 msg.style.display="block"
 msg.style.color="#00ff88"
 msg.innerText="Login successful"
 
-// save data
-localStorage.setItem("user_email", email)
-localStorage.setItem("user_role", data.role)
+// ✅ CORRECT SAVE
+localStorage.setItem("user_email", data.email)
+localStorage.setItem("user_name", data.name)
 
-// 🔥 DIRECT REDIRECT (NO LOCAL OLD CHECK)
-
+// 🔥 ADMIN DIRECT
 if(data.role === "admin"){
     localStorage.setItem("user_role","admin")
     window.location.href = "admin.html"
     return
 }
 
+// 🔥 NORMAL USER FLOW
 let role = localStorage.getItem("user_role")
 
-if(role){
-    window.location.href = "student_home.html"
+if(!role){
+    // 🆕 NEW USER
+    window.location.href = "role.html"
 }
 else{
-    window.location.href = "role.html"
+    // 🔁 OLD USER
+    window.location.href = "student_home.html"
 }
 
 }
