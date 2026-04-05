@@ -110,7 +110,7 @@ def signup():
         return {"error": str(e)}, 500
 
 # ================= LOGIN =================
-ADMIN_EMAIL = "admin@roomzy.com"
+ADMIN_EMAIL = "kushwah.al2020@gmail.com"
 
 @app.route("/login", methods=["POST"])
 def login():
