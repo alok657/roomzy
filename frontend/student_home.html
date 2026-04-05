@@ -269,20 +269,31 @@ const roomImages = [
 
 /* USER */
 
-let name = localStorage.getItem("student_name") || "User"
-let pic = localStorage.getItem("profile_pic")
+// 🔥 LOAD PROFILE DATA (CORRECT WAY)
+let email = localStorage.getItem("user_email")
 
-document.getElementById("username").innerText = name
-document.getElementById("welcome").innerText = "Welcome, " + name + "!"
+let profile = JSON.parse(localStorage.getItem(email+"_profile"))
 
-if(pic){
-document.getElementById("profilePic").src = pic
+if(profile){
+
+document.getElementById("username").innerText = profile.name || "User"
+document.getElementById("welcome").innerText = "Welcome, " + profile.name + "!"
+
+// verified badge
+if(profile.verified){
+document.getElementById("verifiedBadge").style.display = "inline"
 }
 
-let verified = localStorage.getItem("isVerified")
+// profile pic (ID card preview)
+if(profile.idCard){
+document.getElementById("profilePic").src = profile.idCard
+}
 
-if(verified === "true"){
-document.getElementById("verifiedBadge").style.display = "inline"
+}
+else{
+// fallback
+document.getElementById("username").innerText = "User"
+document.getElementById("welcome").innerText = "Welcome, User!"
 }
 
 /* SAVED */
@@ -383,7 +394,7 @@ let lon=cityCoords[citySelect.value][1]+(Math.random()-0.5)/40
 let marker=L.marker([lat,lon]).addTo(map)
 marker.on("click",()=>openPG(pg.id))   
 
-let img = `https://https://roomzy-czyc.onrender.com.onrender.com/static/images/pg${index}.jpg`
+let img = `https://roomzy-czyc.onrender.com/static/images/pg${index}.jpg`
 
 container.innerHTML+=`
 <div class="card" onclick="openPG(${pg.id})">

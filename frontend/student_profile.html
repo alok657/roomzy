@@ -196,6 +196,22 @@ citySelect.add(opt)
 
 })
 
+/* 🔥 AUTO FILL (IMPORTANT 🔥) */
+window.onload = function(){
+
+let email = localStorage.getItem("user_email")
+let saved = JSON.parse(localStorage.getItem(email+"_profile"))
+
+if(saved){
+
+document.getElementById("name").value = saved.name || ""
+document.getElementById("phone").value = saved.phone || ""
+document.getElementById("college").value = saved.college || ""
+
+}
+
+}
+
 /* 🔥 SAVE PROFILE */
 function saveProfile(){
 
@@ -222,25 +238,26 @@ msg.style.display="none"
 return
 }
 
-// 🔥 FILE READER (IMPORTANT)
+// 🔥 FILE READER
 let reader = new FileReader()
 
 reader.onload = function(){
 
 let email = localStorage.getItem("user_email")
 
-// 🔥 ALL DATA EK OBJECT ME SAVE
 let profile = {
     name: name,
     phone: phone,
     location: location,
     college: college,
-    idCard: reader.result,   // image save
+    idCard: reader.result,
     verified: true
 }
 
-// 🔥 SAVE (USER WISE)
+// 🔥 SAVE
 localStorage.setItem(email+"_profile", JSON.stringify(profile))
+
+console.log("Saved Profile:", profile) // 🔥 DEBUG
 
 // ✅ SUCCESS
 msg.style.display="block"

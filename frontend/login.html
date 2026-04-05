@@ -151,7 +151,7 @@ msg.style.display="block"
 msg.style.color="#00ff88"
 msg.innerText="Login successful"
 
-// ✅ CORRECT SAVE
+// ✅ SAVE USER
 localStorage.setItem("user_email", data.email)
 localStorage.setItem("user_name", data.name)
 
@@ -162,15 +162,22 @@ if(data.role === "admin"){
     return
 }
 
-// 🔥 NORMAL USER FLOW
+// 🔥 IMPORTANT FIX (RESET ROLE FOR NEW USER)
+let savedEmail = localStorage.getItem("saved_email")
+
+if(savedEmail !== data.email){
+    // new user → clear role
+    localStorage.removeItem("user_role")
+    localStorage.setItem("saved_email", data.email)
+}
+
+// 🔥 CHECK ROLE
 let role = localStorage.getItem("user_role")
 
 if(!role){
-    // 🆕 NEW USER
     window.location.href = "role.html"
 }
 else{
-    // 🔁 OLD USER
     window.location.href = "student_home.html"
 }
 
@@ -179,7 +186,7 @@ else{
 
 msg.style.display="block"
 msg.style.color="red"
-msg.innerText="Invalid email or password"
+msg.innerText=data.message || "Invalid login"
 
 setTimeout(()=>{
 msg.style.display="none"
