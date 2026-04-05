@@ -105,7 +105,6 @@ Don't have an account?
 
 </div>
 
-
 <script>
 
 function login(){
@@ -147,34 +146,23 @@ password:password
 
 .then(data=>{
 
-if(data.status=="success"){
+// 🔥 IMPORTANT CHANGE — role check
+if(data.role){
 
 msg.style.display="block"
 msg.style.color="#00ff88"
 msg.innerText="Login successful"
 
-localStorage.setItem("user_email",data.email)
-localStorage.setItem("user_name",data.name)
+// save data
+localStorage.setItem("user_email", email)
+localStorage.setItem("user_role", data.role)
 
-// 🔥 LOCAL ROLE CHECK (IMPORTANT)
-let role = localStorage.getItem("user_role")
-
-if(role){
-
-    // 🔁 OLD USER → direct home
-    if(role === "student"){
-        window.location.href = "student_home.html"
-    }
-    else{
-        window.location.href = "owner_dashboard.html"
-    }
-
+// 🔥 DIRECT REDIRECT (NO LOCAL OLD CHECK)
+if(data.role === "admin"){
+    window.location.href = "admin.html"
 }
 else{
-
-    // 🆕 NEW USER → role select page
-    window.location.href = "role.html"
-
+    window.location.href = "student_home.html"
 }
 
 }
@@ -182,7 +170,7 @@ else{
 
 msg.style.display="block"
 msg.style.color="red"
-msg.innerText=data.message
+msg.innerText="Invalid email or password"
 
 setTimeout(()=>{
 msg.style.display="none"

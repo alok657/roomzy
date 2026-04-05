@@ -40,6 +40,12 @@
 <ul id="users"></ul>
 
 <script>
+
+if(localStorage.getItem("user_role") !== "admin"){
+    alert("Access Denied ❌")
+    window.location.href="login.html"
+}
+
 function loadUsers() {
     fetch("https://roomzy-czyc.onrender.com/all-users")
     .then(res => res.json())

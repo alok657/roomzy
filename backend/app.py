@@ -110,6 +110,8 @@ def signup():
         return {"error": str(e)}, 500
 
 # ================= LOGIN =================
+ADMIN_EMAIL = "admin@roomzy.com"
+
 @app.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
@@ -126,16 +128,24 @@ def login():
     conn.close()
 
     if user and check_password_hash(user[3], data["password"]):
-        return {
-            "status": "success",
-            "name": user[1],
-            "email": user[2],
-            "role": user[4]
-        }
+
+        # 🔥 ADMIN CHECK (MAIN LOGIC)
+        if data["email"] == ADMIN_EMAIL:
+            return {
+                "role": "admin",
+                "name": user[1],
+                "email": user[2]
+            }
+        else:
+            return {
+                "role": "student",
+                "name": user[1],
+                "email": user[2]
+            }
+
     else:
-        return {"status": "error", "message": "Invalid login"}
-
-
+        return {"error": "Invalid login"}
+    
 # ================= ADD PG =================
 @app.route("/add_pg", methods=["POST"])
 def add_pg():
