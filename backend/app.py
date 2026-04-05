@@ -428,6 +428,25 @@ def create_admin():
     conn.close()
 
     return "Admin created ✅"
+
+@app.route("/all-users")
+def all_users():
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT name, email FROM users")
+    users = cur.fetchall()
+
+    conn.close()
+
+    result = []
+    for u in users:
+        result.append({
+            "name": u[0],
+            "email": u[1]
+        })
+
+    return result
 # ================= TEST =================
 @app.route("/")
 def home():

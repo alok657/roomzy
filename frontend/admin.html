@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+</head>
+<body>
+    <h1>Welcome Admin 🔥</h1>
+    <p>Yaha sab users dikhenge</p>
+
+    <button onclick="loadUsers()">Load Users</button>
+
+    <ul id="users"></ul>
+
+    <script>
+        function loadUsers() {
+            fetch("/all-users")
+            .then(res => res.json())
+            .then(data => {
+                let list = document.getElementById("users");
+                list.innerHTML = "";
+
+                data.forEach(user => {
+                    let li = document.createElement("li");
+                    li.innerText = user.name + " - " + user.email;
+                    list.appendChild(li);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
