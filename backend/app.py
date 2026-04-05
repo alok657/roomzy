@@ -405,6 +405,29 @@ def delete_demo():
     conn.close()
 
     return "Demo PG deleted ✅"
+
+
+@app.route("/create-admin")
+def create_admin():
+    conn = get_db()
+    cur = conn.cursor()
+
+    from werkzeug.security import generate_password_hash
+
+    cur.execute(
+        "INSERT INTO users (name,email,password,role) VALUES (%s,%s,%s,%s)",
+        (
+            "Alok Admin",
+            "admin@roomzy.com",
+            generate_password_hash("admin123"),
+            "admin"
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+    return "Admin created ✅"
 # ================= TEST =================
 @app.route("/")
 def home():
