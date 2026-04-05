@@ -59,25 +59,28 @@ def setupdb():
 
 
 # ================= SIGNUP =================
+from werkzeug.security import generate_password_hash
+
 @app.route("/signup", methods=["POST"])
 def signup():
     try:
         data = request.get_json()
 
         if not data:
-            return {"error": "No data received"}, 400
+            return {"status": "error", "message": "No data received"}, 400
 
         name = data.get("name")
         email = data.get("email")
         password = data.get("password")
 
         if not name or not email or not password:
-            return {"error": "All fields required"}, 400
+            return {"status": "error", "message": "All fields required"}, 400
 
         conn = get_db()
         cur = conn.cursor()
 
-        hashed_password = generate_password_hash(password)
+        # ✅ FIXED HASH
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
 
         cur.execute(
             "INSERT INTO users (name,email,password,role) VALUES (%s,%s,%s,%s)",
@@ -85,29 +88,13 @@ def signup():
         )
 
         conn.commit()
-
-        # 🔥 GOOGLE SHEET DEBUG VERSION
-        import requests
-
-        try:
-            res = requests.post(
-                "https://script.google.com/macros/s/AKfycbyVQFsD7OdnTzQT1Uo8LL_NqSKgKk6wXaeU4M-ORcE6i3qEJo-2LpS36uZ1uwqqI5UkRg/exec",
-                json={
-                    "name": name,
-                    "email": email
-                }
-            )
-            print("SHEET RESPONSE:", res.text)
-        except Exception as e:
-            print("SHEET ERROR:", str(e))
-
         conn.close()
 
-        return {"message": "Signup success"}
+        return {"status": "success", "message": "Signup successful"}
 
     except Exception as e:
         print("ERROR:", str(e))
-        return {"error": str(e)}, 500
+        return {"status": "error", "message": str(e)}, 500
 
 # ================= LOGIN =================
 ADMIN_EMAIL = "kushwah.al2020@gmail.com"
