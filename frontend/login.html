@@ -158,11 +158,20 @@ localStorage.setItem("user_email", email)
 localStorage.setItem("user_role", data.role)
 
 // 🔥 DIRECT REDIRECT (NO LOCAL OLD CHECK)
+
 if(data.role === "admin"){
+    localStorage.setItem("user_role","admin")
     window.location.href = "admin.html"
+    return
+}
+
+let role = localStorage.getItem("user_role")
+
+if(role){
+    window.location.href = "student_home.html"
 }
 else{
-    window.location.href = "student_home.html"
+    window.location.href = "role.html"
 }
 
 }
