@@ -250,8 +250,13 @@ border:1px solid #ddd;
 
 <script>
 
+if(localStorage.getItem("user_role") === "admin"){
+    document.write('<button onclick="goAdmin()">⚙️ Admin Panel</button>')
+}
 
-/* ✅ IMAGE ARRAY FIXED */
+function goAdmin(){
+    window.location.href = "admin.html"
+}
 
 const roomImages = [
 "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=60",

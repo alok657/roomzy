@@ -36,10 +36,15 @@
 <h1>Admin Dashboard 🔥</h1>
 
 <button onclick="loadUsers()">Load Users</button>
+<button onclick="goHome()">🏠 View Website</button>
 
 <ul id="users"></ul>
 
 <script>
+
+    function goHome(){
+    window.location.href = "student_home.html"
+}
 
 if(localStorage.getItem("user_role") !== "admin"){
     alert("Access Denied ❌")
