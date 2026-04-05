@@ -2,30 +2,59 @@
 <html>
 <head>
     <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #111;
+            color: white;
+            text-align: center;
+        }
+
+        h1 {
+            color: #00ffcc;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #00ffcc;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        li {
+            list-style: none;
+            background: #222;
+            margin: 5px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome Admin 🔥</h1>
-    <p>See all users</p>
 
-    <button onclick="loadUsers()">Load Users</button>
+<h1>Admin Dashboard 🔥</h1>
 
-    <ul id="users"></ul>
+<button onclick="loadUsers()">Load Users</button>
 
-    <script>
-        function loadUsers() {
-            fetch("/all-users")
-            .then(res => res.json())
-            .then(data => {
-                let list = document.getElementById("users");
-                list.innerHTML = "";
+<ul id="users"></ul>
 
-                data.forEach(user => {
-                    let li = document.createElement("li");
-                    li.innerText = user.name + " - " + user.email;
-                    list.appendChild(li);
-                });
-            });
-        }
-    </script>
+<script>
+function loadUsers() {
+    fetch("https://roomzy-czyc.onrender.com/all-users")
+    .then(res => res.json())
+    .then(data => {
+        let list = document.getElementById("users");
+        list.innerHTML = "";
+
+        data.forEach(user => {
+            let li = document.createElement("li");
+            li.innerText = user.name + " - " + user.email;
+            list.appendChild(li);
+        });
+    });
+}
+</script>
+
 </body>
 </html>
