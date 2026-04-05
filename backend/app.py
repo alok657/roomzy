@@ -439,7 +439,7 @@ def create_admin():
 
     return "Admin created ✅"
 
-@app.route("/all-users")
+@app.route("/all-users", methods=["GET"])
 def all_users():
     conn = get_db()
     cur = conn.cursor()
