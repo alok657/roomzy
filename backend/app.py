@@ -97,8 +97,6 @@ def signup():
         return {"status": "error", "message": str(e)}, 500
 
 # ================= LOGIN =================
-ADMIN_EMAIL = "kushwah.al2020@gmail.com"
-
 @app.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
@@ -107,31 +105,34 @@ def login():
     cur = conn.cursor()
 
     cur.execute(
-        "SELECT * FROM users WHERE email=%s",
+        "SELECT id, name, email, password, role FROM users WHERE email=%s",
         (data["email"],)
     )
 
     user = cur.fetchone()
     conn.close()
 
-    if user and check_password_hash(user[3], data["password"]):
+    if not user:
+        return {"status": "error", "message": "User not found"}
 
-        # 🔥 ADMIN CHECK (MAIN LOGIC)
-        if data["email"] == ADMIN_EMAIL:
-            return {
-                "role": "admin",
-                "name": user[1],
-                "email": user[2]
-            }
-        else:
-            return {
-                "role": "student",
-                "name": user[1],
-                "email": user[2]
-            }
+    stored_password = user[3]
+
+    print("ENTERED:", data["password"])
+    print("STORED:", stored_password)
+
+    if check_password_hash(stored_password, data["password"]):
+
+        role = "admin" if data["email"] == "kushwah.al2020@gmail.com" else "student"
+
+        return {
+            "status": "success",
+            "name": user[1],
+            "email": user[2],
+            "role": role
+        }
 
     else:
-        return {"error": "Invalid login"}
+        return {"status": "error", "message": "Wrong password"}
     
 # ================= ADD PG =================
 @app.route("/add_pg", methods=["POST"])
@@ -444,6 +445,16 @@ def all_users():
         })
 
     return result
+
+@app.route("/reset_users")
+def reset_users():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM users")
+    conn.commit()
+    conn.close()
+    return "All users deleted"
+
 # ================= TEST =================
 @app.route("/")
 def home():
