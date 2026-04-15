@@ -6,7 +6,6 @@
 <title>Roomzy - Signup</title>
 
 <style>
-
 *{
 box-sizing:border-box;
 font-family:Segoe UI;
@@ -74,7 +73,6 @@ color:#ffd369;
 text-decoration:none;
 font-weight:bold;
 }
-
 </style>
 
 </head>
@@ -89,9 +87,13 @@ font-weight:bold;
 
 <input type="email" id="email" placeholder="Email">
 
+<button onclick="sendOTP()">Send OTP</button>
+
+<input type="text" id="otp" placeholder="Enter OTP">
+
 <input type="password" id="password" placeholder="Password (8+ chars, A-Z, a-z, 0-9, @#$)">
 
-<button id="btn" onclick="signup()">Signup</button>
+<button onclick="verifyAndSignup()">Signup</button>
 
 <div id="msg"></div>
 
@@ -104,50 +106,85 @@ Already have an account?
 
 <script>
 
-function signup(){
+// 🔥 SEND OTP
+function sendOTP(){
 
-let name=document.getElementById("name").value.trim()
-let email=document.getElementById("email").value.trim().toLowerCase()
-let password=document.getElementById("password").value.trim()
+let email=document.getElementById("email").value.trim()
 
-let msg=document.getElementById("msg")
-let btn=document.getElementById("btn")
-
-// 🔴 EMPTY CHECK
-if(name=="" || email=="" || password==""){
-showMsg("Please fill all details","red")
+if(email==""){
+alert("Enter email first")
 return
 }
 
-// 🔥 NAME VALIDATION
-if(name.length < 3 || !/^[a-zA-Z\s]+$/.test(name)){
-showMsg("❌ Enter valid name (only letters)","red")
+fetch("https://roomzy-czyc.onrender.com/send_otp",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({email:email})
+})
+.then(res=>res.json())
+.then(data=>{
+alert(data.message)
+})
+.catch(()=>{
+alert("Error sending OTP")
+})
+
+}
+
+
+// 🔥 VERIFY + SIGNUP
+function verifyAndSignup(){
+
+let name=document.getElementById("name").value.trim()
+let email=document.getElementById("email").value.trim()
+let password=document.getElementById("password").value.trim()
+let otp=document.getElementById("otp").value.trim()
+
+let msg=document.getElementById("msg")
+
+// ❌ EMPTY CHECK
+if(name=="" || email=="" || password=="" || otp==""){
+alert("Fill all fields + OTP")
 return
 }
 
 // 🔥 EMAIL VALIDATION
-let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+let emailPattern=/^[^\s@]+@[^\s@]+\.[^\s@]+$/
 if(!emailPattern.test(email)){
-showMsg("❌ Enter valid email","red")
+alert("Invalid email")
 return
 }
 
 // 🔥 PASSWORD VALIDATION
-if(password.length < 8 || 
-   !/[A-Z]/.test(password) || 
-   !/[a-z]/.test(password) || 
-   !/[0-9]/.test(password) || 
-   !/[!@#$%^&*]/.test(password)){
-showMsg("❌ Weak password","red")
+if(password.length<8 ||
+!/[A-Z]/.test(password) ||
+!/[a-z]/.test(password) ||
+!/[0-9]/.test(password) ||
+!/[!@#$%^&*]/.test(password)){
+alert("Weak password")
 return
 }
 
-// 🔥 LOADING STATE
-btn.innerText="Processing..."
-btn.disabled=true
+// 🔥 VERIFY OTP
+fetch("https://roomzy-czyc.onrender.com/verify_otp",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({email:email,otp:otp})
+})
+.then(res=>res.json())
+.then(data=>{
 
+if(data.status!=="success"){
+alert("Invalid OTP ❌")
+return
+}
+
+// ✅ SIGNUP
 fetch("https://roomzy-czyc.onrender.com/signup",{
-
 method:"POST",
 headers:{
 "Content-Type":"application/json"
@@ -157,52 +194,33 @@ name:name,
 email:email,
 password:password
 })
-
 })
-
-.then(res=>{
-if(!res.ok){
-throw new Error("Server error")
-}
-return res.json()
-})
-
+.then(res=>res.json())
 .then(data=>{
 
-if(data.status === "success"){
-showMsg("✅ Signup successful","#00ff88")
+msg.style.display="block"
+
+if(data.status==="success"){
+msg.style.color="#00ff88"
+msg.innerText="Signup successful ✅"
 
 setTimeout(()=>{
 window.location.href="login.html"
 },1000)
 }
 else{
-showMsg(data.message || "Signup failed","red")
+msg.style.color="red"
+msg.innerText=data.message
 }
 
-btn.innerText="Signup"
-btn.disabled=false
+})
 
 })
 
 .catch(()=>{
-showMsg("Server error","red")
-btn.innerText="Signup"
-btn.disabled=false
+alert("Server error")
 })
 
-}
-
-// 🔥 MESSAGE FUNCTION
-function showMsg(text,color){
-let msg=document.getElementById("msg")
-msg.style.display="block"
-msg.style.color=color
-msg.innerText=text
-
-setTimeout(()=>{
-msg.style.display="none"
-},2500)
 }
 
 </script>
