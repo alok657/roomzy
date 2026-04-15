@@ -60,6 +60,7 @@ def setupdb():
 
 # ================= SIGNUP =================
 from werkzeug.security import generate_password_hash
+import re
 
 @app.route("/signup", methods=["POST"])
 def signup():
@@ -73,15 +74,48 @@ def signup():
         email = data.get("email")
         password = data.get("password")
 
+        # 🔴 EMPTY CHECK
         if not name or not email or not password:
             return {"status": "error", "message": "All fields required"}, 400
+
+        # 🔥 NAME VALIDATION
+        if len(name) < 3 or not re.match(r'^[a-zA-Z\s]+$', name):
+            return {"status":"error","message":"Invalid name (only letters allowed)"}
+
+        # 🔥 EMAIL VALIDATION
+        pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+        if not re.match(pattern, email):
+            return {"status":"error","message":"Invalid Email"}
+
+        # 🔥 PASSWORD VALIDATION
+        if len(password) < 8:
+            return {"status":"error","message":"Password too short"}
+
+        if not re.search("[A-Z]", password):
+            return {"status":"error","message":"Add uppercase letter"}
+
+        if not re.search("[a-z]", password):
+            return {"status":"error","message":"Add lowercase letter"}
+
+        if not re.search("[0-9]", password):
+            return {"status":"error","message":"Add number"}
+
+        if not re.search("[!@#$%^&*]", password):
+            return {"status":"error","message":"Add special symbol"}
 
         conn = get_db()
         cur = conn.cursor()
 
-        # ✅ FIXED HASH
+        # 🔥 DUPLICATE EMAIL CHECK
+        cur.execute("SELECT * FROM users WHERE email=%s", (email,))
+        if cur.fetchone():
+            conn.close()
+            return {"status":"error","message":"Email already exists"}
+
+        # 🔐 PASSWORD HASH
         hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
 
+        # ✅ INSERT USER
         cur.execute(
             "INSERT INTO users (name,email,password,role) VALUES (%s,%s,%s,%s)",
             (name, email, hashed_password, "student")
@@ -94,8 +128,8 @@ def signup():
 
     except Exception as e:
         print("ERROR:", str(e))
-        return {"status": "error", "message": str(e)}, 500
-
+        return {"status": "error", "message": "Server error"}, 500
+    
 # ================= LOGIN =================
 @app.route("/login", methods=["POST"])
 def login():

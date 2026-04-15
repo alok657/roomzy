@@ -89,17 +89,15 @@ font-weight:bold;
 
 <input type="email" id="email" placeholder="Email">
 
-<input type="password" id="password" placeholder="Password">
+<input type="password" id="password" placeholder="Password (8+ chars, A-Z, a-z, 0-9, @#$)">
 
-<button type="button" onclick="signup()">Signup</button>
+<button id="btn" onclick="signup()">Signup</button>
 
 <div id="msg"></div>
 
 <div class="login-link">
-
 Already have an account?  
 <a href="login.html">Login</a>
-
 </div>
 
 </div>
@@ -109,32 +107,51 @@ Already have an account?
 function signup(){
 
 let name=document.getElementById("name").value.trim()
-let email=document.getElementById("email").value.trim()
+let email=document.getElementById("email").value.trim().toLowerCase()
 let password=document.getElementById("password").value.trim()
 
 let msg=document.getElementById("msg")
+let btn=document.getElementById("btn")
 
+// 🔴 EMPTY CHECK
 if(name=="" || email=="" || password==""){
-
-msg.style.display="block"
-msg.style.color="red"
-msg.innerText="Please fill all details"
-
-setTimeout(()=>{
-msg.style.display="none"
-},2000)
-
+showMsg("Please fill all details","red")
 return
 }
+
+// 🔥 NAME VALIDATION
+if(name.length < 3 || !/^[a-zA-Z\s]+$/.test(name)){
+showMsg("❌ Enter valid name (only letters)","red")
+return
+}
+
+// 🔥 EMAIL VALIDATION
+let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+if(!emailPattern.test(email)){
+showMsg("❌ Enter valid email","red")
+return
+}
+
+// 🔥 PASSWORD VALIDATION
+if(password.length < 8 || 
+   !/[A-Z]/.test(password) || 
+   !/[a-z]/.test(password) || 
+   !/[0-9]/.test(password) || 
+   !/[!@#$%^&*]/.test(password)){
+showMsg("❌ Weak password","red")
+return
+}
+
+// 🔥 LOADING STATE
+btn.innerText="Processing..."
+btn.disabled=true
 
 fetch("https://roomzy-czyc.onrender.com/signup",{
 
 method:"POST",
-
 headers:{
 "Content-Type":"application/json"
 },
-
 body:JSON.stringify({
 name:name,
 email:email,
@@ -143,28 +160,49 @@ password:password
 
 })
 
-.then(res=>res.json())
+.then(res=>{
+if(!res.ok){
+throw new Error("Server error")
+}
+return res.json()
+})
 
 .then(data=>{
 
-// success message
-msg.style.display="block"
-msg.style.color="#00ff88"
-msg.innerText="Signup successful"
+if(data.status === "success"){
+showMsg("✅ Signup successful","#00ff88")
 
-// DIRECT redirect (no delay issues)
+setTimeout(()=>{
 window.location.href="login.html"
+},1000)
+}
+else{
+showMsg(data.message || "Signup failed","red")
+}
+
+btn.innerText="Signup"
+btn.disabled=false
 
 })
 
 .catch(()=>{
-
-msg.style.display="block"
-msg.style.color="red"
-msg.innerText="Server error"
-
+showMsg("Server error","red")
+btn.innerText="Signup"
+btn.disabled=false
 })
 
+}
+
+// 🔥 MESSAGE FUNCTION
+function showMsg(text,color){
+let msg=document.getElementById("msg")
+msg.style.display="block"
+msg.style.color=color
+msg.innerText=text
+
+setTimeout(()=>{
+msg.style.display="none"
+},2500)
 }
 
 </script>
