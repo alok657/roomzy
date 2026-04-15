@@ -73,7 +73,7 @@ def send_verification():
         link = f"https://roomzy-czyc.onrender.com/verify_email?email={email}&token={token}"
 
         sender = "kushwah.al2020@gmail.com"
-        password = "YOUR_APP_PASSWORD"
+        password = "eyalevprdsylypbm"
 
         msg = MIMEText(f"Click to verify your email:\n{link}")
         msg["Subject"] = "Verify Email - Roomzy"
@@ -89,8 +89,8 @@ def send_verification():
         return {"status":"success","message":"Verification link sent"}
 
     except Exception as e:
-        print(e)
-        return {"status":"error"}
+        print("MAIL ERROR:", e)
+        return {"status":"error","message":str(e)}
     
 @app.route("/verify_email")
 def verify_email():
