@@ -65,22 +65,21 @@ def setupdb():
 # ================= OTP SEND =================
 @app.route("/send_otp", methods=["POST"])
 def send_otp():
-
-    data = request.get_json()
-    email = data.get("email")
-
-    if not email:
-        return {"status":"error","message":"Email required"}
-
-    otp = str(random.randint(100000,999999))
-    otp_store[email] = otp
-
     try:
-        sender = "YOUR_GMAIL@gmail.com"
-        password = "tkkfmcjfzbtddjor"
+        data = request.get_json()
+        email = data.get("email")
+
+        if not email:
+            return {"status": "error", "message": "Email required"}
+
+        otp = str(random.randint(100000, 999999))
+        otp_store[email] = otp
+
+        sender = "yourgmail@gmail.com"
+        password = "yourapppassword"
 
         msg = MIMEText(f"Your Roomzy OTP is: {otp}")
-        msg["Subject"] = "Roomzy Email Verification"
+        msg["Subject"] = "Roomzy OTP"
         msg["From"] = sender
         msg["To"] = email
 
@@ -90,24 +89,24 @@ def send_otp():
         server.sendmail(sender, email, msg.as_string())
         server.quit()
 
-        return {"status":"success","message":"OTP sent"}
+        return {"status": "success"}
 
     except Exception as e:
         print("OTP ERROR:", e)
-        return {"status":"error","message":"OTP failed"}
+        return {"status": "error"}
     
-    @app.route("/verify_otp", methods=["POST"])
-    def verify_otp():
+@app.route("/verify_otp", methods=["POST"])
+def verify_otp():
 
     data = request.get_json()
     email = data.get("email")
     otp = data.get("otp")
 
     if otp_store.get(email) == otp:
-        return {"status":"success"}
+        return {"status": "success"}
     else:
-        return {"status":"error","message":"Invalid OTP"}
-
+        return {"status": "error", "message": "Invalid OTP"}
+   
 # ================= SIGNUP =================
 from werkzeug.security import generate_password_hash
 import re
