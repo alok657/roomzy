@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Email Verified</title>
+</head>
+<body style="display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;">
+
+<h2>✅ Email Verified Successfully</h2>
+
+<script>
+let params = new URLSearchParams(window.location.search)
+let email = params.get("email")
+
+if(email){
+localStorage.setItem("verifiedEmail", email)
+}
+</script>
+
+</body>
+</html>

@@ -103,9 +103,18 @@ Already have an account?
 
 </div>
 
+<!-- ✅ EmailJS Script -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
 <script>
 
-    // 🔥 SEND VERIFICATION LINK
+// ✅ INIT EMAILJS
+(function(){
+emailjs.init("TAXnL1b8690lbLk79");
+})();
+
+
+// 🔥 SEND VERIFICATION LINK
 function sendVerification(){
 
 let email = document.getElementById("email").value.trim()
@@ -115,40 +124,31 @@ alert("Enter email first")
 return
 }
 
-// 🔥 EMAIL FORMAT CHECK (extra safety)
 let emailPattern=/^[^\s@]+@[^\s@]+\.[^\s@]+$/
 if(!emailPattern.test(email)){
 alert("Enter valid email")
 return
 }
 
-fetch("https://roomzy-czyc.onrender.com/send_verification",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({email:email})
+// 🔥 create verification link
+let link = window.location.origin + "/verified.html?email=" + email
+
+emailjs.send("service_7cwypea","template_rg6eehb",{
+to_email: email,
+link: link
 })
-.then(res=>res.json())
-.then(data=>{
+.then(()=>{
+alert("Verification mail sent ✅")
 
-if(data.status==="success"){
-alert("Verification link sent 📩")
-
-// optional UI update
 document.getElementById("verifyStatus").innerText="📩 Check your email"
 document.getElementById("verifyStatus").style.color="yellow"
-}
-else{
-alert("Error sending mail")
-}
-
 })
-.catch(()=>{
-alert("Server error")
+.catch((err)=>{
+alert("Error: "+JSON.stringify(err))
 })
 
 }
+
 
 // 🔥 VERIFY + SIGNUP
 function verifyAndSignup(){
@@ -161,7 +161,7 @@ let msg=document.getElementById("msg")
 
 // ❌ EMPTY CHECK
 if(name=="" || email=="" || password==""){
-alert("Fill all fields + OTP")
+alert("Fill all fields")
 return
 }
 
@@ -182,24 +182,17 @@ alert("Weak password")
 return
 }
 
-// 🔥 CHECK EMAIL VERIFIED
-fetch("https://roomzy-czyc.onrender.com/check_verified",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({email:email})
-})
-.then(res=>res.json())
-.then(vdata=>{
+// 🔥 CHECK VERIFIED
+let verifiedEmail = localStorage.getItem("verifiedEmail")
 
-if(vdata.status !== "verified"){
+if(verifiedEmail !== email){
 document.getElementById("verifyStatus").innerText="❌ Email not verified"
 document.getElementById("verifyStatus").style.color="red"
 return
 }
 
-// ✅ SIGNUP (same tera code)
+
+// ✅ SIGNUP
 fetch("https://roomzy-czyc.onrender.com/signup",{
 method:"POST",
 headers:{
@@ -230,11 +223,8 @@ msg.innerText=data.message
 }
 
 })
-
-})
-
 .catch(()=>{
-alert("Server error")
+alert("server error")
 })
 
 }
@@ -242,5 +232,4 @@ alert("Server error")
 </script>
 
 </body>
-
 </html>
