@@ -4,6 +4,11 @@ import psycopg2
 import json
 import os
 import requests
+import random
+import smtplib
+from email.mime.text import MIMEText
+
+otp_store = {}
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -57,6 +62,51 @@ def setupdb():
 
     return "Database Ready ✅"
 
+# ================= OTP SEND =================
+@app.route("/send_otp", methods=["POST"])
+def send_otp():
+
+    data = request.get_json()
+    email = data.get("email")
+
+    if not email:
+        return {"status":"error","message":"Email required"}
+
+    otp = str(random.randint(100000,999999))
+    otp_store[email] = otp
+
+    try:
+        sender = "YOUR_GMAIL@gmail.com"
+        password = "tkkfmcjfzbtddjor"
+
+        msg = MIMEText(f"Your Roomzy OTP is: {otp}")
+        msg["Subject"] = "Roomzy Email Verification"
+        msg["From"] = sender
+        msg["To"] = email
+
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(sender, password)
+        server.sendmail(sender, email, msg.as_string())
+        server.quit()
+
+        return {"status":"success","message":"OTP sent"}
+
+    except Exception as e:
+        print("OTP ERROR:", e)
+        return {"status":"error","message":"OTP failed"}
+    
+    @app.route("/verify_otp", methods=["POST"])
+    def verify_otp():
+
+    data = request.get_json()
+    email = data.get("email")
+    otp = data.get("otp")
+
+    if otp_store.get(email) == otp:
+        return {"status":"success"}
+    else:
+        return {"status":"error","message":"Invalid OTP"}
 
 # ================= SIGNUP =================
 from werkzeug.security import generate_password_hash
@@ -67,24 +117,25 @@ def signup():
     try:
         data = request.get_json()
 
-        if not data:
-            return {"status": "error", "message": "No data received"}, 400
-
         name = data.get("name")
         email = data.get("email")
         password = data.get("password")
+        otp = data.get("otp")   # 🔥 NEW
 
-        # 🔴 EMPTY CHECK
-        if not name or not email or not password:
-            return {"status": "error", "message": "All fields required"}, 400
+        # ❌ EMPTY CHECK
+        if not name or not email or not password or not otp:
+            return {"status": "error", "message": "All fields required"}
+
+        # 🔥 OTP CHECK
+        if otp_store.get(email) != otp:
+            return {"status":"error","message":"OTP not verified"}
 
         # 🔥 NAME VALIDATION
         if len(name) < 3 or not re.match(r'^[a-zA-Z\s]+$', name):
-            return {"status":"error","message":"Invalid name (only letters allowed)"}
+            return {"status":"error","message":"Invalid name"}
 
         # 🔥 EMAIL VALIDATION
-        pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
-        if not re.match(pattern, email):
+        if not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
             return {"status":"error","message":"Invalid Email"}
 
         # 🔥 PASSWORD VALIDATION
@@ -92,30 +143,29 @@ def signup():
             return {"status":"error","message":"Password too short"}
 
         if not re.search("[A-Z]", password):
-            return {"status":"error","message":"Add uppercase letter"}
+            return {"status":"error","message":"Add uppercase"}
 
         if not re.search("[a-z]", password):
-            return {"status":"error","message":"Add lowercase letter"}
+            return {"status":"error","message":"Add lowercase"}
 
         if not re.search("[0-9]", password):
             return {"status":"error","message":"Add number"}
 
         if not re.search("[!@#$%^&*]", password):
-            return {"status":"error","message":"Add special symbol"}
+            return {"status":"error","message":"Add special char"}
 
         conn = get_db()
         cur = conn.cursor()
 
-        # 🔥 DUPLICATE EMAIL CHECK
+        # 🔥 DUPLICATE EMAIL
         cur.execute("SELECT * FROM users WHERE email=%s", (email,))
         if cur.fetchone():
             conn.close()
             return {"status":"error","message":"Email already exists"}
 
-        # 🔐 PASSWORD HASH
-        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+        # 🔐 HASH PASSWORD
+        hashed_password = generate_password_hash(password)
 
-        # ✅ INSERT USER
         cur.execute(
             "INSERT INTO users (name,email,password,role) VALUES (%s,%s,%s,%s)",
             (name, email, hashed_password, "student")
@@ -124,11 +174,11 @@ def signup():
         conn.commit()
         conn.close()
 
-        return {"status": "success", "message": "Signup successful"}
+        return {"status":"success","message":"Signup successful"}
 
     except Exception as e:
-        print("ERROR:", str(e))
-        return {"status": "error", "message": "Server error"}, 500
+        print("ERROR:", e)
+        return {"status":"error","message":"Server error"}
     
 # ================= LOGIN =================
 @app.route("/login", methods=["POST"])
