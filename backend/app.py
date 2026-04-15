@@ -75,7 +75,7 @@ def send_otp():
         otp = str(random.randint(100000, 999999))
         otp_store[email] = otp
 
-        sender = "yourgmail@gmail.com"
+        sender = "kushwah.al2020@gmail.com"
         password = "tkkfmcjfzbtddjor"
 
         msg = MIMEText(f"Your Roomzy OTP is: {otp}")
