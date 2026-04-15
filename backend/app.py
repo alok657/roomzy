@@ -3,14 +3,13 @@ from flask_cors import CORS
 import psycopg2
 import json
 import os
-import requests
-import random
 import smtplib
 from email.mime.text import MIMEText
-
-otp_store = {}
+import uuid 
 
 from werkzeug.security import generate_password_hash, check_password_hash
+
+verification_store = {}
 
 app = Flask(__name__, static_folder="static")
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -62,6 +61,59 @@ def setupdb():
 
     return "Database Ready ✅"
 
+@app.route("/send_verification", methods=["POST"])
+def send_verification():
+    try:
+        data = request.get_json()
+        email = data.get("email")
+
+        token = str(uuid.uuid4())
+        verification_store[email] = token
+
+        link = f"https://roomzy-czyc.onrender.com/verify_email?email={email}&token={token}"
+
+        sender = "kushwah.al2020@gmail.com"
+        password = "YOUR_APP_PASSWORD"
+
+        msg = MIMEText(f"Click to verify your email:\n{link}")
+        msg["Subject"] = "Verify Email - Roomzy"
+        msg["From"] = sender
+        msg["To"] = email
+
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(sender, password)
+        server.sendmail(sender, email, msg.as_string())
+        server.quit()
+
+        return {"status":"success","message":"Verification link sent"}
+
+    except Exception as e:
+        print(e)
+        return {"status":"error"}
+    
+@app.route("/verify_email")
+def verify_email():
+
+    email = request.args.get("email")
+    token = request.args.get("token")
+
+    if verification_store.get(email) == token:
+        verification_store[email] = "verified"
+        return "✅ Email Verified!"
+    else:
+        return "❌ Invalid link"
+    
+@app.route("/check_verified", methods=["POST"])
+def check_verified():
+
+    data = request.get_json()
+    email = data.get("email")
+
+    if verification_store.get(email) == "verified":
+        return {"status":"verified"}
+    else:
+        return {"status":"not_verified"}
 # ================= SIGNUP =================
 from werkzeug.security import generate_password_hash
 import re
@@ -74,16 +126,7 @@ def signup():
         name = data.get("name")
         email = data.get("email")
         password = data.get("password")
-        otp = data.get("otp")   # 🔥 NEW
-
-        # ❌ EMPTY CHECK
-        if not name or not email or not password or not otp:
-            return {"status": "error", "message": "All fields required"}
-
-        # 🔥 OTP CHECK
-        if otp_store.get(email) != otp:
-            return {"status":"error","message":"OTP not verified"}
-
+       
         # 🔥 NAME VALIDATION
         if len(name) < 3 or not re.match(r'^[a-zA-Z\s]+$', name):
             return {"status":"error","message":"Invalid name"}
