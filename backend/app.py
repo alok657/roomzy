@@ -4,6 +4,9 @@ import psycopg2
 import json
 import os
 import uuid 
+import resend
+
+resend.api_key = "re_GK8dHAnz_B5tGdWRxXBKzB9rR3UUuX9Jr"
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -49,7 +52,7 @@ def setupdb():
         cur.execute("ALTER TABLE users ADD COLUMN verify_token TEXT")
     except:
         pass
-    
+
     cur.execute("""
     CREATE TABLE IF NOT EXISTS pgs(
         id SERIAL PRIMARY KEY,
@@ -119,12 +122,17 @@ def signup():
             return {"status":"error","message":"Email already exists"}
 
         # 🔐 HASH PASSWORD
+        token = str(uuid.uuid4())
         hashed_password = generate_password_hash(password)
 
         cur.execute(
-            "INSERT INTO users (name,email,password,role) VALUES (%s,%s,%s,%s)",
-            (name, email, hashed_password, "student")
+            """INSERT INTO users 
+            (name,email,password,role,is_verified,verify_token) 
+            VALUES (%s,%s,%s,%s,%s,%s)""",
+            (name, email, hashed_password, "student", False, token)
         )
+
+        print("VERIFY LINK:", f"https://roomzy-czyc.onrender.com/verify/{token}")
 
         conn.commit()
         conn.close()
@@ -144,7 +152,7 @@ def login():
     cur = conn.cursor()
 
     cur.execute(
-        "SELECT id, name, email, password, role FROM users WHERE email=%s",
+        "SELECT id, name, email, password, role, is_verified FROM users WHERE email=%s",
         (data["email"],)
     )
 
@@ -154,6 +162,9 @@ def login():
     if not user:
         return {"status": "error", "message": "User not found"}
 
+    if not user[5]:
+        return {"status":"error","message":"Email not verified ❌"}
+    
     stored_password = user[3]
 
     print("ENTERED:", data["password"])
@@ -173,6 +184,30 @@ def login():
     else:
         return {"status": "error", "message": "Wrong password"}
     
+
+@app.route("/verify/<token>")
+def verify(token):
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    # 🔍 check token
+    cur.execute("SELECT id FROM users WHERE verify_token=%s", (token,))
+    user = cur.fetchone()
+
+    if not user:
+        return "Invalid or expired link ❌"
+
+    # ✅ mark verified
+    cur.execute(
+        "UPDATE users SET is_verified=TRUE WHERE verify_token=%s",
+        (token,)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return "✅ Email verified successfully! You can login now"
 # ================= ADD PG =================
 @app.route("/add_pg", methods=["POST"])
 def add_pg():

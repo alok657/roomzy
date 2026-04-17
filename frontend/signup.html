@@ -84,15 +84,10 @@ font-weight:bold;
 <h2>Create Account</h2>
 
 <input type="text" id="name" placeholder="Full Name">
-
 <input type="email" id="email" placeholder="Email">
-
-<button type="button" onclick="sendVerification()">Verify Email</button>
-<span id="verifyStatus"></span>
-
 <input type="password" id="password" placeholder="Password (8+ chars, A-Z, a-z, 0-9, @#$)">
 
-<button onclick="verifyAndSignup()">Signup</button>
+<button onclick="signup()">Signup</button>
 
 <div id="msg"></div>
 
@@ -103,55 +98,9 @@ Already have an account?
 
 </div>
 
-<!-- ✅ EmailJS Script -->
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-
 <script>
 
-// ✅ INIT EMAILJS
-(function(){
-emailjs.init("TAXnL1b8690lbLk79");
-})();
-
-
-// 🔥 SEND VERIFICATION LINK
-function sendVerification(){
-
-let email = document.getElementById("email").value.trim()
-
-if(email==""){
-alert("Enter email first")
-return
-}
-
-let emailPattern=/^[^\s@]+@[^\s@]+\.[^\s@]+$/
-if(!emailPattern.test(email)){
-alert("Enter valid email")
-return
-}
-
-// 🔥 create verification link
-let link = window.location.origin + "/verified.html?email=" + email
-
-emailjs.send("service_7cwypea","template_rg6eehb",{
-to_email: "kushwah.al2020@gmail.com",
-link: "https://google.com"
-})
-.then(()=>{
-alert("Verification mail sent ✅")
-
-document.getElementById("verifyStatus").innerText="📩 Check your email"
-document.getElementById("verifyStatus").style.color="yellow"
-})
-.catch((err)=>{
-alert("Error: "+JSON.stringify(err))
-})
-
-}
-
-
-// 🔥 VERIFY + SIGNUP
-function verifyAndSignup(){
+function signup(){
 
 let name=document.getElementById("name").value.trim()
 let email=document.getElementById("email").value.trim()
@@ -178,21 +127,11 @@ if(password.length<8 ||
 !/[a-z]/.test(password) ||
 !/[0-9]/.test(password) ||
 !/[!@#$%^&*]/.test(password)){
-alert("Weak password")
+alert("Password must be strong (A-Z, a-z, 0-9, special char)")
 return
 }
 
-// 🔥 CHECK VERIFIED
-let verifiedEmail = localStorage.getItem("verifiedEmail")
-
-if(verifiedEmail !== email){
-document.getElementById("verifyStatus").innerText="❌ Email not verified"
-document.getElementById("verifyStatus").style.color="red"
-return
-}
-
-
-// ✅ SIGNUP
+// ✅ API CALL
 fetch("https://roomzy-czyc.onrender.com/signup",{
 method:"POST",
 headers:{
@@ -211,11 +150,11 @@ msg.style.display="block"
 
 if(data.status==="success"){
 msg.style.color="#00ff88"
-msg.innerText="Signup successful ✅"
+msg.innerText="📩 Verification email sent! Check your inbox"
 
 setTimeout(()=>{
 window.location.href="login.html"
-},1000)
+},2000)
 }
 else{
 msg.style.color="red"
@@ -224,7 +163,7 @@ msg.innerText=data.message
 
 })
 .catch(()=>{
-alert("server error")
+alert("Server error")
 })
 
 }
@@ -232,4 +171,5 @@ alert("server error")
 </script>
 
 </body>
+
 </html>
