@@ -33,10 +33,23 @@ def setupdb():
         name TEXT,
         email TEXT UNIQUE,
         password TEXT,
-        role TEXT
+        role TEXT,
+        is_verified BOOLEAN DEFAULT FALSE,
+        verify_token TEXT
     )
     """)
 
+    # 🔥 ADD NEW COLUMNS (if not exist)
+    try:
+        cur.execute("ALTER TABLE users ADD COLUMN is_verified BOOLEAN DEFAULT FALSE")
+    except:
+        pass
+
+    try:
+        cur.execute("ALTER TABLE users ADD COLUMN verify_token TEXT")
+    except:
+        pass
+    
     cur.execute("""
     CREATE TABLE IF NOT EXISTS pgs(
         id SERIAL PRIMARY KEY,
@@ -56,6 +69,8 @@ def setupdb():
     conn.close()
 
     return "Database Ready ✅"
+
+
 
 # ================= SIGNUP =================
 from werkzeug.security import generate_password_hash
