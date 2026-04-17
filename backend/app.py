@@ -132,6 +132,26 @@ def signup():
             (name, email, hashed_password, "student", False, token)
         )
 
+        # 🔥 SEND EMAIL (IMPORTANT)
+        try:
+            resend.Emails.send({
+                "from": "onboarding@resend.dev",
+
+                # ⚠️ TEST ke liye apni email daalo
+                "to": "kushwah.al2020@gmail.com",
+
+                "subject": "Verify your Roomzy Account",
+                "html": f"""
+                <h2>Welcome to Roomzy 🏠</h2>
+                <p>Click below to verify your account:</p>
+                <a href="https://roomzy-czyc.onrender.com/verify/{token}">
+                    Verify Now
+                </a>
+                """
+            })
+        except Exception as e:
+            print("EMAIL ERROR:", e)
+
         print("VERIFY LINK:", f"https://roomzy-czyc.onrender.com/verify/{token}")
 
         conn.commit()
@@ -142,7 +162,6 @@ def signup():
     except Exception as e:
         print("ERROR:", e)
         return {"status":"error","message":"Server error"}
-    
 # ================= LOGIN =================
 @app.route("/login", methods=["POST"])
 def login():
