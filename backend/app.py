@@ -87,7 +87,7 @@ def signup():
         name = data.get("name")
         email = data.get("email")
         password = data.get("password")
-       
+
         # 🔥 NAME VALIDATION
         if len(name) < 3 or not re.match(r'^[a-zA-Z\s]+$', name):
             return {"status":"error","message":"Invalid name"}
@@ -115,13 +115,48 @@ def signup():
         conn = get_db()
         cur = conn.cursor()
 
-        # 🔥 DUPLICATE EMAIL
-        cur.execute("SELECT * FROM users WHERE email=%s", (email,))
-        if cur.fetchone():
-            conn.close()
-            return {"status":"error","message":"Email already exists"}
+        # 🔥 CHECK EXISTING USER
+        cur.execute("SELECT is_verified, verify_token FROM users WHERE email=%s", (email,))
+        existing = cur.fetchone()
 
-        # 🔐 HASH PASSWORD
+        if existing:
+            is_verified = existing[0]
+            token = existing[1]
+
+            if not is_verified:
+                # 🔥 RESEND EMAIL
+                try:
+                    print("RESENDING EMAIL")
+
+                    resend.Emails.send({
+                        "from": "onboarding@resend.dev",
+                        "to": [email],
+                        "subject": "Verify your Roomzy Account",
+                        "html": f"""
+                        <h2>Welcome Back 👋</h2>
+                        <p>Please verify your account:</p>
+                        <a href="https://roomzy-czyc.onrender.com/verify/{token}">
+                            Verify Now
+                        </a>
+                        """
+                    })
+
+                    print("RESEND SUCCESS")
+
+                except Exception as e:
+                    print("RESEND ERROR:", e)
+
+                conn.close()
+                return {
+                    "status":"pending",
+                    "message":"Email already registered but not verified. Verification mail resent 📩"
+                }
+
+            else:
+                conn.close()
+                return {"status":"error","message":"Email already exists"}
+
+        # 🔐 NEW USER CREATE
         token = str(uuid.uuid4())
         hashed_password = generate_password_hash(password)
 
@@ -132,7 +167,7 @@ def signup():
             (name, email, hashed_password, "student", False, token)
         )
 
-        # 🔥 SEND EMAIL (IMPORTANT)
+        # 🔥 SEND EMAIL (NEW USER)
         try:
             print("EMAIL SENDING START")
 
@@ -159,7 +194,7 @@ def signup():
         conn.commit()
         conn.close()
 
-        return {"status":"success","message":"Signup successful"}
+        return {"status":"success","message":"Signup successful. Check your email 📩"}
 
     except Exception as e:
         print("ERROR:", e)
