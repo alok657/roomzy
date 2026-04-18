@@ -134,12 +134,11 @@ def signup():
 
         # 🔥 SEND EMAIL (IMPORTANT)
         try:
+            print("EMAIL SENDING START")
+
             resend.Emails.send({
                 "from": "onboarding@resend.dev",
-
-                # ⚠️ TEST ke liye apni email daalo
-                "to": "kushwah.al2020@gmail.com",
-
+                "to": email,
                 "subject": "Verify your Roomzy Account",
                 "html": f"""
                 <h2>Welcome to Roomzy 🏠</h2>
@@ -149,6 +148,9 @@ def signup():
                 </a>
                 """
             })
+
+            print("EMAIL SENT SUCCESS")
+            
         except Exception as e:
             print("EMAIL ERROR:", e)
 
