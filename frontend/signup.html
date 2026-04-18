@@ -73,6 +73,25 @@ color:#ffd369;
 text-decoration:none;
 font-weight:bold;
 }
+.password-box{
+    position: relative;
+}
+
+.password-box input{
+    width: 100%;
+    padding: 12px;
+    padding-right: 40px;
+}
+
+.toggle-eye{
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+}
+
 </style>
 
 </head>
@@ -85,8 +104,10 @@ font-weight:bold;
 
 <input type="text" id="name" placeholder="Full Name">
 <input type="email" id="email" placeholder="Email">
-<input type="password" id="password" placeholder="Password (8+ chars, A-Z, a-z, 0-9, @#$)">
-
+<div class="password-box">
+    <input type="password" id="password" placeholder="Password (8+ chars, A-Z, a-z, 0-9, @#$)">
+    <span class="toggle-eye" onclick="togglePassword()">👁</span>
+</div>
 <button onclick="signup()">Signup</button>
 
 <div id="msg"></div>
@@ -99,6 +120,20 @@ Already have an account?
 </div>
 
 <script>
+
+// 👁 TOGGLE PASSWORD FUNCTION
+function togglePassword(){
+    let input = document.getElementById("password")
+    let eye = document.querySelector(".toggle-eye")
+
+    if(input.type === "password"){
+        input.type = "text"
+        eye.innerText = "🙈"
+    } else {
+        input.type = "password"
+        eye.innerText = "👁"
+    }
+}
 
 function signup(){
 
