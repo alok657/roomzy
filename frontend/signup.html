@@ -124,14 +124,11 @@ Already have an account?
 // 👁 TOGGLE PASSWORD FUNCTION
 function togglePassword(){
     let input = document.getElementById("password")
-    let eye = document.querySelector(".toggle-eye")
-
+    
     if(input.type === "password"){
         input.type = "text"
-        eye.innerText = "🙈"
     } else {
         input.type = "password"
-        eye.innerText = "👁"
     }
 }
 
