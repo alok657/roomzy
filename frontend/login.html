@@ -104,8 +104,20 @@ Don't have an account?
 </div>
 
 </div>
+
 <script>
 
+// 🔥 VERIFY SUCCESS MESSAGE
+let params = new URLSearchParams(window.location.search)
+
+if(params.get("verified") === "true"){
+    let msg = document.getElementById("msg")
+    msg.style.display = "block"
+    msg.style.color = "#00ff88"
+    msg.innerText = "✅ Email verified! Please login"
+}
+
+// 🔥 LOGIN FUNCTION
 function login(){
     
 let email=document.getElementById("email").value.trim()
@@ -166,7 +178,6 @@ if(data.role === "admin"){
 let savedEmail = localStorage.getItem("saved_email")
 
 if(savedEmail !== data.email){
-    // new user → clear role
     localStorage.removeItem("user_role")
     localStorage.setItem("saved_email", data.email)
 }

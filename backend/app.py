@@ -4,14 +4,20 @@ import psycopg2
 import json
 import os
 import uuid 
-import resend
 
-resend.api_key = os.environ.get("RESEND_API_KEY")
-
+from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__, static_folder="static")
 CORS(app, resources={r"/*": {"origins": "*"}})
+
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'roomzy.support@gmail.com'
+app.config['MAIL_PASSWORD'] = 'pjndzqwwnjwaiwjb'
+
+mail = Mail(app)
 
 # ================= DB CONNECT =================
 def get_db():
@@ -73,8 +79,6 @@ def setupdb():
 
     return "Database Ready ✅"
 
-
-
 # ================= SIGNUP =================
 from werkzeug.security import generate_password_hash
 import re
@@ -115,7 +119,7 @@ def signup():
         conn = get_db()
         cur = conn.cursor()
 
-        # 🔥 CHECK EXISTING USER
+        # 🔍 CHECK EXISTING USER
         cur.execute("SELECT is_verified, verify_token FROM users WHERE email=%s", (email,))
         existing = cur.fetchone()
 
@@ -128,18 +132,21 @@ def signup():
                 try:
                     print("RESENDING EMAIL")
 
-                    resend.Emails.send({
-                        "from": "onboarding@resend.dev",
-                        "to": [email],
-                        "subject": "Verify your Roomzy Account",
-                        "html": f"""
-                        <h2>Welcome Back 👋</h2>
-                        <p>Please verify your account:</p>
-                        <a href="https://roomzy-czyc.onrender.com/verify/{token}">
-                            Verify Now
-                        </a>
-                        """
-                    })
+                    msg = Message(
+                        "Verify your Roomzy Account",
+                        sender=("Roomzy Support", "roomzy.noreply@gmail.com"),
+                        recipients=[email]
+                    )
+
+                    msg.html = f"""
+                    <h2>Welcome Back 👋</h2>
+                    <p>Please verify your account:</p>
+                    <a href="https://roomzy-czyc.onrender.com/verify/{token}">
+                        Verify Now
+                    </a>
+                    """
+
+                    mail.send(msg)
 
                     print("RESEND SUCCESS")
 
@@ -156,7 +163,7 @@ def signup():
                 conn.close()
                 return {"status":"error","message":"Email already exists"}
 
-        # 🔐 NEW USER CREATE
+        # 🆕 NEW USER
         token = str(uuid.uuid4())
         hashed_password = generate_password_hash(password)
 
@@ -167,29 +174,30 @@ def signup():
             (name, email, hashed_password, "student", False, token)
         )
 
-        # 🔥 SEND EMAIL (NEW USER)
+        # 🔥 SEND EMAIL
         try:
             print("EMAIL SENDING START")
 
-            resend.Emails.send({
-                "from": "onboarding@resend.dev",
-                "to": [email],
-                "subject": "Verify your Roomzy Account",
-                "html": f"""
-                <h2>Welcome to Roomzy 🏠</h2>
-                <p>Click below to verify your account:</p>
-                <a href="https://roomzy-czyc.onrender.com/verify/{token}">
-                    Verify Now
-                </a>
-                """
-            })
+            msg = Message(
+                "Verify your Roomzy Account",
+                sender=("Roomzy Support", "roomzy.noreply@gmail.com"),
+                recipients=[email]
+            )
+
+            msg.html = f"""
+            <h2>Welcome to Roomzy 🏠</h2>
+            <p>Click below to verify your account:</p>
+            <a href="https://roomzy-czyc.onrender.com/verify/{token}">
+                Verify Now
+            </a>
+            """
+
+            mail.send(msg)
 
             print("EMAIL SENT SUCCESS")
 
         except Exception as e:
             print("EMAIL ERROR:", e)
-
-        print("VERIFY LINK:", f"https://roomzy-czyc.onrender.com/verify/{token}")
 
         conn.commit()
         conn.close()
@@ -199,6 +207,7 @@ def signup():
     except Exception as e:
         print("ERROR:", e)
         return {"status":"error","message":"Server error"}
+    
 # ================= LOGIN =================
 @app.route("/login", methods=["POST"])
 def login():
@@ -241,6 +250,8 @@ def login():
         return {"status": "error", "message": "Wrong password"}
     
 
+from flask import redirect
+
 @app.route("/verify/<token>")
 def verify(token):
 
@@ -263,7 +274,9 @@ def verify(token):
     conn.commit()
     conn.close()
 
-    return "✅ Email verified successfully! You can login now"
+    # 🔥 REDIRECT TO LOGIN PAGE
+    return redirect("https://roomzy-mocha.vercel.app/login.html?verified=true")
+
 # ================= ADD PG =================
 @app.route("/add_pg", methods=["POST"])
 def add_pg():
