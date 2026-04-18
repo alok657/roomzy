@@ -80,16 +80,22 @@ font-weight:bold;
 .password-box input{
     width: 100%;
     padding: 12px;
-    padding-right: 40px;
+    padding-right: 45px;
 }
 
 .toggle-eye{
     position: absolute;
-    right: 10px;
+    right: 12px;
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
     font-size: 18px;
+    color: #333;
+    z-index: 10;
+}
+
+.toggle-eye:hover{
+    color: #ff7a18;
 }
 
 </style>
@@ -124,7 +130,7 @@ Already have an account?
 // 👁 TOGGLE PASSWORD FUNCTION
 function togglePassword(){
     let input = document.getElementById("password")
-    
+
     if(input.type === "password"){
         input.type = "text"
     } else {
