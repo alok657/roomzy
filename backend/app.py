@@ -6,7 +6,7 @@ import os
 import uuid 
 import resend
 
-resend.api_key = "re_GK8dHAnz_B5tGdWRxXBKzB9rR3UUuX9Jr"
+resend.api_key = os.environ.get("RESEND_API_KEY")
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -138,7 +138,7 @@ def signup():
 
             resend.Emails.send({
                 "from": "onboarding@resend.dev",
-                "to": "email",
+                "to": [email],
                 "subject": "Verify your Roomzy Account",
                 "html": f"""
                 <h2>Welcome to Roomzy 🏠</h2>
