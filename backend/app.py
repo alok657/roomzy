@@ -138,7 +138,7 @@ def signup():
 
             resend.Emails.send({
                 "from": "onboarding@resend.dev",
-                "to": email,
+                "to": "email",
                 "subject": "Verify your Roomzy Account",
                 "html": f"""
                 <h2>Welcome to Roomzy 🏠</h2>
@@ -150,7 +150,7 @@ def signup():
             })
 
             print("EMAIL SENT SUCCESS")
-            
+
         except Exception as e:
             print("EMAIL ERROR:", e)
 
