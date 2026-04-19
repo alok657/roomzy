@@ -135,9 +135,12 @@ Don't have an account?
 
 <script>
 
+// 🔥 AUTO BACKEND URL (local + deploy)
+const API_URL = "https://roomzy-czyc.onrender.com"
+
 // 🔥 BACKEND WARM-UP
 setTimeout(()=>{
-    fetch("https://roomzy-czyc.onrender.com/test")
+    fetch(API_URL + "/test")
 },1000)
 
 // 🔥 VERIFY SUCCESS MESSAGE
@@ -153,12 +156,7 @@ if(params.get("verified") === "true"){
 // 👁 TOGGLE PASSWORD
 function togglePassword(){
     let input = document.getElementById("password")
-
-    if(input.type === "password"){
-        input.type = "text"
-    } else {
-        input.type = "password"
-    }
+    input.type = input.type === "password" ? "text" : "password"
 }
 
 // 🔥 LOGIN FUNCTION
@@ -170,7 +168,7 @@ let password = document.getElementById("password").value.trim()
 let msg = document.getElementById("msg")
 let btn = document.querySelector("button")
 
-// 🔥 LOADING START
+// 🔥 LOADING
 msg.style.display = "block"
 msg.style.color = "#ffd369"
 msg.innerText = "Processing..."
@@ -180,27 +178,21 @@ btn.disabled = true
 if(email=="" || password==""){
 msg.style.color="red"
 msg.innerText="Please fill all details"
-
-alert("Please fill all details")   
-
 btn.disabled = false
 return
 }
 
-// 🔥 EMAIL FORMAT CHECK (optional but good)
+// ❌ EMAIL VALIDATION
 let emailPattern=/^[^\s@]+@[^\s@]+\.[^\s@]+$/
 if(!emailPattern.test(email)){
 msg.style.color="red"
 msg.innerText="Invalid email"
-
-alert("Enter valid email")  
-
 btn.disabled = false
 return
 }
 
 // ✅ API CALL
-fetch("https://roomzy-czyc.onrender.com/login",{
+fetch(API_URL + "/login",{
 
 method:"POST",
 headers:{
@@ -226,23 +218,14 @@ localStorage.setItem("user_name", data.name)
 
 // 🔥 ADMIN DIRECT
 if(data.role === "admin"){
-    localStorage.setItem("user_role","admin")
     window.location.href = "admin.html"
     return
 }
 
-// 🔥 RESET ROLE FOR NEW USER
-let savedEmail = localStorage.getItem("saved_email")
+// 🔥 PROFILE CHECK (FINAL FIX ✅)
+let profile = JSON.parse(localStorage.getItem(data.email+"_profile"))
 
-if(savedEmail !== data.email){
-    localStorage.removeItem("user_role")
-    localStorage.setItem("saved_email", data.email)
-}
-
-// 🔥 CHECK ROLE
-let role = localStorage.getItem("user_role")
-
-if(!role){
+if(!profile){
     window.location.href = "role.html"
 }
 else{
@@ -253,8 +236,6 @@ else{
 else{
 msg.style.color="red"
 msg.innerText=data.message || "Invalid login"
-
-alert(data.message || "Invalid login")   
 }
 
 btn.disabled = false
@@ -263,9 +244,6 @@ btn.disabled = false
 .catch(()=>{
 msg.style.color="red"
 msg.innerText="Server error"
-
-alert("Server error")   
-
 btn.disabled = false
 })
 
