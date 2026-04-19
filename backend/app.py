@@ -621,20 +621,55 @@ def ocr_test():
 @app.route("/verify-id", methods=["POST"])
 def verify_id():
     try:
+        from PIL import Image
+        import pytesseract
+        import os
+        import re
+
+        name = request.form.get("name", "").lower().strip()
+        college = request.form.get("college", "").lower().strip()
+
         file = request.files.get("id_card")
 
         if not file:
             return {"error": "No file uploaded"}
 
-        if not file.filename.lower().endswith(('.png', '.jpg', '.jpeg')):
-            return {"error": "Only image allowed"}
+        if not file.filename.lower().endswith(('.png','.jpg','.jpeg')):
+            return {"error": "Invalid file"}
 
-        # 🔥 OPTIONAL: save file (debug)
         path = f"uploads/{file.filename}"
         file.save(path)
 
-        # ✅ DIRECT VERIFY (NO OCR)
-        return {"status": "verified ✅"}
+        img = Image.open(path)
+        img = img.resize((1000, 600))
+        img = img.convert("L")
+
+        text = pytesseract.image_to_string(img).lower()
+
+        print("OCR TEXT:", text)
+
+        # 🔥 CLEAN TEXT
+        text = re.sub(r'[^a-z0-9 ]', ' ', text)
+
+        # 🔥 STRICT MATCH
+        name_words = name.split()
+        college_words = college.split()
+
+        name_score = sum(1 for w in name_words if w in text)
+        college_score = sum(1 for w in college_words if w in text)
+
+        print("NAME SCORE:", name_score)
+        print("COLLEGE SCORE:", college_score)
+
+        # 🎯 DECISION LOGIC
+        if name_score >= len(name_words) and college_score >= 2:
+            return {"status": "verified ✅"}
+
+        elif name_score >= 1:
+            return {"status": "partial match ⚠️"}
+
+        else:
+            return {"status": "fake ❌"}
 
     except Exception as e:
         return {"error": str(e)}

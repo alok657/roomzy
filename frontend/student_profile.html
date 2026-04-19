@@ -159,6 +159,12 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 
 <script>
 
+window.addEventListener("pageshow", function(event) {
+    if (event.persisted) {
+        window.location.reload()
+    }
+})
+
 // 🔥 DATA
 let data = {
 "Delhi": ["New Delhi","Dwarka","Rohini"],
@@ -194,16 +200,32 @@ citySelect.add(opt)
 
 })
 
-// 🔥 AUTO FILL
+// 🔥 AUTO FILL + FIX CITY DROPDOWN
 window.onload = function(){
 
 let email = localStorage.getItem("user_email")
 let saved = JSON.parse(localStorage.getItem(email+"_profile"))
 
 if(saved){
+
 document.getElementById("name").value = saved.name || ""
 document.getElementById("phone").value = saved.phone || ""
 document.getElementById("college").value = saved.college || ""
+
+// 🔥 FIX: city dropdown reload
+if(saved.location){
+
+document.getElementById("state").value = "UP"
+
+// trigger city load
+stateSelect.dispatchEvent(new Event("change"))
+
+setTimeout(()=>{
+document.getElementById("city").value = saved.location
+},200)
+
+}
+
 }
 
 }
