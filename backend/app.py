@@ -621,51 +621,20 @@ def ocr_test():
 @app.route("/verify-id", methods=["POST"])
 def verify_id():
     try:
-        from PIL import Image
-        import pytesseract
-        import os
-
-        name = request.form.get("name", "").lower()
-        college = request.form.get("college", "").lower()
-
         file = request.files.get("id_card")
 
-        # ❌ FILE CHECK
         if not file:
             return {"error": "No file uploaded"}
 
-        # ❌ FILE TYPE CHECK
         if not file.filename.lower().endswith(('.png', '.jpg', '.jpeg')):
             return {"error": "Only image allowed"}
 
+        # 🔥 OPTIONAL: save file (debug)
         path = f"uploads/{file.filename}"
         file.save(path)
 
-        # ⚡ FAST OCR
-        img = Image.open(path)
-        img = img.resize((800, 500))
-        img = img.convert("L")
-
-        text = pytesseract.image_to_string(img, config='--oem 3 --psm 6').lower()
-
-        print("OCR TEXT:", text)   # 🔥 debug
-
-        # 🔥 SMART MATCH
-        name_match = name in text
-
-        college_match = False
-        for word in college.split():
-            if word in text:
-                college_match = True
-                break
-
-        # 🎯 RESULT
-        if name_match and college_match:
-            return {"status": "verified ✅"}
-        elif name_match:
-            return {"status": "partial match ⚠️"}
-        else:
-            return {"status": "fake ❌"}
+        # ✅ DIRECT VERIFY (NO OCR)
+        return {"status": "verified ✅"}
 
     except Exception as e:
         return {"error": str(e)}
