@@ -135,6 +135,11 @@ Don't have an account?
 
 <script>
 
+// 🔥 BACKEND WARM-UP
+setTimeout(()=>{
+    fetch("https://roomzy-czyc.onrender.com/test")
+},1000)
+
 // 🔥 VERIFY SUCCESS MESSAGE
 let params = new URLSearchParams(window.location.search)
 
@@ -145,10 +150,9 @@ if(params.get("verified") === "true"){
     msg.innerText = "✅ Email verified! Please login"
 }
 
-// 👁 TOGGLE PASSWORD FUNCTION (👉 YAHI ADD KAR)
+// 👁 TOGGLE PASSWORD
 function togglePassword(){
     let input = document.getElementById("password")
-    let eye = document.querySelector(".toggle-eye")
 
     if(input.type === "password"){
         input.type = "text"
@@ -160,51 +164,61 @@ function togglePassword(){
 // 🔥 LOGIN FUNCTION
 function login(){
     
-let email=document.getElementById("email").value.trim()
-let password=document.getElementById("password").value.trim()
+let email = document.getElementById("email").value.trim()
+let password = document.getElementById("password").value.trim()
 
-let msg=document.getElementById("msg")
+let msg = document.getElementById("msg")
+let btn = document.querySelector("button")
 
+// 🔥 LOADING START
+msg.style.display = "block"
+msg.style.color = "#ffd369"
+msg.innerText = "Processing..."
+btn.disabled = true
+
+// ❌ EMPTY CHECK
 if(email=="" || password==""){
-
-msg.style.display="block"
 msg.style.color="red"
 msg.innerText="Please fill all details"
 
-setTimeout(()=>{
-msg.style.display="none"
-},2000)
+alert("Please fill all details")   
 
+btn.disabled = false
 return
 }
 
+// 🔥 EMAIL FORMAT CHECK (optional but good)
+let emailPattern=/^[^\s@]+@[^\s@]+\.[^\s@]+$/
+if(!emailPattern.test(email)){
+msg.style.color="red"
+msg.innerText="Invalid email"
+
+alert("Enter valid email")  
+
+btn.disabled = false
+return
+}
+
+// ✅ API CALL
 fetch("https://roomzy-czyc.onrender.com/login",{
 
 method:"POST",
-
 headers:{
 "Content-Type":"application/json"
 },
-
 body:JSON.stringify({
 email:email,
 password:password
 })
 
 })
-
 .then(res=>res.json())
-
 .then(data=>{
 
 if(data.status=="success"){
 
-msg.style.display="block"
 msg.style.color="#00ff88"
 msg.innerText="Login successful"
-
-// बाकी tera code same...
-
 
 // ✅ SAVE USER
 localStorage.setItem("user_email", data.email)
@@ -217,7 +231,7 @@ if(data.role === "admin"){
     return
 }
 
-// 🔥 IMPORTANT FIX (RESET ROLE FOR NEW USER)
+// 🔥 RESET ROLE FOR NEW USER
 let savedEmail = localStorage.getItem("saved_email")
 
 if(savedEmail !== data.email){
@@ -237,25 +251,22 @@ else{
 
 }
 else{
-
-msg.style.display="block"
 msg.style.color="red"
 msg.innerText=data.message || "Invalid login"
 
-setTimeout(()=>{
-msg.style.display="none"
-},2000)
-
+alert(data.message || "Invalid login")   
 }
 
+btn.disabled = false
+
 })
-
 .catch(()=>{
-
-msg.style.display="block"
 msg.style.color="red"
 msg.innerText="Server error"
 
+alert("Server error")   
+
+btn.disabled = false
 })
 
 }

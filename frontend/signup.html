@@ -127,6 +127,11 @@ Already have an account?
 
 <script>
 
+// 🔥 BACKEND WARM-UP
+setTimeout(()=>{
+    fetch("https://roomzy-czyc.onrender.com/test")
+},1000)
+
 // 👁 TOGGLE PASSWORD FUNCTION
 function togglePassword(){
     let input = document.getElementById("password")
@@ -140,22 +145,40 @@ function togglePassword(){
 
 function signup(){
 
-let name=document.getElementById("name").value.trim()
-let email=document.getElementById("email").value.trim()
-let password=document.getElementById("password").value.trim()
+let name = document.getElementById("name").value.trim()
+let email = document.getElementById("email").value.trim()
+let password = document.getElementById("password").value.trim()
 
-let msg=document.getElementById("msg")
+let msg = document.getElementById("msg")
+let btn = document.querySelector("button")
+
+// 🔥 LOADING START
+msg.style.display = "block"
+msg.style.color = "#ffd369"
+msg.innerText = "Processing..."
+btn.disabled = true
 
 // ❌ EMPTY CHECK
 if(name=="" || email=="" || password==""){
-alert("Fill all fields")
+msg.style.display="block"
+msg.style.color="red"
+msg.innerText="Fill all fields"
+
+alert("Please fill all details")   
+
+btn.disabled = false
 return
 }
 
 // 🔥 EMAIL VALIDATION
 let emailPattern=/^[^\s@]+@[^\s@]+\.[^\s@]+$/
 if(!emailPattern.test(email)){
-alert("Invalid email")
+msg.style.color="red"
+msg.innerText="Invalid email"
+
+alert("Enter valid email")
+
+btn.disabled = false
 return
 }
 
@@ -165,7 +188,12 @@ if(password.length<8 ||
 !/[a-z]/.test(password) ||
 !/[0-9]/.test(password) ||
 !/[!@#$%^&*]/.test(password)){
-alert("Password must be strong (A-Z, a-z, 0-9, special char)")
+msg.style.color="red"
+msg.innerText="Weak password"
+
+alert("Password must be strong")
+
+btn.disabled = false
 return
 }
 
@@ -184,25 +212,26 @@ password:password
 .then(res=>res.json())
 .then(data=>{
 
-msg.style.display="block"
-
 if(data.status==="success"){
 msg.style.color="#00ff88"
 msg.innerText="📩 Verification email sent! Check your inbox"
-
-setTimeout(()=>{
-msg.style.color="#00ff88"
-msg.innerText="Signup successful ✅ Check your email to verify 📩"
-},2000)
+}
+else if(data.status==="pending"){
+msg.style.color="#ffd369"
+msg.innerText=data.message   // resend case
 }
 else{
 msg.style.color="red"
 msg.innerText=data.message
 }
 
+btn.disabled = false
+
 })
 .catch(()=>{
-alert("Server error")
+msg.style.color="red"
+msg.innerText="Server error"
+btn.disabled = false
 })
 
 }
