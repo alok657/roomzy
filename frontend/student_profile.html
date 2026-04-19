@@ -6,7 +6,6 @@
 <title>Student Profile</title>
 
 <style>
-
 *{
 box-sizing:border-box;
 font-family:Segoe UI;
@@ -107,7 +106,6 @@ margin-top:5px;
 from{opacity:0;transform:translateY(10px);}
 to{opacity:1;transform:translateY(0);}
 }
-
 </style>
 
 <link rel="stylesheet"
@@ -161,18 +159,18 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 
 <script>
 
-/* 🔥 DATA */
+// 🔥 DATA
 let data = {
 "Delhi": ["New Delhi","Dwarka","Rohini"],
 "UP": ["Noida","Ghaziabad","Lucknow"],
 "Haryana": ["Gurgaon","Faridabad"]
 }
 
-/* 🔥 ELEMENTS */
+// 🔥 ELEMENTS
 let stateSelect = document.getElementById("state")
 let citySelect = document.getElementById("city")
 
-/* 🔥 LOAD STATES */
+// 🔥 LOAD STATES
 for(let state in data){
 let opt = document.createElement("option")
 opt.value = state
@@ -180,7 +178,7 @@ opt.text = state
 stateSelect.add(opt)
 }
 
-/* 🔥 LOAD CITIES */
+// 🔥 LOAD CITIES
 stateSelect.addEventListener("change",function(){
 
 citySelect.innerHTML = '<option value="">Select City</option>'
@@ -196,23 +194,21 @@ citySelect.add(opt)
 
 })
 
-/* 🔥 AUTO FILL (IMPORTANT 🔥) */
+// 🔥 AUTO FILL
 window.onload = function(){
 
 let email = localStorage.getItem("user_email")
 let saved = JSON.parse(localStorage.getItem(email+"_profile"))
 
 if(saved){
-
 document.getElementById("name").value = saved.name || ""
 document.getElementById("phone").value = saved.phone || ""
 document.getElementById("college").value = saved.college || ""
-
 }
 
 }
 
-/* 🔥 SAVE PROFILE */
+// 🔥 MAIN FUNCTION
 function saveProfile(){
 
 let name = document.getElementById("name").value.trim()
@@ -229,16 +225,58 @@ if(name=="" || phone=="" || location=="" || college=="" || !file){
 msg.style.display="block"
 msg.style.background="#ff4d4d"
 msg.style.color="white"
-msg.innerText="❌ Please fill all details + upload ID card"
+msg.innerText="❌ Fill all details + upload ID"
 
-setTimeout(()=>{
-msg.style.display="none"
-},2000)
-
+setTimeout(()=> msg.style.display="none",2000)
 return
 }
 
-// 🔥 FILE READER
+// ⏳ LOADING
+msg.style.display="block"
+msg.style.background="#333"
+msg.style.color="white"
+msg.innerText="⏳ Verifying ID..."
+
+// 🔥 SEND TO BACKEND
+let formData = new FormData()
+formData.append("name", name)
+formData.append("college", college)
+formData.append("id_card", file)
+
+fetch("http://roomzy-czyc.onrender.com/verify-id", {
+method:"POST",
+body:formData
+})
+.then(res=>res.json())
+.then(data=>{
+
+console.log("API Response:", data)
+
+// ❌ ERROR HANDLE
+if(data.error){
+msg.style.background="#ff4d4d"
+msg.innerText="❌ " + data.error
+return
+}
+
+// ❌ FAKE
+if(data.status && data.status.includes("fake")){
+msg.style.background="#ff4d4d"
+msg.innerText="❌ Invalid ID Card"
+return
+}
+
+// ⚠ PARTIAL
+if(data.status && data.status.includes("partial")){
+msg.style.background="#ffc107"
+msg.style.color="black"
+msg.innerText="⚠️ Partial match (Check ID)"
+return
+}
+
+// ✅ VERIFIED
+if(data.status && data.status.includes("verified")){
+
 let reader = new FileReader()
 
 reader.onload = function(){
@@ -246,24 +284,19 @@ reader.onload = function(){
 let email = localStorage.getItem("user_email")
 
 let profile = {
-    name: name,
-    phone: phone,
-    location: location,
-    college: college,
-    idCard: reader.result,
-    verified: true
+name:name,
+phone:phone,
+location:location,
+college:college,
+idCard:reader.result,
+verified:true
 }
 
-// 🔥 SAVE
 localStorage.setItem(email+"_profile", JSON.stringify(profile))
 
-console.log("Saved Profile:", profile) // 🔥 DEBUG
-
-// ✅ SUCCESS
-msg.style.display="block"
 msg.style.background="#28a745"
 msg.style.color="white"
-msg.innerText="✅ Profile Completed"
+msg.innerText="✅ Verified & Saved"
 
 setTimeout(()=>{
 window.location.href="student_home.html"
@@ -272,6 +305,15 @@ window.location.href="student_home.html"
 }
 
 reader.readAsDataURL(file)
+
+}
+
+})
+.catch(()=>{
+msg.style.background="#ff4d4d"
+msg.style.color="white"
+msg.innerText="❌ Server error"
+})
 
 }
 

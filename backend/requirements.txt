@@ -4,3 +4,7 @@ psycopg2-binary
 gunicorn
 requests
 flask-mail
+pytesseract
+pillow
+opencv-python
+numpy
