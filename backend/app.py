@@ -223,7 +223,7 @@ def login():
     cur = conn.cursor()
 
     cur.execute(
-        "SELECT id, name, email, password, role, is_verified, approval_status FROM users WHERE email=%s",
+        "SELECT id, name, email, password, role, is_verified FROM users WHERE email=%s",
         (data["email"],)
     )
 
@@ -233,37 +233,18 @@ def login():
         conn.close()
         return {"status": "error", "message": "User not found"}
 
-    # 🔥 EMAIL VERIFY
     if not user[5]:
         conn.close()
         return {"status":"error","message":"Email not verified ❌"}
 
-    # 🔥 PASSWORD CHECK
     if not check_password_hash(user[3], data["password"]):
         conn.close()
         return {"status": "error", "message": "Wrong password"}
 
-    # 🔥 ROLE (PEHLE DEFINE KARO)
-    role = "admin" if data["email"] == "kushwah.al2020@gmail.com" else "student"
-
-    # 🔥 ONLY STUDENT KE LIYE APPROVAL CHECK
-    if role != "admin":
-
-        status = user[6]
-
-        if status == "pending":
-            conn.close()
-            return {"status":"error","message":"Complete your profile first ⏳"}
-
-        if status == "rejected":
-            conn.close()
-            return {"status":"error","message":"Profile rejected ❌ Please update details"}
-
-        if status != "approved":
-            conn.close()
-            return {"status":"error","message":"Not approved"}
-
     conn.close()
+
+    # 🔥 ROLE
+    role = "admin" if data["email"] == "kushwah.al2020@gmail.com" else "student"
 
     return {
         "status": "success",
