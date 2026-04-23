@@ -734,6 +734,49 @@ from flask import send_from_directory
 def uploaded_file(filename):
     return send_from_directory('uploads', filename)
 
+@app.route("/verify-id", methods=["POST"])
+def verify_id():
+    try:
+        file = request.files.get("id_card")
+
+        if not file:
+            return {"error": "No file uploaded"}
+
+        if not os.path.exists("uploads"):
+            os.makedirs("uploads")
+
+        filename = str(uuid.uuid4()) + ".jpg"
+        filepath = os.path.join("uploads", filename)
+
+        file.save(filepath)
+
+        email = request.form.get("email")
+
+        profile = {
+            "name": request.form.get("name"),
+            "phone": request.form.get("phone"),
+            "college": request.form.get("college"),
+            "location": request.form.get("location")
+        }
+
+        conn = get_db()
+        cur = conn.cursor()
+
+        cur.execute("""
+        UPDATE users 
+        SET profile_data=%s, id_card=%s, approval_status='pending'
+        WHERE email=%s
+        """, (json.dumps(profile), filepath, email))
+
+        conn.commit()
+        conn.close()
+
+        return {"status":"success","message":"Profile submitted"}
+
+    except Exception as e:
+        print("ERROR:", e)
+        return {"error": str(e)}
+    
 # ================= TEST =================
 @app.route("/")
 def home():
