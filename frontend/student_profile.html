@@ -314,15 +314,33 @@ idCard:reader.result,
 verified:true
 }
 
-localStorage.setItem(email+"_profile", JSON.stringify(profile))
+let formData = new FormData()
+
+formData.append("name", name)
+formData.append("phone", phone)
+formData.append("college", college)
+formData.append("location", location)
+formData.append("id_card", file)
+formData.append("email", localStorage.getItem("user_email"))
+
+fetch("https://roomzy-czyc.onrender.com/submit_profile", {
+method:"POST",
+body:formData
+})
+.then(res=>res.json())
+.then(data=>{
+
+let msg = document.getElementById("msg")
 
 msg.style.background="#28a745"
 msg.style.color="white"
-msg.innerText="✅ Verified & Saved"
+msg.innerText="⏳ Profile sent for admin approval"
 
 setTimeout(()=>{
-window.location.href="student_home.html"
+window.location.href="waiting.html"
 },1000)
+
+})
 
 }
 

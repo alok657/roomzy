@@ -223,38 +223,52 @@ def login():
     cur = conn.cursor()
 
     cur.execute(
-        "SELECT id, name, email, password, role, is_verified FROM users WHERE email=%s",
+        "SELECT id, name, email, password, role, is_verified, approval_status FROM users WHERE email=%s",
         (data["email"],)
     )
 
     user = cur.fetchone()
-    conn.close()
 
     if not user:
+        conn.close()
         return {"status": "error", "message": "User not found"}
 
+    # 🔥 EMAIL VERIFY CHECK
     if not user[5]:
+        conn.close()
         return {"status":"error","message":"Email not verified ❌"}
-    
-    stored_password = user[3]
 
-    print("ENTERED:", data["password"])
-    print("STORED:", stored_password)
-
-    if check_password_hash(stored_password, data["password"]):
-
-        role = "admin" if data["email"] == "kushwah.al2020@gmail.com" else "student"
-
-        return {
-            "status": "success",
-            "name": user[1],
-            "email": user[2],
-            "role": role
-        }
-
-    else:
+    # 🔥 PASSWORD CHECK
+    if not check_password_hash(user[3], data["password"]):
+        conn.close()
         return {"status": "error", "message": "Wrong password"}
-    
+
+    # 🔥 APPROVAL CHECK (NEW)
+    status = user[6]   # approval_status
+
+    if status == "pending":
+        conn.close()
+        return {"status":"error","message":"Waiting for admin approval ⏳"}
+
+    if status == "rejected":
+        conn.close()
+        return {"status":"error","message":"Profile rejected ❌ Please update details"}
+
+    if status != "approved":
+        conn.close()
+        return {"status":"error","message":"Not approved"}
+
+    conn.close()
+
+    # 🔥 ROLE LOGIC
+    role = "admin" if data["email"] == "kushwah.al2020@gmail.com" else "student"
+
+    return {
+        "status": "success",
+        "name": user[1],
+        "email": user[2],
+        "role": role
+    }
 
 from flask import redirect
 
@@ -642,6 +656,92 @@ def update_db():
     conn.close()
 
     return "DB Updated ✅"
+
+@app.route("/submit_profile", methods=["POST"])
+def submit_profile():
+
+    file = request.files["id_card"]
+
+    filename = str(uuid.uuid4()) + ".jpg"
+    filepath = "uploads/" + filename
+    file.save(filepath)
+
+    email = request.form.get("email")
+
+    profile = {
+        "name": request.form.get("name"),
+        "phone": request.form.get("phone"),
+        "college": request.form.get("college"),
+        "location": request.form.get("location")
+    }
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+    UPDATE users 
+    SET profile_data=%s, id_card=%s, approval_status='pending'
+    WHERE email=%s
+    """, (json.dumps(profile), filepath, email))
+
+    conn.commit()
+    conn.close()
+
+    return {"message":"Profile submitted"}
+
+@app.route("/pending_users")
+def pending_users():
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+    SELECT id, name, email, profile_data, id_card 
+    FROM users 
+    WHERE approval_status='pending'
+    """)
+
+    rows = cur.fetchall()
+    conn.close()
+
+    result = []
+
+    for r in rows:
+        result.append({
+            "id": r[0],
+            "name": r[1],
+            "email": r[2],
+            "profile": json.loads(r[3]) if r[3] else {},
+            "id_card": r[4]
+        })
+
+    return jsonify(result)
+
+@app.route("/approve_user/<int:id>", methods=["POST"])
+def approve_user(id):
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("UPDATE users SET approval_status='approved' WHERE id=%s", (id,))
+
+    conn.commit()
+    conn.close()
+
+    return {"message":"Approved"}
+
+@app.route("/reject_user/<int:id>", methods=["POST"])
+def reject_user(id):
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("UPDATE users SET approval_status='rejected' WHERE id=%s", (id,))
+
+    conn.commit()
+    conn.close()
+
+    return {"message":"Rejected"}
 
 # ================= TEST =================
 @app.route("/")

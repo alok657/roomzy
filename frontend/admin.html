@@ -36,6 +36,7 @@
 <h1>Admin Dashboard 🔥</h1>
 
 <button onclick="loadUsers()">Load Users</button>
+<button onclick="loadPending()">Pending Requests 🔥</button>
 <button onclick="goHome()">🏠 View Website</button>
 
 <ul id="users"></ul>
@@ -65,6 +66,53 @@ function loadUsers() {
         });
     });
 }
+
+function loadPending(){
+
+fetch("https://roomzy-czyc.onrender.com/pending_users")
+.then(res=>res.json())
+.then(data=>{
+
+let list = document.getElementById("users")
+list.innerHTML = ""
+
+data.forEach(u=>{
+
+list.innerHTML += `
+<li>
+
+${u.name} (${u.email})
+
+<br>
+<img src="https://roomzy-czyc.onrender.com/${u.id_card}" width="120">
+
+<br>
+
+<button onclick="approve(${u.id})">Approve</button>
+<button onclick="reject(${u.id})">Reject</button>
+
+</li>
+`
+
+})
+
+})
+}
+
+function approve(id){
+fetch("https://roomzy-czyc.onrender.com/approve_user/" + id,{
+method:"POST"
+})
+.then(()=>loadPending())
+}
+
+function reject(id){
+fetch("https://roomzy-czyc.onrender.com/reject_user/" + id,{
+method:"POST"
+})
+.then(()=>loadPending())
+}
+
 </script>
 
 </body>
