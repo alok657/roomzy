@@ -617,9 +617,32 @@ def ocr_test():
 
     except Exception as e:
         return {"error": str(e)}
-
-
     
+@app.route("/update_db")
+def update_db():
+    conn = get_db()
+    cur = conn.cursor()
+
+    try:
+        cur.execute("ALTER TABLE users ADD COLUMN profile_data TEXT")
+    except:
+        pass
+
+    try:
+        cur.execute("ALTER TABLE users ADD COLUMN id_card TEXT")
+    except:
+        pass
+
+    try:
+        cur.execute("ALTER TABLE users ADD COLUMN approval_status TEXT DEFAULT 'pending'")
+    except:
+        pass
+
+    conn.commit()
+    conn.close()
+
+    return "DB Updated ✅"
+
 # ================= TEST =================
 @app.route("/")
 def home():
