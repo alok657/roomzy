@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Admin Dashboard</title>
+
     <style>
         body {
             font-family: Arial;
@@ -15,27 +16,35 @@
         }
 
         button {
-            padding: 10px 20px;
+            padding: 8px 15px;
             background: #00ffcc;
             border: none;
             cursor: pointer;
-            margin: 10px;
+            margin: 5px;
+            border-radius: 6px;
         }
 
         li {
             list-style: none;
-            background: #222;
-            margin: 5px;
-            padding: 10px;
-            border-radius: 5px;
+            background: #1a1a1a;
+            margin: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        img {
+            margin-top: 10px;
+            border-radius: 10px;
         }
     </style>
 </head>
+
 <body>
 
 <h1>Admin Dashboard 🔥</h1>
 
-<button onclick="loadUsers()">Load Users</button>
+<button onclick="loadUsers()">All Users</button>
 <button onclick="loadPending()">Pending Requests 🔥</button>
 <button onclick="goHome()">🏠 View Website</button>
 
@@ -43,30 +52,38 @@
 
 <script>
 
-    function goHome(){
+function goHome(){
     window.location.href = "student_home.html"
 }
 
+// 🔐 ADMIN CHECK
 if(localStorage.getItem("user_role") !== "admin"){
     alert("Access Denied ❌")
     window.location.href="login.html"
 }
 
+// ================= ALL USERS =================
 function loadUsers() {
     fetch("https://roomzy-czyc.onrender.com/all-users")
     .then(res => res.json())
     .then(data => {
-        let list = document.getElementById("users");
-        list.innerHTML = "";
+
+        let list = document.getElementById("users")
+        list.innerHTML = ""
 
         data.forEach(user => {
-            let li = document.createElement("li");
-            li.innerText = user.name + " - " + user.email;
-            list.appendChild(li);
-        });
-    });
+
+            list.innerHTML += `
+            <li>
+                ${user.name} - ${user.email}
+            </li>
+            `
+
+        })
+    })
 }
 
+// ================= PENDING USERS =================
 function loadPending(){
 
 fetch("https://roomzy-czyc.onrender.com/pending_users")
@@ -81,15 +98,21 @@ data.forEach(u=>{
 list.innerHTML += `
 <li>
 
-${u.name} (${u.email})
+<h3>${u.name} (${u.email})</h3>
 
-<br>
-<img src="https://roomzy-czyc.onrender.com/${u.id_card}" width="120">
+<img src="https://roomzy-czyc.onrender.com/uploads/${u.id_card.split('/').pop()}" width="160">
 
-<br>
+<br><br>
 
-<button onclick="approve(${u.id})">Approve</button>
-<button onclick="reject(${u.id})">Reject</button>
+<b>Name:</b> ${u.profile.name || "-"} <br>
+<b>Phone:</b> ${u.profile.phone || "-"} <br>
+<b>College:</b> ${u.profile.college || "-"} <br>
+<b>Location:</b> ${u.profile.location || "-"} <br>
+
+<br><br>
+
+<button onclick="approve(${u.id})">✅ Approve</button>
+<button onclick="reject(${u.id})">❌ Reject</button>
 
 </li>
 `
@@ -99,18 +122,26 @@ ${u.name} (${u.email})
 })
 }
 
+// ================= APPROVE =================
 function approve(id){
 fetch("https://roomzy-czyc.onrender.com/approve_user/" + id,{
 method:"POST"
 })
-.then(()=>loadPending())
+.then(()=>{
+alert("User Approved ✅")
+loadPending()
+})
 }
 
+// ================= REJECT =================
 function reject(id){
 fetch("https://roomzy-czyc.onrender.com/reject_user/" + id,{
 method:"POST"
 })
-.then(()=>loadPending())
+.then(()=>{
+alert("User Rejected ❌")
+loadPending()
+})
 }
 
 </script>

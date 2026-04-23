@@ -252,6 +252,8 @@ def login():
         "email": user[2],
         "role": role
     }
+
+
 #==================================
 from flask import redirect
 
@@ -725,6 +727,12 @@ def reject_user(id):
     conn.close()
 
     return {"message":"Rejected"}
+
+from flask import send_from_directory
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory('uploads', filename)
 
 # ================= TEST =================
 @app.route("/")
