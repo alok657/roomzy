@@ -215,6 +215,7 @@ msg.innerText="Login successful"
 // ✅ SAVE USER
 localStorage.setItem("user_email", data.email)
 localStorage.setItem("user_name", data.name)
+localStorage.setItem("user_role", data.role)
 
 // 🔥 ADMIN DIRECT
 if(data.role === "admin"){
