@@ -233,7 +233,7 @@ def login():
         conn.close()
         return {"status": "error", "message": "User not found"}
 
-    # 🔥 EMAIL VERIFY CHECK
+    # 🔥 EMAIL VERIFY
     if not user[5]:
         conn.close()
         return {"status":"error","message":"Email not verified ❌"}
@@ -243,25 +243,27 @@ def login():
         conn.close()
         return {"status": "error", "message": "Wrong password"}
 
-    # 🔥 APPROVAL CHECK (NEW)
-    status = user[6]   # approval_status
+    # 🔥 ROLE (PEHLE DEFINE KARO)
+    role = "admin" if data["email"] == "kushwah.al2020@gmail.com" else "student"
 
-    if status == "pending":
-        conn.close()
-        return {"status":"error","message":"Waiting for admin approval ⏳"}
+    # 🔥 ONLY STUDENT KE LIYE APPROVAL CHECK
+    if role != "admin":
 
-    if status == "rejected":
-        conn.close()
-        return {"status":"error","message":"Profile rejected ❌ Please update details"}
+        status = user[6]
 
-    if status != "approved":
-        conn.close()
-        return {"status":"error","message":"Not approved"}
+        if status == "pending":
+            conn.close()
+            return {"status":"error","message":"Complete your profile first ⏳"}
+
+        if status == "rejected":
+            conn.close()
+            return {"status":"error","message":"Profile rejected ❌ Please update details"}
+
+        if status != "approved":
+            conn.close()
+            return {"status":"error","message":"Not approved"}
 
     conn.close()
-
-    # 🔥 ROLE LOGIC
-    role = "admin" if data["email"] == "kushwah.al2020@gmail.com" else "student"
 
     return {
         "status": "success",
@@ -269,7 +271,7 @@ def login():
         "email": user[2],
         "role": role
     }
-
+#==================================
 from flask import redirect
 
 @app.route("/verify/<token>")
