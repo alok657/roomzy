@@ -804,6 +804,21 @@ def verify_id():
         print("ERROR:", e)
         return {"status":"error","message":str(e)}
     
+@app.route("/check-status/<email>")
+def check_status(email):
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT is_approved FROM users WHERE email=%s", (email,))
+    result = cur.fetchone()
+
+    conn.close()
+
+    if result and result[0]:
+        return {"approved": True}
+    else:
+        return {"approved": False}
+    
 # ================= TEST =================
 @app.route("/")
 def home():
