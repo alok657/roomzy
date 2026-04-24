@@ -2,11 +2,9 @@
 <html>
 
 <head>
-
 <title>My Profile</title>
 
 <style>
-
 *{
 box-sizing:border-box;
 font-family:Segoe UI;
@@ -32,9 +30,7 @@ color:white;
 text-align:center;
 }
 
-h2{
-margin-bottom:20px;
-}
+h2{ margin-bottom:20px; }
 
 input, select{
 width:100%;
@@ -61,7 +57,6 @@ border-radius:50%;
 margin-bottom:10px;
 object-fit:cover;
 }
-
 </style>
 
 </head>
@@ -72,14 +67,15 @@ object-fit:cover;
 
 <h2>My Profile</h2>
 
-<!-- ✅ USER PROFILE PIC (separate) -->
+<!-- ✅ USER PROFILE PIC -->
 <img id="photoPreview" src="https://i.pravatar.cc/80">
 
 <input type="file" id="photo">
 
 <!-- ✅ Editable -->
-<input id="name">
+<input id="name" placeholder="Name">
 <input type="date" id="dob">
+
 <select id="gender">
 <option value="">Select Gender</option>
 <option value="male">Male</option>
@@ -100,61 +96,55 @@ object-fit:cover;
 
 <script>
 
-// 🔥 LOAD DATA
+// 🔥 GET USER
 let email = localStorage.getItem("user_email")
-let saved = JSON.parse(localStorage.getItem(email+"_profile"))
+let profile = JSON.parse(localStorage.getItem(email+"_profile")) || {}
 
-// email show
+// 🔥 EMAIL
 document.getElementById("email").value = email || ""
 
-// name + gender from student_profile
-if(saved){
-document.getElementById("name").value = saved.name || ""
-document.getElementById("dob").value = saved.dob || ""
-document.getElementById("gender").value = saved.gender || ""
-}
+// 🔥 LOAD DATA
+document.getElementById("name").value = profile.name || ""
+document.getElementById("dob").value = profile.dob || ""
+document.getElementById("gender").value = profile.gender || ""
 
-// 🔥 LOAD USER FACE PIC (separate key)
-let pic = localStorage.getItem("user_profile_pic")
+// 🔥 LOAD PROFILE PIC (IMPORTANT SAME KEY)
+let pic = localStorage.getItem("profile_pic")
 
 if(pic){
 document.getElementById("photoPreview").src = pic
 }
 
 
-// 🔥 UPLOAD NEW PROFILE PIC (FACE PIC)
+// 🔥 UPLOAD PROFILE PIC
 document.getElementById("photo").addEventListener("change",function(){
+
+let file = this.files[0]
+if(!file) return
 
 let reader = new FileReader()
 
 reader.onload = function(){
 
-// 🔥 SAVE DIFFERENTLY (NOT ID CARD)
-localStorage.setItem("user_profile_pic", reader.result)
+// ✅ SAME KEY (IMPORTANT FIX)
+localStorage.setItem("profile_pic", reader.result)
 
 // preview
 document.getElementById("photoPreview").src = reader.result
 
 }
 
-reader.readAsDataURL(this.files[0])
+reader.readAsDataURL(file)
 
 })
 
 
-// 🔥 SAVE CHANGES
+// 🔥 SAVE PROFILE
 function save(){
 
-let name = document.getElementById("name").value
-let dob = document.getElementById("dob").value
-let gender = document.getElementById("gender").value
-
-// update existing profile
-let profile = JSON.parse(localStorage.getItem(email+"_profile")) || {}
-
-profile.name = name
-profile.dob = dob
-profile.gender = gender
+profile.name = document.getElementById("name").value
+profile.dob = document.getElementById("dob").value
+profile.gender = document.getElementById("gender").value
 
 localStorage.setItem(email+"_profile", JSON.stringify(profile))
 

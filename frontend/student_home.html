@@ -342,9 +342,11 @@ if(profile.verified){
 document.getElementById("verifiedBadge").style.display = "inline"
 }
 
-// profile pic (ID card preview)
-if(profile.idCard){
-document.getElementById("profilePic").src = profile.idCard
+// 🔥 PROFILE PIC (ONLY FROM profile.html)
+let dp = localStorage.getItem("profile_pic")
+
+if(dp){
+document.getElementById("profilePic").src = dp
 }
 
 }
