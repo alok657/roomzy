@@ -200,7 +200,7 @@ citySelect.add(opt)
 
 })
 
-// 🔥 AUTO FILL + FIX CITY DROPDOWN
+// 🔥 AUTO FILL
 window.onload = function(){
 
 let email = localStorage.getItem("user_email")
@@ -212,12 +212,10 @@ document.getElementById("name").value = saved.name || ""
 document.getElementById("phone").value = saved.phone || ""
 document.getElementById("college").value = saved.college || ""
 
-// 🔥 FIX: city dropdown reload
+// city reload fix
 if(saved.location){
 
 document.getElementById("state").value = "UP"
-
-// trigger city load
 stateSelect.dispatchEvent(new Event("change"))
 
 setTimeout(()=>{
@@ -257,53 +255,10 @@ return
 msg.style.display="block"
 msg.style.background="#333"
 msg.style.color="white"
-msg.innerText="⏳ Verifying ID..."
+msg.innerText="⏳ Uploading & Verifying..."
 
-.then(res=>res.json())
-.then(data=>{
 
-console.log("API Response:", data)
-
-// ❌ ERROR HANDLE
-if(data.error){
-msg.style.background="#ff4d4d"
-msg.innerText="❌ " + data.error
-return
-}
-
-// ❌ FAKE
-if(data.status && data.status.includes("fake")){
-msg.style.background="#ff4d4d"
-msg.innerText="❌ Invalid ID Card"
-return
-}
-
-// ⚠ PARTIAL
-if(data.status && data.status.includes("partial")){
-msg.style.background="#ffc107"
-msg.style.color="black"
-msg.innerText="⚠️ Partial match (Check ID)"
-return
-}
-
-// ✅ VERIFIED
-if(data.status && data.status.includes("verified")){
-
-let reader = new FileReader()
-
-reader.onload = function(){
-
-let email = localStorage.getItem("user_email")
-
-let profile = {
-name:name,
-phone:phone,
-location:location,
-college:college,
-idCard:reader.result,
-verified:true
-}
-
+// 🔥 SINGLE API CALL (FINAL FIX)
 let formData = new FormData()
 
 formData.append("name", name)
@@ -320,7 +275,50 @@ body:formData
 .then(res=>res.json())
 .then(data=>{
 
-let msg = document.getElementById("msg")
+console.log("API Response:", data)
+
+// ❌ ERROR
+if(data.error){
+msg.style.background="#ff4d4d"
+msg.innerText="❌ " + data.error
+return
+}
+
+// ❌ FAKE
+if(data.status === "fake"){
+msg.style.background="#ff4d4d"
+msg.innerText="❌ Invalid ID Card"
+return
+}
+
+// ⚠ PARTIAL
+if(data.status === "partial"){
+msg.style.background="#ffc107"
+msg.style.color="black"
+msg.innerText="⚠️ Partial match (Check ID)"
+return
+}
+
+// ✅ VERIFIED (FINAL FLOW)
+if(data.status === "verified" || data.status === "success"){
+
+// local save (optional)
+let reader = new FileReader()
+
+reader.onload = function(){
+
+let email = localStorage.getItem("user_email")
+
+let profile = {
+name:name,
+phone:phone,
+location:location,
+college:college,
+idCard:reader.result,
+verified:false   // 🔥 admin approve ke baad true hoga
+}
+
+localStorage.setItem(email+"_profile", JSON.stringify(profile))
 
 msg.style.background="#28a745"
 msg.style.color="white"
@@ -329,8 +327,6 @@ msg.innerText="⏳ Profile sent for admin approval"
 setTimeout(()=>{
 window.location.href="waiting.html"
 },1000)
-
-})
 
 }
 

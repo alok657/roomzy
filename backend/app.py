@@ -51,17 +51,23 @@ def setupdb():
         role TEXT,
         is_verified BOOLEAN DEFAULT FALSE,
         verify_token TEXT
+        profile_data TEXT, id_card TEXT, approval_status TEXT DEFAULT 'pending'
     )
     """)
 
     # 🔥 ADD NEW COLUMNS (if not exist)
     try:
-        cur.execute("ALTER TABLE users ADD COLUMN is_verified BOOLEAN DEFAULT FALSE")
+        cur.execute("ALTER TABLE users ADD COLUMN profile_data TEXT")
     except:
         pass
 
     try:
-        cur.execute("ALTER TABLE users ADD COLUMN verify_token TEXT")
+        cur.execute("ALTER TABLE users ADD COLUMN id_card TEXT")
+    except:
+        pass
+
+    try:
+         cur.execute("ALTER TABLE users ADD COLUMN approval_status TEXT DEFAULT 'pending'")
     except:
         pass
 
@@ -740,15 +746,30 @@ def verify_id():
         file = request.files.get("id_card")
 
         if not file:
-            return {"error": "No file uploaded"}
+            return {"status":"error","message":"No file uploaded"}
 
         if not os.path.exists("uploads"):
             os.makedirs("uploads")
 
         filename = str(uuid.uuid4()) + ".jpg"
         filepath = os.path.join("uploads", filename)
-
         file.save(filepath)
+
+        # 🔥 OCR CHECK
+        from PIL import Image
+
+        img = Image.open(filepath)
+        text = pytesseract.image_to_string(img)
+
+        print("OCR TEXT:", text)
+
+        # 🔥 SIMPLE VALIDATION LOGIC
+        if len(text.strip()) < 10:
+            status = "fake"
+        elif len(text.strip()) < 30:
+            status = "partial"
+        else:
+            status = "verified"
 
         email = request.form.get("email")
 
@@ -762,6 +783,7 @@ def verify_id():
         conn = get_db()
         cur = conn.cursor()
 
+        # 🔥 SAVE TO DB (PENDING)
         cur.execute("""
         UPDATE users 
         SET profile_data=%s, id_card=%s, approval_status='pending'
@@ -771,11 +793,15 @@ def verify_id():
         conn.commit()
         conn.close()
 
-        return {"status":"success","message":"Profile submitted"}
+        return {
+            "status": status,
+            "message": "Profile submitted",
+            "ocr_text": text[:100]
+        }
 
     except Exception as e:
         print("ERROR:", e)
-        return {"error": str(e)}
+        return {"status":"error","message":str(e)}
     
 # ================= TEST =================
 @app.route("/")
