@@ -108,7 +108,6 @@ font-weight:bold;
 
 <h2>Create Account</h2>
 
-<input type="text" id="name" placeholder="Full Name">
 <input type="email" id="email" placeholder="Email">
 <div class="password-box">
     <input type="password" id="password" placeholder="Password (8+ chars, A-Z, a-z, 0-9, @#$)">
@@ -145,7 +144,6 @@ function togglePassword(){
 
 function signup(){
 
-let name = document.getElementById("name").value.trim()
 let email = document.getElementById("email").value.trim()
 let password = document.getElementById("password").value.trim()
 
@@ -159,7 +157,7 @@ msg.innerText = "Processing..."
 btn.disabled = true
 
 // ❌ EMPTY CHECK
-if(name=="" || email=="" || password==""){
+if( email=="" || password==""){
 msg.style.display="block"
 msg.style.color="red"
 msg.innerText="Fill all fields"
@@ -204,7 +202,6 @@ headers:{
 "Content-Type":"application/json"
 },
 body:JSON.stringify({
-name:name,
 email:email,
 password:password
 })
