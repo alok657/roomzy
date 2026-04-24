@@ -566,6 +566,16 @@ document.getElementById("signupBox").style.display = "flex"
 function closeBox(){
 document.getElementById("signupBox").style.display = "none"
 }
+document.addEventListener("click", function(e){
+
+let user = localStorage.getItem("user_email")
+
+if(!user){
+    e.preventDefault()
+    window.location.href = "signup.html"
+}
+
+})
 
 </script>
 
