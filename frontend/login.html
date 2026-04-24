@@ -219,14 +219,7 @@ if(data.role === "admin"){
 }
 
 // 🔥 DIRECT FLOW (NO ROLE)
-let profile = JSON.parse(localStorage.getItem(data.email+"_profile"))
-
-if(!profile){
-window.location.href = "student_profile.html"
-}
-else{
 window.location.href = "student_home.html"
-}
 
 }
 else{
