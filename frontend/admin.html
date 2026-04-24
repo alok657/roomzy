@@ -92,6 +92,14 @@ cursor:pointer;
 .approve{background:#22c55e;color:white;}
 .reject{background:#ef4444;color:white;}
 
+img.preview{
+width:60px;
+height:60px;
+border-radius:6px;
+cursor:pointer;
+object-fit:cover;
+}
+
 </style>
 
 </head>
@@ -128,7 +136,7 @@ cursor:pointer;
 
 </div>
 
-<!-- USERS TABLE -->
+<!-- USERS -->
 <div class="section">
 <h3>👤 All Users</h3>
 <table>
@@ -142,7 +150,7 @@ cursor:pointer;
 </table>
 </div>
 
-<!-- PENDING USERS -->
+<!-- 🔥 UPDATED PENDING -->
 <div class="section">
 <h3>⏳ Pending Approvals</h3>
 <table>
@@ -150,6 +158,8 @@ cursor:pointer;
 <tr>
 <th>Name</th>
 <th>Email</th>
+<th>College</th>
+<th>ID Card</th>
 <th>Action</th>
 </tr>
 </thead>
@@ -157,6 +167,7 @@ cursor:pointer;
 </table>
 </div>
 
+<!-- PG TABLE -->
 <div class="section">
 <h3>🏠 All PG Listings</h3>
 
@@ -167,7 +178,6 @@ cursor:pointer;
 <th>City</th>
 <th>Rent</th>
 <th>Owner</th>
-<th>Description</th>
 </tr>
 </thead>
 
@@ -178,13 +188,11 @@ cursor:pointer;
 
 <script>
 
-// 🔥 LOAD USERS
+// USERS
 function loadUsers(){
-
 fetch("https://roomzy-czyc.onrender.com/all-users")
 .then(res=>res.json())
 .then(data=>{
-
 document.getElementById("totalUsers").innerText = data.length
 
 let table = document.getElementById("userTable")
@@ -195,27 +203,22 @@ table.innerHTML += `
 <tr>
 <td>${u.name}</td>
 <td>${u.email}</td>
-</tr>
-`
+</tr>`
 })
-
 })
 }
 
-// 🔥 LOAD PGs
+// PG COUNT
 function loadPG(){
-
 fetch("https://roomzy-czyc.onrender.com/get_pgs")
 .then(res=>res.json())
 .then(data=>{
 document.getElementById("totalPG").innerText = data.length
 })
-
 }
 
-// 🔥 LOAD PENDING
+// 🔥 UPDATED PENDING
 function loadPending(){
-
 fetch("https://roomzy-czyc.onrender.com/pending_users")
 .then(res=>res.json())
 .then(data=>{
@@ -231,34 +234,72 @@ table.innerHTML += `
 <tr>
 <td>${u.name}</td>
 <td>${u.email}</td>
+<td>${u.college || "N/A"}</td>
+
+<td>
+<img src="${u.id_card}" class="preview"
+onclick="viewImage('${u.id_card}')">
+</td>
+
 <td>
 <button class="btn approve" onclick="approve(${u.id})">Approve</button>
 <button class="btn reject" onclick="reject(${u.id})">Reject</button>
 </td>
 </tr>
 `
-
 })
 
 })
 }
 
-// 🔥 APPROVE
+// 🔥 IMAGE VIEW
+function viewImage(src){
+let win = window.open("")
+win.document.write(`<img src="${src}" style="width:100%">`)
+}
+
+// APPROVE
 function approve(id){
 fetch("https://roomzy-czyc.onrender.com/approve_user/"+id,{method:"POST"})
-.then(()=>loadPending())
+.then(()=>{
+alert("✅ Approved")
+loadPending()
+})
 }
 
-// 🔥 REJECT
+// REJECT
 function reject(id){
 fetch("https://roomzy-czyc.onrender.com/reject_user/"+id,{method:"POST"})
-.then(()=>loadPending())
+.then(()=>{
+alert("❌ Rejected")
+loadPending()
+})
 }
 
-// 🔥 LOCAL FAVORITES COUNT
+// FAVORITES
 function loadSaved(){
 let saved = JSON.parse(localStorage.getItem("saved")) || []
 document.getElementById("savedCount").innerText = saved.length
+}
+
+// PG LIST
+function loadPGs(){
+fetch("https://roomzy-czyc.onrender.com/get_pgs")
+.then(res=>res.json())
+.then(data=>{
+let table = document.getElementById("pgTable")
+table.innerHTML = ""
+
+data.forEach(pg=>{
+table.innerHTML += `
+<tr>
+<td>${pg.pg_name}</td>
+<td>${pg.city}</td>
+<td>₹ ${pg.rent}</td>
+<td>${pg.owner_name}</td>
+</tr>`
+})
+})
 }
 
 // INIT
@@ -266,39 +307,6 @@ loadUsers()
 loadPG()
 loadPending()
 loadSaved()
-
-function loadPGs(){
-
-fetch("https://roomzy-czyc.onrender.com/get_pgs")
-.then(res=>res.json())
-.then(data=>{
-
-let table = document.getElementById("pgTable")
-
-table.innerHTML = ""
-
-data.forEach(pg=>{
-
-table.innerHTML += `
-<tr>
-<td>${pg.pg_name}</td>
-<td>${pg.city}</td>
-<td>₹ ${pg.rent}</td>
-<td>${pg.owner_name || "N/A"}</td>
-<td>${pg.owner_phone || "N/A"}</td>
-<td>${pg.description}</td>
-</tr>
-`
-
-})
-
-})
-.catch(err=>{
-console.log("PG ERROR:", err)
-})
-
-}
-
 loadPGs()
 
 </script>
