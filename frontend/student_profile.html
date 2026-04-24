@@ -83,10 +83,14 @@ text-align:center;
 <h2>Complete Your Profile</h2>
 
 <input id="name" placeholder="Full Name">
-
 <input type="date" id="dob">
-
 <input id="college" placeholder="College Name">
+<select id="gender">
+<option value="">Select Gender</option>
+<option value="male">Male</option>
+<option value="female">Female</option>
+<option value="other">Other</option>
+</select>
 
 <select id="state">
 <option value="">Select State</option>
@@ -171,12 +175,13 @@ function saveProfile(){
 let name = document.getElementById("name").value.trim()
 let dob = document.getElementById("dob").value
 let college = document.getElementById("college").value.trim()
+let gender = document.getElementById("gender").value
 let location = document.getElementById("city").value
 let file = document.getElementById("idCard").files[0]
 
 let msg = document.getElementById("msg")
 
-if(name=="" || dob=="" || college=="" || location=="" || !file){
+if(name=="" || dob=="" || college=="" || gender=="" || location=="" || !file){
 
 msg.style.display="block"
 msg.style.background="#ff4d4d"
@@ -200,6 +205,7 @@ let profile = {
 name:name,
 dob:dob,
 college:college,
+gender:gender,
 location:location,
 idCard:reader.result
 }
