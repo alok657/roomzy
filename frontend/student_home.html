@@ -556,22 +556,23 @@ let t=parseInt(document.getElementById("travel").value)||0
 document.getElementById("result").innerText="Remaining ₹ "+(b-t)
 }
 
-document.addEventListener("click", function(e){
+document.body.addEventListener("click", function(e){
 
+// agar user login nahi hai
 let user = localStorage.getItem("user_email")
 
-// agar click login/signup pe hai to skip
-if(e.target.closest(".no-auth")){
-    return
-}
-
 if(!user){
+
+    // map / input / button ke clicks ignore karna ho to ye rehne de
+    if(e.target.closest("input") || e.target.closest("button")){
+        return
+    }
+
     e.preventDefault()
     window.location.href = "signup.html"
 }
 
 })
-
 
 </script>
 
