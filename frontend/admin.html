@@ -268,13 +268,14 @@ loadPG()
 loadPending()
 loadSaved()
 
-function loadPGDetails(){
+function loadPGs(){
 
 fetch("https://roomzy-czyc.onrender.com/get_pgs")
 .then(res=>res.json())
 .then(data=>{
 
 let table = document.getElementById("pgTable")
+
 table.innerHTML = ""
 
 data.forEach(pg=>{
@@ -286,14 +287,21 @@ table.innerHTML += `
 <td>₹ ${pg.rent}</td>
 <td>${pg.owner_name || "N/A"}</td>
 <td>${pg.owner_phone || "N/A"}</td>
-<td>${pg.description || "-"}</td>
+<td>${pg.description}</td>
 </tr>
 `
 
 })
 
 })
+.catch(err=>{
+console.log("PG ERROR:", err)
+})
+
 }
+
+loadPGs()
+
 </script>
 
 </body>
