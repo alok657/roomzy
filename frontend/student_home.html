@@ -543,7 +543,15 @@ container.innerHTML+=`
 })
 
 function openPG(id){
-window.location.href="pg_details.html?id="+id
+
+let profile = localStorage.getItem("profile_done")
+
+if(!profile){
+    window.location.href = "student_profile.html"
+}else{
+    window.location.href = "pg_details.html?id=" + id
+}
+
 }
 
 function openProfile(){

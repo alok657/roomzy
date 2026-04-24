@@ -106,7 +106,9 @@ text-align:center;
 
 <script>
 
-// 🔥 STATES + CITIES (INDIA)
+// 🔥 STATES + CITIES (same as tera code)
+// (ye part same rahega - koi change nahi)
+
 let data = {
 "Uttar Pradesh":["Noida","Ghaziabad","Lucknow","Kanpur","Varanasi"],
 "Delhi":["New Delhi","Dwarka","Rohini","Saket"],
@@ -143,7 +145,6 @@ let data = {
 let stateSelect = document.getElementById("state")
 let citySelect = document.getElementById("city")
 
-// 🔥 LOAD STATES
 for(let state in data){
 let opt = document.createElement("option")
 opt.value = state
@@ -151,11 +152,8 @@ opt.text = state
 stateSelect.add(opt)
 }
 
-// 🔥 LOAD CITIES
 stateSelect.addEventListener("change",function(){
-
 citySelect.innerHTML = '<option value="">Select City</option>'
-
 if(data[this.value]){
 data[this.value].forEach(city=>{
 let opt = document.createElement("option")
@@ -164,10 +162,10 @@ opt.text = city
 citySelect.add(opt)
 })
 }
-
 })
 
-// 🔥 SAVE PROFILE
+
+// 🔥 FINAL UPDATED FUNCTION
 function saveProfile(){
 
 let name = document.getElementById("name").value.trim()
@@ -206,11 +204,16 @@ location:location,
 idCard:reader.result
 }
 
+// 🔥 SAVE PROFILE
 localStorage.setItem(email+"_profile", JSON.stringify(profile))
+
+// 🔥 IMPORTANT LINE (NEW 🔥)
+localStorage.setItem("profile_done", "yes")
 
 msg.style.background="#28a745"
 msg.innerText="✅ Profile saved"
 
+// 🔥 REDIRECT HOME
 setTimeout(()=>{
 window.location.href="student_home.html"
 },1000)
