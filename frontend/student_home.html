@@ -544,7 +544,8 @@ container.innerHTML+=`
 
 function openPG(id){
 
-let profile = localStorage.getItem("profile_done")
+let email = localStorage.getItem("user_email")
+let profile = localStorage.getItem(email+"_profile")
 
 if(!profile){
     window.location.href = "student_profile.html"
@@ -564,6 +565,23 @@ let t=parseInt(document.getElementById("travel").value)||0
 document.getElementById("result").innerText="Remaining ₹ "+(b-t)
 }
 
+document.addEventListener("click", function(e){
+
+// profile check
+let email = localStorage.getItem("user_email")
+let profile = localStorage.getItem(email+"_profile")
+
+// agar profile nahi hai
+if(!profile){
+
+// prevent normal action
+e.preventDefault()
+
+// redirect to profile page
+window.location.href = "student_profile.html"
+}
+
+})
 
 </script>
 
