@@ -556,19 +556,14 @@ let t=parseInt(document.getElementById("travel").value)||0
 document.getElementById("result").innerText="Remaining ₹ "+(b-t)
 }
 
-document.addEventListener("click", function(){
-
-document.getElementById("signupBox").style.display = "flex"
-
-})
-
-// 🔥 CLOSE FUNCTION
-function closeBox(){
-document.getElementById("signupBox").style.display = "none"
-}
 document.addEventListener("click", function(e){
 
 let user = localStorage.getItem("user_email")
+
+// agar click login/signup pe hai to skip
+if(e.target.closest(".no-auth")){
+    return
+}
 
 if(!user){
     e.preventDefault()
@@ -576,6 +571,7 @@ if(!user){
 }
 
 })
+
 
 </script>
 
