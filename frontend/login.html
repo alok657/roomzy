@@ -212,6 +212,12 @@ msg.innerText="Login successful"
 localStorage.setItem("user_email", data.email)
 localStorage.setItem("user_name", data.name)
 
+if(data.role === "admin"){
+    console.log("ADMIN LOGIN DETECTED")
+    window.location.href = "admin.html"
+    return
+}
+
 // 🔥 DIRECT FLOW (NO ROLE)
 let profile = JSON.parse(localStorage.getItem(data.email+"_profile"))
 
