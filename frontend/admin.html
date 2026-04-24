@@ -1,120 +1,242 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin Dashboard</title>
 
-    <style>
-        body {
-            font-family: Arial;
-            background: #111;
-            color: white;
-            text-align: center;
-        }
+<title>Admin Dashboard</title>
 
-        h1 {
-            color: #00ffcc;
-        }
+<style>
 
-        button {
-            padding: 8px 15px;
-            background: #00ffcc;
-            border: none;
-            cursor: pointer;
-            margin: 5px;
-            border-radius: 6px;
-        }
+body{
+margin:0;
+font-family:Segoe UI;
+background:#f4f6f9;
+}
 
-        li {
-            list-style: none;
-            background: #1a1a1a;
-            margin: 15px;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
+/* HEADER */
+.header{
+background:white;
+padding:15px 25px;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
 
-        img {
-            margin-top: 10px;
-            border-radius: 10px;
-        }
-    </style>
+.header h2{
+margin:0;
+}
+
+/* STATS */
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:15px;
+padding:20px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+.card h3{
+margin:0;
+font-size:24px;
+color:#1e88e5;
+}
+
+.card p{
+margin:5px 0 0;
+color:#666;
+}
+
+/* TABLE */
+.section{
+padding:20px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+border-radius:10px;
+overflow:hidden;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+th,td{
+padding:12px;
+border-bottom:1px solid #eee;
+text-align:left;
+}
+
+th{
+background:#f1f5f9;
+}
+
+tr:hover{
+background:#f9fafb;
+}
+
+/* BUTTON */
+.btn{
+padding:6px 10px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+.approve{background:#22c55e;color:white;}
+.reject{background:#ef4444;color:white;}
+
+</style>
+
 </head>
 
 <body>
 
-<h1>Admin Dashboard 🔥</h1>
+<div class="header">
+<h2>⚙️ Admin Dashboard</h2>
+<button onclick="location.href='student_home.html'">🏠 Home</button>
+</div>
 
-<button onclick="loadUsers()">All Users</button>
-<button onclick="loadPending()">Pending Requests 🔥</button>
-<button onclick="goHome()">🏠 View Website</button>
+<!-- STATS -->
+<div class="stats">
 
-<ul id="users"></ul>
+<div class="card">
+<h3 id="totalUsers">0</h3>
+<p>Total Users</p>
+</div>
+
+<div class="card">
+<h3 id="totalPG">0</h3>
+<p>Total PGs</p>
+</div>
+
+<div class="card">
+<h3 id="pendingUsers">0</h3>
+<p>Pending Profiles</p>
+</div>
+
+<div class="card">
+<h3 id="savedCount">0</h3>
+<p>Total Favorites</p>
+</div>
+
+</div>
+
+<!-- USERS TABLE -->
+<div class="section">
+<h3>👤 All Users</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Email</th>
+</tr>
+</thead>
+<tbody id="userTable"></tbody>
+</table>
+</div>
+
+<!-- PENDING USERS -->
+<div class="section">
+<h3>⏳ Pending Approvals</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Email</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="pendingTable"></tbody>
+</table>
+</div>
+
+<div class="section">
+<h3>🏠 All PG Listings</h3>
+
+<table>
+<thead>
+<tr>
+<th>PG Name</th>
+<th>City</th>
+<th>Rent</th>
+<th>Owner</th>
+<th>Phone</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody id="pgTable"></tbody>
+
+</table>
+</div>
 
 <script>
 
-function goHome(){
-    window.location.href = "student_home.html"
+// 🔥 LOAD USERS
+function loadUsers(){
+
+fetch("https://roomzy-czyc.onrender.com/all-users")
+.then(res=>res.json())
+.then(data=>{
+
+document.getElementById("totalUsers").innerText = data.length
+
+let table = document.getElementById("userTable")
+table.innerHTML=""
+
+data.forEach(u=>{
+table.innerHTML += `
+<tr>
+<td>${u.name}</td>
+<td>${u.email}</td>
+</tr>
+`
+})
+
+})
 }
 
-// 🔐 ADMIN CHECK
-if(localStorage.getItem("user_role") !== "admin"){
-    alert("Access Denied ❌")
-    window.location.href="login.html"
+// 🔥 LOAD PGs
+function loadPG(){
+
+fetch("https://roomzy-czyc.onrender.com/get_pgs")
+.then(res=>res.json())
+.then(data=>{
+document.getElementById("totalPG").innerText = data.length
+})
+
 }
 
-// ================= ALL USERS =================
-function loadUsers() {
-    fetch("https://roomzy-czyc.onrender.com/all-users")
-    .then(res => res.json())
-    .then(data => {
-
-        let list = document.getElementById("users")
-        list.innerHTML = ""
-
-        data.forEach(user => {
-
-            list.innerHTML += `
-            <li>
-                ${user.name} - ${user.email}
-            </li>
-            `
-
-        })
-    })
-}
-
-// ================= PENDING USERS =================
+// 🔥 LOAD PENDING
 function loadPending(){
 
 fetch("https://roomzy-czyc.onrender.com/pending_users")
 .then(res=>res.json())
 .then(data=>{
 
-let list = document.getElementById("users")
-list.innerHTML = ""
+document.getElementById("pendingUsers").innerText = data.length
+
+let table = document.getElementById("pendingTable")
+table.innerHTML=""
 
 data.forEach(u=>{
 
-list.innerHTML += `
-<li>
-
-<h3>${u.name} (${u.email})</h3>
-
-<img src="https://roomzy-czyc.onrender.com/uploads/${u.id_card.split('/').pop()}" width="160">
-
-<br><br>
-
-<b>Name:</b> ${u.profile.name || "-"} <br>
-<b>Phone:</b> ${u.profile.phone || "-"} <br>
-<b>College:</b> ${u.profile.college || "-"} <br>
-<b>Location:</b> ${u.profile.location || "-"} <br>
-
-<br><br>
-
-<button onclick="approve(${u.id})">✅ Approve</button>
-<button onclick="reject(${u.id})">❌ Reject</button>
-
-</li>
+table.innerHTML += `
+<tr>
+<td>${u.name}</td>
+<td>${u.email}</td>
+<td>
+<button class="btn approve" onclick="approve(${u.id})">Approve</button>
+<button class="btn reject" onclick="reject(${u.id})">Reject</button>
+</td>
+</tr>
 `
 
 })
@@ -122,28 +244,56 @@ list.innerHTML += `
 })
 }
 
-// ================= APPROVE =================
+// 🔥 APPROVE
 function approve(id){
-fetch("https://roomzy-czyc.onrender.com/approve_user/" + id,{
-method:"POST"
-})
-.then(()=>{
-alert("User Approved ✅")
-loadPending()
-})
+fetch("https://roomzy-czyc.onrender.com/approve_user/"+id,{method:"POST"})
+.then(()=>loadPending())
 }
 
-// ================= REJECT =================
+// 🔥 REJECT
 function reject(id){
-fetch("https://roomzy-czyc.onrender.com/reject_user/" + id,{
-method:"POST"
-})
-.then(()=>{
-alert("User Rejected ❌")
-loadPending()
-})
+fetch("https://roomzy-czyc.onrender.com/reject_user/"+id,{method:"POST"})
+.then(()=>loadPending())
 }
 
+// 🔥 LOCAL FAVORITES COUNT
+function loadSaved(){
+let saved = JSON.parse(localStorage.getItem("saved")) || []
+document.getElementById("savedCount").innerText = saved.length
+}
+
+// INIT
+loadUsers()
+loadPG()
+loadPending()
+loadSaved()
+
+function loadPGDetails(){
+
+fetch("https://roomzy-czyc.onrender.com/get_pgs")
+.then(res=>res.json())
+.then(data=>{
+
+let table = document.getElementById("pgTable")
+table.innerHTML = ""
+
+data.forEach(pg=>{
+
+table.innerHTML += `
+<tr>
+<td>${pg.pg_name}</td>
+<td>${pg.city}</td>
+<td>₹ ${pg.rent}</td>
+<td>${pg.owner_name || "N/A"}</td>
+<td>${pg.owner_phone || "N/A"}</td>
+<td>${pg.description || "-"}</td>
+</tr>
+`
+
+})
+
+})
+}
 </script>
 
 </body>

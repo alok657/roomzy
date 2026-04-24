@@ -401,7 +401,9 @@ def get_pgs():
             "rent": r[3],
             "description": r[4],
             "image": image,
-            "images": fixed_images
+            "images": fixed_images,
+            "owner_name": r[6],
+            "owner_phone": r[7]
         })
 
     return jsonify(pgs)

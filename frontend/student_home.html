@@ -184,7 +184,19 @@ border-radius:6px;
 border:1px solid #ddd;
 }
 
+.owner-btn{
+    margin-left:10px;
+    padding:6px 12px;
+    border:none;
+    border-radius:6px;
+    background:#1e88e5;
+    color:white;
+    cursor:pointer;
+}
 
+.owner-btn:hover{
+    background:#c46d0b;
+}
 
 </style>
 
@@ -199,6 +211,8 @@ border:1px solid #ddd;
 <a href="student_home.html">Home</a>
 <a href="saved.html">Saved</a>
 <a href="bookings.html">Bookings</a>
+
+<button onclick="goOwner()" class="owner-btn"> Add PG</button>
 </div>
 
 <div class="profile" onclick="openProfile()">
@@ -249,6 +263,9 @@ border:1px solid #ddd;
 </div>
 
 <script>
+function goOwner(){
+    window.location.href = "owner_dashboard.html"
+}
 
 if(localStorage.getItem("user_role") === "admin"){
     document.write('<button onclick="goAdmin()">⚙️ Admin Panel</button>')

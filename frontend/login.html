@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html>
 
 <head>
@@ -81,28 +82,28 @@ font-weight:bold;
 }
 
 .password-box{
-    position: relative;
+position: relative;
 }
 
 .password-box input{
-    width: 100%;
-    padding: 12px;
-    padding-right: 45px;
+width: 100%;
+padding: 12px;
+padding-right: 45px;
 }
 
 .toggle-eye{
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    font-size: 18px;
-    color: #333;
-    z-index: 10;
+position: absolute;
+right: 12px;
+top: 50%;
+transform: translateY(-50%);
+cursor: pointer;
+font-size: 18px;
+color: #333;
+z-index: 10;
 }
 
 .toggle-eye:hover{
-    color: #ff7a18;
+color: #ff7a18;
 }
 
 </style>
@@ -118,8 +119,8 @@ font-weight:bold;
 <input type="email" id="email" placeholder="Email">
 
 <div class="password-box">
-    <input type="password" id="password" placeholder="Password">
-    <span class="toggle-eye" onclick="togglePassword()">👁</span>
+<input type="password" id="password" placeholder="Password">
+<span class="toggle-eye" onclick="togglePassword()">👁</span>
 </div>
 
 <button onclick="login()">Login</button>
@@ -135,46 +136,44 @@ Don't have an account?
 
 <script>
 
-// 🔥 AUTO BACKEND URL (local + deploy)
 const API_URL = "https://roomzy-czyc.onrender.com"
 
-// 🔥 BACKEND WARM-UP
+// warmup
 setTimeout(()=>{
-    fetch(API_URL + "/test")
+fetch(API_URL + "/test")
 },1000)
 
-// 🔥 VERIFY SUCCESS MESSAGE
+// verify message
 let params = new URLSearchParams(window.location.search)
 
 if(params.get("verified") === "true"){
-    let msg = document.getElementById("msg")
-    msg.style.display = "block"
-    msg.style.color = "#00ff88"
-    msg.innerText = "✅ Email verified! Please login"
+let msg = document.getElementById("msg")
+msg.style.display = "block"
+msg.style.color = "#00ff88"
+msg.innerText = "✅ Email verified! Please login"
 }
 
-// 👁 TOGGLE PASSWORD
+// password toggle
 function togglePassword(){
-    let input = document.getElementById("password")
-    input.type = input.type === "password" ? "text" : "password"
+let input = document.getElementById("password")
+input.type = input.type === "password" ? "text" : "password"
 }
 
-// 🔥 LOGIN FUNCTION
+// 🔥 LOGIN FUNCTION (UPDATED FLOW)
 function login(){
-    
+
 let email = document.getElementById("email").value.trim()
 let password = document.getElementById("password").value.trim()
 
 let msg = document.getElementById("msg")
 let btn = document.querySelector("button")
 
-// 🔥 LOADING
 msg.style.display = "block"
 msg.style.color = "#ffd369"
 msg.innerText = "Processing..."
 btn.disabled = true
 
-// ❌ EMPTY CHECK
+// validation
 if(email=="" || password==""){
 msg.style.color="red"
 msg.innerText="Please fill all details"
@@ -182,7 +181,6 @@ btn.disabled = false
 return
 }
 
-// ❌ EMAIL VALIDATION
 let emailPattern=/^[^\s@]+@[^\s@]+\.[^\s@]+$/
 if(!emailPattern.test(email)){
 msg.style.color="red"
@@ -191,9 +189,8 @@ btn.disabled = false
 return
 }
 
-// ✅ API CALL
+// API CALL
 fetch(API_URL + "/login",{
-
 method:"POST",
 headers:{
 "Content-Type":"application/json"
@@ -202,7 +199,6 @@ body:JSON.stringify({
 email:email,
 password:password
 })
-
 })
 .then(res=>res.json())
 .then(data=>{
@@ -212,25 +208,18 @@ if(data.status=="success"){
 msg.style.color="#00ff88"
 msg.innerText="Login successful"
 
-// ✅ SAVE USER
+// save user
 localStorage.setItem("user_email", data.email)
 localStorage.setItem("user_name", data.name)
-localStorage.setItem("user_role", data.role)
 
-// 🔥 ADMIN DIRECT
-if(data.role === "admin"){
-    window.location.href = "admin.html"
-    return
-}
-
-// 🔥 PROFILE CHECK (FINAL FIX ✅)
+// 🔥 DIRECT FLOW (NO ROLE)
 let profile = JSON.parse(localStorage.getItem(data.email+"_profile"))
 
 if(!profile){
-    window.location.href = "role.html"
+window.location.href = "student_profile.html"
 }
 else{
-    window.location.href = "student_home.html"
+window.location.href = "student_home.html"
 }
 
 }

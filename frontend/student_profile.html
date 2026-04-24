@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html>
 
 <head>
@@ -19,7 +20,6 @@ justify-content:center;
 align-items:center;
 background:linear-gradient(135deg,#667eea,#764ba2);
 padding:15px;
-overflow-y:auto;
 }
 
 .container{
@@ -51,11 +51,6 @@ font-size:13px;
 outline:none;
 }
 
-input[type="file"]{
-font-size:12px;
-padding:6px;
-}
-
 button{
 width:100%;
 padding:10px;
@@ -68,24 +63,6 @@ cursor:pointer;
 margin-top:8px;
 }
 
-.input-group{
-position:relative;
-}
-
-.input-group i{
-position:absolute;
-top:50%;
-left:8px;
-transform:translateY(-50%);
-color:#666;
-font-size:13px;
-}
-
-.input-group input,
-.input-group select{
-padding-left:30px;
-}
-
 #msg{
 display:none;
 margin-top:8px;
@@ -95,21 +72,7 @@ font-size:13px;
 font-weight:bold;
 text-align:center;
 }
-
-label{
-font-size:12px;
-display:block;
-margin-top:5px;
-}
-
-@keyframes fadeIn{
-from{opacity:0;transform:translateY(10px);}
-to{opacity:1;transform:translateY(0);}
-}
 </style>
-
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 </head>
 
@@ -119,37 +82,21 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 
 <h2>Complete Your Profile</h2>
 
-<div class="input-group">
-<i class="fa fa-user"></i>
 <input id="name" placeholder="Full Name">
-</div>
 
-<div class="input-group">
-<i class="fa fa-phone"></i>
-<input id="phone" placeholder="Phone Number">
-</div>
+<input type="date" id="dob">
 
-<div class="input-group">
-<i class="fa fa-building"></i>
 <input id="college" placeholder="College Name">
-</div>
 
-<label>🎓 Upload College ID</label>
-<input type="file" id="idCard">
-
-<div class="input-group">
-<i class="fa fa-location-dot"></i>
 <select id="state">
 <option value="">Select State</option>
 </select>
-</div>
 
-<div class="input-group">
-<i class="fa fa-location-dot"></i>
 <select id="city">
 <option value="">Select City</option>
 </select>
-</div>
+
+<label>🎓 Upload College ID</label> <input type="file" id="idCard">
 
 <button onclick="saveProfile()">Continue</button>
 
@@ -159,17 +106,37 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 
 <script>
 
-window.addEventListener("pageshow", function(event) {
-    if (event.persisted) {
-        window.location.reload()
-    }
-})
-
-// 🔥 DATA
+// 🔥 STATES + CITIES (INDIA)
 let data = {
-"Delhi": ["New Delhi","Dwarka","Rohini"],
-"UP": ["Noida","Ghaziabad","Lucknow"],
-"Haryana": ["Gurgaon","Faridabad"]
+"Uttar Pradesh":["Noida","Ghaziabad","Lucknow","Kanpur","Varanasi"],
+"Delhi":["New Delhi","Dwarka","Rohini","Saket"],
+"Haryana":["Gurgaon","Faridabad","Panipat","Ambala"],
+"Maharashtra":["Mumbai","Pune","Nagpur","Nashik"],
+"Karnataka":["Bangalore","Mysore","Mangalore"],
+"Tamil Nadu":["Chennai","Coimbatore","Madurai"],
+"Rajasthan":["Jaipur","Udaipur","Jodhpur"],
+"Gujarat":["Ahmedabad","Surat","Vadodara"],
+"West Bengal":["Kolkata","Howrah","Durgapur"],
+"Madhya Pradesh":["Bhopal","Indore","Gwalior"],
+"Bihar":["Patna","Gaya","Muzaffarpur"],
+"Punjab":["Ludhiana","Amritsar","Jalandhar"],
+"Kerala":["Kochi","Trivandrum","Kozhikode"],
+"Telangana":["Hyderabad","Warangal"],
+"Andhra Pradesh":["Vijayawada","Visakhapatnam"],
+"Odisha":["Bhubaneswar","Cuttack"],
+"Assam":["Guwahati","Silchar"],
+"Jharkhand":["Ranchi","Jamshedpur"],
+"Chhattisgarh":["Raipur","Bilaspur"],
+"Uttarakhand":["Dehradun","Haridwar"],
+"Himachal Pradesh":["Shimla","Manali"],
+"Goa":["Panaji","Margao"],
+"Tripura":["Agartala"],
+"Meghalaya":["Shillong"],
+"Manipur":["Imphal"],
+"Nagaland":["Kohima"],
+"Mizoram":["Aizawl"],
+"Sikkim":["Gangtok"],
+"Arunachal Pradesh":["Itanagar"]
 }
 
 // 🔥 ELEMENTS
@@ -200,109 +167,31 @@ citySelect.add(opt)
 
 })
 
-// 🔥 AUTO FILL
-window.onload = function(){
-
-let email = localStorage.getItem("user_email")
-let saved = JSON.parse(localStorage.getItem(email+"_profile"))
-
-if(saved){
-
-document.getElementById("name").value = saved.name || ""
-document.getElementById("phone").value = saved.phone || ""
-document.getElementById("college").value = saved.college || ""
-
-// city reload fix
-if(saved.location){
-
-document.getElementById("state").value = "UP"
-stateSelect.dispatchEvent(new Event("change"))
-
-setTimeout(()=>{
-document.getElementById("city").value = saved.location
-},200)
-
-}
-
-}
-
-}
-
-// 🔥 MAIN FUNCTION
+// 🔥 SAVE PROFILE
 function saveProfile(){
 
 let name = document.getElementById("name").value.trim()
-let phone = document.getElementById("phone").value.trim()
-let location = document.getElementById("city").value
+let dob = document.getElementById("dob").value
 let college = document.getElementById("college").value.trim()
+let location = document.getElementById("city").value
 let file = document.getElementById("idCard").files[0]
 
 let msg = document.getElementById("msg")
 
-// ❌ VALIDATION
-if(name=="" || phone=="" || location=="" || college=="" || !file){
+if(name=="" || dob=="" || college=="" || location=="" || !file){
 
 msg.style.display="block"
 msg.style.background="#ff4d4d"
-msg.style.color="white"
-msg.innerText="❌ Fill all details + upload ID"
+msg.innerText="❌ Fill all details"
 
 setTimeout(()=> msg.style.display="none",2000)
 return
 }
 
-// ⏳ LOADING
 msg.style.display="block"
 msg.style.background="#333"
-msg.style.color="white"
-msg.innerText="⏳ Uploading & Verifying..."
+msg.innerText="Saving..."
 
-
-// 🔥 SINGLE API CALL (FINAL FIX)
-let formData = new FormData()
-
-formData.append("name", name)
-formData.append("phone", phone)
-formData.append("college", college)
-formData.append("location", location)
-formData.append("id_card", file)
-formData.append("email", localStorage.getItem("user_email"))
-
-fetch("https://roomzy-czyc.onrender.com/verify-id", {
-method:"POST",
-body:formData
-})
-.then(res=>res.json())
-.then(data=>{
-
-console.log("API Response:", data)
-
-// ❌ ERROR
-if(data.error){
-msg.style.background="#ff4d4d"
-msg.innerText="❌ " + data.error
-return
-}
-
-// ❌ FAKE
-if(data.status === "fake"){
-msg.style.background="#ff4d4d"
-msg.innerText="❌ Invalid ID Card"
-return
-}
-
-// ⚠ PARTIAL
-if(data.status === "partial"){
-msg.style.background="#ffc107"
-msg.style.color="black"
-msg.innerText="⚠️ Partial match (Check ID)"
-return
-}
-
-// ✅ VERIFIED (FINAL FLOW)
-if(data.status === "verified" || data.status === "success"){
-
-// local save (optional)
 let reader = new FileReader()
 
 reader.onload = function(){
@@ -311,35 +200,24 @@ let email = localStorage.getItem("user_email")
 
 let profile = {
 name:name,
-phone:phone,
-location:location,
+dob:dob,
 college:college,
-idCard:reader.result,
-verified:false   // 🔥 admin approve ke baad true hoga
+location:location,
+idCard:reader.result
 }
 
 localStorage.setItem(email+"_profile", JSON.stringify(profile))
 
 msg.style.background="#28a745"
-msg.style.color="white"
-msg.innerText="⏳ Profile sent for admin approval"
+msg.innerText="✅ Profile saved"
 
 setTimeout(()=>{
-window.location.href="waiting.html"
+window.location.href="student_home.html"
 },1000)
 
 }
 
 reader.readAsDataURL(file)
-
-}
-
-})
-.catch(()=>{
-msg.style.background="#ff4d4d"
-msg.style.color="white"
-msg.innerText="❌ Server error"
-})
 
 }
 
