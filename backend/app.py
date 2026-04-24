@@ -100,9 +100,12 @@ def signup():
     try:
         data = request.get_json()
 
-        name = data.get("name")
-        email = data.get("email")
-        password = data.get("password")
+        name = data.get("name") or ""
+        email = data.get("email") or ""
+        password = data.get("password") or ""
+
+        if name == "" or email == "" or password == "":
+            return {"status":"error","message":"All fields required"}
 
         # 🔥 NAME VALIDATION
         if len(name) < 3 or not re.match(r'^[a-zA-Z\s]+$', name):
