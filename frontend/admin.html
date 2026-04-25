@@ -232,12 +232,12 @@ data.forEach(u=>{
 
 table.innerHTML += `
 <tr>
-<td>${u.name}</td>
+<td>${u.profile.name || "N/A"}</td>
 <td>${u.email}</td>
-<td>${u.college || "N/A"}</td>
+<td>${u.profile.college || "N/A"}</td>
 
 <td>
-<img src="https://roomzy-czyc.onrender.com/${u.id_card}" 
+<img src="https://roomzy-czyc.onrender.com/uploads/${u.id_card}" 
 class="preview"
 onclick="viewImage('${u.id_card}')">
 </td>
@@ -255,7 +255,7 @@ onclick="viewImage('${u.id_card}')">
 
 // 🔥 IMAGE VIEW
 function viewImage(src){
-let full = "https://roomzy-czyc.onrender.com/" + src
+let full = "https://roomzy-czyc.onrender.com/uploads/" + src
 let win = window.open("")
 win.document.write(`<img src="${full}" style="width:100%">`)
 }

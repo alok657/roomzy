@@ -699,11 +699,14 @@ def pending_users():
     result = []
 
     for r in rows:
+
+        profile = json.loads(r[3]) if r[3] else {}
+
         result.append({
             "id": r[0],
-            "name": r[1],
+            "name": profile.get("name", "N/A"),   # 🔥 yaha change
             "email": r[2],
-            "profile": json.loads(r[3]) if r[3] else {},
+            "college": profile.get("college", "N/A"),  # 🔥 new field
             "id_card": r[4]
         })
 
@@ -844,9 +847,16 @@ def upload_profile():
     email = request.form.get("email")
     file = request.files.get("id_card")
 
-    filename = secure_filename(file.filename)
-    path = os.path.join(UPLOAD_FOLDER, filename)
-    file.save(path)
+    print("NAME:", name)
+    print("COLLEGE:", college)
+    print("EMAIL:", email)
+
+    filename = None
+
+    if file:
+        filename = secure_filename(file.filename)
+        path = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(path)
 
     conn = get_db()
     cur = conn.cursor()
@@ -855,7 +865,7 @@ def upload_profile():
     UPDATE users 
     SET name=%s, college=%s, id_card=%s, is_verified=%s 
     WHERE email=%s
-    """,(name, college, path, False, email))
+    """,(name, college, filename, False, email))
 
     conn.commit()
     conn.close()
