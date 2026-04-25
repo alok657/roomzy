@@ -213,7 +213,19 @@ border:1px solid #ddd;
 <a href="bookings.html">Bookings</a>
 
 <button onclick="goOwner()" class="owner-btn add-pg-btn">+ Add PG</button>
+<button onclick="logout()" style="
+margin-left:10px;
+padding:6px 12px;
+border:none;
+border-radius:6px;
+background:red;
+color:white;
+cursor:pointer;
+">
+Logout
+</button>
 </div>
+
 
 <div class="profile" onclick="openProfile()">
 <img id="profilePic" src="https://i.pravatar.cc/40">
@@ -680,6 +692,11 @@ let btn = document.querySelector(".add-pg-btn")
 if(btn){
 btn.style.display = "none"
 }
+}
+
+function logout(){
+    localStorage.clear()
+    window.location.href = "login.html"
 }
 
 </script>
