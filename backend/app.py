@@ -850,22 +850,23 @@ def upload_profile():
     print("NAME:", name)
     print("COLLEGE:", college)
     print("EMAIL:", email)
+    print("FILE:", file)
 
-    filename = None
+    if not file or file.filename == "":
+        return {"error": "No file uploaded"}, 400
 
-    if file:
-        filename = secure_filename(file.filename)
-        path = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(path)
+    filename = secure_filename(file.filename)
+    path = os.path.join(UPLOAD_FOLDER, filename)
+    file.save(path)
 
     conn = get_db()
     cur = conn.cursor()
 
     cur.execute("""
     UPDATE users 
-    SET name=%s, college=%s, id_card=%s, is_verified=%s 
+    SET name=%s, college=%s, id_card=%s, approval_status=%s
     WHERE email=%s
-    """,(name, college, filename, False, email))
+    """,(name, college, filename, "pending", email))
 
     conn.commit()
     conn.close()
