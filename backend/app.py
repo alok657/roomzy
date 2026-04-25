@@ -868,6 +868,40 @@ from flask import send_from_directory
 def uploaded_file(filename):
     return send_from_directory('uploads', filename)
 
+@app.route("/add-default-pgs")
+def add_default_pgs():
+    conn = get_db()
+    cur = conn.cursor()
+
+    pgs = [
+        ("Sunrise PG", "Delhi", 6000, "Admin"),
+        ("Urban Nest", "Noida", 7500, "Admin"),
+        ("Royal Stay", "Ghaziabad", 5000, "Admin"),
+        ("Green View", "Delhi", 6500, "Admin"),
+        ("City Comfort", "Noida", 7200, "Admin"),
+        ("Elite Stay", "Delhi", 8000, "Admin"),
+        ("Happy Homes", "Ghaziabad", 4800, "Admin"),
+        ("Skyline PG", "Delhi", 7000, "Admin"),
+        ("Comfort Zone", "Noida", 6700, "Admin"),
+        ("Dream Stay", "Delhi", 7600, "Admin"),
+        ("Peaceful PG", "Ghaziabad", 5200, "Admin"),
+        ("Golden Nest", "Delhi", 6900, "Admin"),
+        ("Blue Haven", "Noida", 7100, "Admin"),
+        ("Smart Living", "Delhi", 7400, "Admin"),
+        ("Royal Comfort", "Ghaziabad", 5600, "Admin")
+    ]
+
+    for pg in pgs:
+        cur.execute(
+            "INSERT INTO pgs (pg_name, city, rent, owner_name) VALUES (%s,%s,%s,%s)",
+            pg
+        )
+
+    conn.commit()
+    conn.close()
+
+    return "✅ PGs wapas aa gaye"
+
 # ================= TEST =================
 @app.route("/")
 def home():
