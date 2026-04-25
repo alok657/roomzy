@@ -237,7 +237,8 @@ table.innerHTML += `
 <td>${u.college || "N/A"}</td>
 
 <td>
-<img src="${u.id_card}" class="preview"
+<img src="https://roomzy-czyc.onrender.com/${u.id_card}" 
+class="preview"
 onclick="viewImage('${u.id_card}')">
 </td>
 
@@ -254,8 +255,9 @@ onclick="viewImage('${u.id_card}')">
 
 // 🔥 IMAGE VIEW
 function viewImage(src){
+let full = "https://roomzy-czyc.onrender.com/" + src
 let win = window.open("")
-win.document.write(`<img src="${src}" style="width:100%">`)
+win.document.write(`<img src="${full}" style="width:100%">`)
 }
 
 // APPROVE

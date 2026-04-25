@@ -834,6 +834,44 @@ def reset_all():
 
     return "🔥 ALL DATA DELETED COMPLETELY"
     
+import os
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+@app.route("/upload_profile", methods=["POST"])
+def upload_profile():
+
+    name = request.form.get("name")
+    college = request.form.get("college")
+    email = request.form.get("email")
+    file = request.files.get("id_card")
+
+    filename = secure_filename(file.filename)
+    path = os.path.join(UPLOAD_FOLDER, filename)
+    file.save(path)
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+    UPDATE users 
+    SET name=%s, college=%s, id_card=%s, is_verified=%s 
+    WHERE email=%s
+    """,(name, college, path, False, email))
+
+    conn.commit()
+    conn.close()
+
+    return {"status":"success"}
+
+from flask import send_from_directory
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory('uploads', filename)
+
 # ================= TEST =================
 @app.route("/")
 def home():

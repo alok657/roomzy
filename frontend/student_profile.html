@@ -168,8 +168,6 @@ citySelect.add(opt)
 }
 })
 
-
-// 🔥 FINAL UPDATED FUNCTION
 function saveProfile(){
 
 let name = document.getElementById("name").value.trim()
@@ -182,52 +180,63 @@ let file = document.getElementById("idCard").files[0]
 let msg = document.getElementById("msg")
 
 if(name=="" || dob=="" || college=="" || gender=="" || location=="" || !file){
-
 msg.style.display="block"
 msg.style.background="#ff4d4d"
 msg.innerText="❌ Fill all details"
-
 setTimeout(()=> msg.style.display="none",2000)
+return
+}
+
+let email = localStorage.getItem("user_email")
+
+if(!email){
+msg.style.background="#ff4d4d"
+msg.innerText="❌ Login required"
 return
 }
 
 msg.style.display="block"
 msg.style.background="#333"
-msg.innerText="Saving..."
+msg.innerText="Uploading..."
 
-let reader = new FileReader()
+let formData = new FormData()
+formData.append("name", name)
+formData.append("dob", dob)
+formData.append("college", college)
+formData.append("gender", gender)
+formData.append("location", location)
+formData.append("email", email)
 
-reader.onload = function(){
+// 🔥 UNIQUE FILE NAME
+formData.append("id_card", file, Date.now() + "_" + file.name)
 
-let email = localStorage.getItem("user_email")
+fetch("https://roomzy-czyc.onrender.com/upload_profile", {
+method: "POST",
+body: formData
+})
+.then(res=>res.json())
+.then(data=>{
 
-let profile = {
-name:name,
-dob:dob,
-college:college,
-gender:gender,
-location:location,
-idCard:reader.result,
-verified:false
+if(data.status !== "success"){
+msg.style.background="#ff4d4d"
+msg.innerText="❌ Server Error"
+return
 }
 
-// 🔥 SAVE PROFILE
-localStorage.setItem(email+"_profile", JSON.stringify(profile))
+msg.style.background="#28a745"
+msg.innerText="✅ Sent for Admin Approval"
 
-// 🔥 IMPORTANT LINE (NEW 🔥)
 localStorage.setItem("profile_done", "yes")
 
-msg.style.background="#28a745"
-msg.innerText="✅ Profile saved"
-
-// 🔥 REDIRECT HOME
 setTimeout(()=>{
 window.location.href="waiting.html"
 },1000)
 
-}
-
-reader.readAsDataURL(file)
+})
+.catch(()=>{
+msg.style.background="#ff4d4d"
+msg.innerText="❌ Upload failed"
+})
 
 }
 
