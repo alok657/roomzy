@@ -820,16 +820,22 @@ def reset_all():
     conn = get_db()
     cur = conn.cursor()
 
-    # 🔥 sab tables clear
-    cur.execute("TRUNCATE TABLE users RESTART IDENTITY CASCADE")
-    cur.execute("TRUNCATE TABLE pgs RESTART IDENTITY CASCADE")
-    cur.execute("TRUNCATE TABLE bookings RESTART IDENTITY CASCADE")
+    try:
+        # 🔥 sirf wahi tables delete kar jo EXIST karti hain
+        cur.execute("TRUNCATE TABLE users RESTART IDENTITY CASCADE")
+        cur.execute("TRUNCATE TABLE pgs RESTART IDENTITY CASCADE")
 
-    conn.commit()
-    conn.close()
+        # ❌ bookings hata de (kyuki exist hi nahi karti)
 
-    return "🔥 ALL DATA DELETED COMPLETELY"
-    
+        conn.commit()
+        return "🔥 ALL DATA DELETED SUCCESSFULLY ✅"
+
+    except Exception as e:
+        print("RESET ERROR:", e)
+        return "ERROR: " + str(e)
+
+    finally:
+        conn.close()
 import os
 from werkzeug.utils import secure_filename
 
