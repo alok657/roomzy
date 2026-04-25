@@ -303,6 +303,111 @@ Continue
 </div>
 </div>
 
+<style>
+#roleOverlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:linear-gradient(135deg,#667eea,#764ba2);
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:9999;
+}
+
+.role-box{
+width:320px;
+background:rgba(255,255,255,0.15);
+backdrop-filter:blur(15px);
+padding:25px;
+border-radius:15px;
+text-align:center;
+color:white;
+box-shadow:0 8px 25px rgba(0,0,0,0.3);
+}
+
+.role-box button{
+width:100%;
+padding:12px;
+margin:8px 0;
+border:none;
+border-radius:8px;
+background:linear-gradient(90deg,#ff7a18,#ffb347);
+color:white;
+cursor:pointer;
+}
+</style>
+
+<script>
+
+let popupOpen = false
+
+document.addEventListener("click", function(e){
+
+let role = localStorage.getItem("user_role")
+
+// agar role set hai → kuch mat karo
+if(role) return
+
+// popup already open hai
+if(popupOpen){
+e.preventDefault()
+e.stopPropagation()
+return
+}
+
+e.preventDefault()
+e.stopPropagation()
+
+showRolePopup()
+
+})
+
+function showRolePopup(){
+
+popupOpen = true
+
+let overlay = document.createElement("div")
+overlay.id = "roleOverlay"
+
+overlay.innerHTML = `
+<div class="role-box">
+<h2>Select Your Role</h2>
+<button id="studentBtn">Student</button>
+<button id="ownerBtn">Owner</button>
+</div>
+`
+
+document.body.appendChild(overlay)
+
+document.getElementById("studentBtn").onclick = function(e){
+e.stopPropagation()
+selectRole("student")
+}
+
+document.getElementById("ownerBtn").onclick = function(e){
+e.stopPropagation()
+selectRole("owner")
+}
+
+}
+
+function selectRole(role){
+
+localStorage.setItem("user_role", role)
+
+if(role === "student"){
+window.location.href = "student_profile.html"
+}else{
+window.location.href = "owner_dashboard.html"
+}
+
+}
+
+</script>
+
 <script>
 function goOwner(){
     window.location.href = "owner_dashboard.html"
@@ -546,10 +651,11 @@ container.innerHTML+=`
 
 function openPG(id){
 
+let role = localStorage.getItem("user_role")
 let email = localStorage.getItem("user_email")
 let profile = localStorage.getItem(email+"_profile")
 
-if(!profile){
+if(role === "student" && !profile){
     window.location.href = "student_profile.html"
 }else{
     window.location.href = "pg_details.html?id=" + id
@@ -567,93 +673,13 @@ let t=parseInt(document.getElementById("travel").value)||0
 document.getElementById("result").innerText="Remaining ₹ "+(b-t)
 }
 
-document.addEventListener("click", function(e){
-
-// profile check
-let email = localStorage.getItem("user_email")
-let profile = localStorage.getItem(email+"_profile")
-
-// agar profile nahi hai
-if(!profile){
-
-// prevent normal action
-e.preventDefault()
-
-// redirect to profile page
-window.location.href = "student_profile.html"
-}
-
-})
-
-
-let role = localStorage.getItem("user_role")
-
-// 🔥 PAGE CLICK DETECT
-document.addEventListener("click", function(e){
-
-    // agar role already set hai → kuch mat karo
-    if(role){
-        return
-    }
-
-    // ❌ ROLE NAHI → popup dikhao
-    e.preventDefault()
-
-    showRolePopup()
-
-})
-
-function showRolePopup(){
-
-    let div = document.createElement("div")
-
-    div.innerHTML = `
-    <div style="
-        position:fixed;
-        top:0;left:0;
-        width:100%;
-        height:100%;
-        background:rgba(0,0,0,0.5);
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        z-index:999;
-    ">
-        <div style="
-            background:white;
-            padding:30px;
-            border-radius:10px;
-            text-align:center;
-        ">
-            <h3>Select Role</h3>
-            <button onclick="setRole('student')">Student</button>
-            <button onclick="setRole('owner')">Owner</button>
-        </div>
-    </div>
-    `
-
-    document.body.appendChild(div)
-}
-
-function setRole(r){
-
-    localStorage.setItem("user_role", r)
-
-    if(r === "student"){
-        window.location.href = "student_profile.html"
-    }else{
-        window.location.href = "owner_dashboard.html"
-    }
-
-}
-
 let roleNow = localStorage.getItem("user_role")
 
 if(roleNow === "student"){
-    let btn = document.querySelector(".add-pg-btn")
-    if(btn){
-        btn.style.display = "none"
-    }
+let btn = document.querySelector(".add-pg-btn")
+if(btn){
+btn.style.display = "none"
+}
 }
 
 </script>
