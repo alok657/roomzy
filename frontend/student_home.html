@@ -212,7 +212,7 @@ border:1px solid #ddd;
 <a href="saved.html">Saved</a>
 <a href="bookings.html">Bookings</a>
 
-<button onclick="goOwner()" class="owner-btn"> Add PG</button>
+<button onclick="goOwner()" class="owner-btn add-pg-btn">+ Add PG</button>
 </div>
 
 <div class="profile" onclick="openProfile()">
@@ -584,6 +584,77 @@ window.location.href = "student_profile.html"
 }
 
 })
+
+
+let role = localStorage.getItem("user_role")
+
+// 🔥 PAGE CLICK DETECT
+document.addEventListener("click", function(e){
+
+    // agar role already set hai → kuch mat karo
+    if(role){
+        return
+    }
+
+    // ❌ ROLE NAHI → popup dikhao
+    e.preventDefault()
+
+    showRolePopup()
+
+})
+
+function showRolePopup(){
+
+    let div = document.createElement("div")
+
+    div.innerHTML = `
+    <div style="
+        position:fixed;
+        top:0;left:0;
+        width:100%;
+        height:100%;
+        background:rgba(0,0,0,0.5);
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        z-index:999;
+    ">
+        <div style="
+            background:white;
+            padding:30px;
+            border-radius:10px;
+            text-align:center;
+        ">
+            <h3>Select Role</h3>
+            <button onclick="setRole('student')">Student</button>
+            <button onclick="setRole('owner')">Owner</button>
+        </div>
+    </div>
+    `
+
+    document.body.appendChild(div)
+}
+
+function setRole(r){
+
+    localStorage.setItem("user_role", r)
+
+    if(r === "student"){
+        window.location.href = "student_profile.html"
+    }else{
+        window.location.href = "owner_dashboard.html"
+    }
+
+}
+
+let roleNow = localStorage.getItem("user_role")
+
+if(roleNow === "student"){
+    let btn = document.querySelector(".add-pg-btn")
+    if(btn){
+        btn.style.display = "none"
+    }
+}
 
 </script>
 
