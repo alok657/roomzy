@@ -818,6 +818,17 @@ def check_status(email):
         return {"approved": True}
     else:
         return {"approved": False}
+
+@app.route("/reset-all")
+def reset_all():
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("TRUNCATE TABLE users RESTART IDENTITY CASCADE")
+    conn.commit()
+    conn.close()
+
+    return "All users deleted ✅"
     
 # ================= TEST =================
 @app.route("/")
