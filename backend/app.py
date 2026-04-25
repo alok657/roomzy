@@ -823,8 +823,7 @@ def reset_all():
     try:
         # 🔥 sirf wahi tables delete kar jo EXIST karti hain
         cur.execute("TRUNCATE TABLE users RESTART IDENTITY CASCADE")
-        cur.execute("TRUNCATE TABLE pgs RESTART IDENTITY CASCADE")
-
+        
         # ❌ bookings hata de (kyuki exist hi nahi karti)
 
         conn.commit()
@@ -836,6 +835,7 @@ def reset_all():
 
     finally:
         conn.close()
+
 import os
 from werkzeug.utils import secure_filename
 
