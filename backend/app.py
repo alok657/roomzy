@@ -824,11 +824,15 @@ def reset_all():
     conn = get_db()
     cur = conn.cursor()
 
+    # 🔥 sab tables clear
     cur.execute("TRUNCATE TABLE users RESTART IDENTITY CASCADE")
+    cur.execute("TRUNCATE TABLE pgs RESTART IDENTITY CASCADE")
+    cur.execute("TRUNCATE TABLE bookings RESTART IDENTITY CASCADE")
+
     conn.commit()
     conn.close()
 
-    return "All users deleted ✅"
+    return "🔥 ALL DATA DELETED COMPLETELY"
     
 # ================= TEST =================
 @app.route("/")
