@@ -913,6 +913,22 @@ def add_default_pgs():
 
     return "✅ PGs wapas aa gaye"
 
+@app.route("/fix-db")
+def fix_db():
+    conn = get_db()
+    cur = conn.cursor()
+
+    # 🔥 columns add (agar pehle se nahi hai to)
+    cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS name TEXT")
+    cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS college TEXT")
+    cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS id_card TEXT")
+    cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS approval_status TEXT DEFAULT 'pending'")
+
+    conn.commit()
+    conn.close()
+
+    return "DB FIXED ✅"
+
 # ================= TEST =================
 @app.route("/")
 def home():
