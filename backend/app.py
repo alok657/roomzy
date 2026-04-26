@@ -926,6 +926,18 @@ def fix_db():
 
     return "DB FIXED ✅"
 
+@app.route("/fix-pending")
+def fix_pending():
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("UPDATE users SET approval_status='pending'")
+
+    conn.commit()
+    conn.close()
+
+    return "✅ fixed"
 # ================= TEST =================
 @app.route("/")
 def home():
