@@ -688,7 +688,7 @@ def pending_users():
     cur = conn.cursor()
 
     cur.execute("""
-    SELECT id, name, email, profile_data, id_card 
+    SELECT id, name, email, college, id_card 
     FROM users 
     WHERE approval_status='pending'
     """)
@@ -699,14 +699,11 @@ def pending_users():
     result = []
 
     for r in rows:
-
-        profile = json.loads(r[3]) if r[3] else {}
-
         result.append({
             "id": r[0],
-            "name": profile.get("name", "N/A"),   # 🔥 yaha change
+            "name": r[1],        # ✅ direct column
             "email": r[2],
-            "college": profile.get("college", "N/A"),  # 🔥 new field
+            "college": r[3],     # ✅ direct column
             "id_card": r[4]
         })
 
@@ -877,7 +874,7 @@ from flask import send_from_directory
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
-    return send_from_directory('uploads', filename)
+    return send_from_directory(UPLOAD_FOLDER, filename)
 
 @app.route("/add-default-pgs")
 def add_default_pgs():
