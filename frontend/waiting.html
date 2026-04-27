@@ -12,9 +12,14 @@ fetch("https://roomzy-czyc.onrender.com/check-status/" + email)
 .then(res=>res.json())
 .then(data=>{
 
-if(data.approved){
-    // ✅ APPROVED → HOME PAGE
+// ✅ CORRECT CHECK
+if(data.status === "approved"){
     window.location.href = "student_home.html"
+}
+
+// 🔥 optional (reject case)
+else if(data.status === "rejected"){
+    alert("❌ Profile rejected by admin")
 }
 
 })
