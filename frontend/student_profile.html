@@ -195,6 +195,16 @@ msg.innerText="❌ Login required"
 return
 }
 
+let profile = {
+    name,
+    dob,
+    gender,
+    college,
+    location
+}
+
+localStorage.setItem(email+"_profile", JSON.stringify(profile))
+
 msg.style.display="block"
 msg.style.background="#333"
 msg.innerText="Uploading..."

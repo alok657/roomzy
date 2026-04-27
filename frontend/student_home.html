@@ -356,13 +356,21 @@ cursor:pointer;
 
 <script>
 
-// 🔥 PAGE LOAD PE CHECK
 window.addEventListener("load", function(){
 
 let role = localStorage.getItem("user_role")
+let done = localStorage.getItem("profile_done")
 
+// ❌ role hi nahi hai → lock
 if(!role){
     lockScreen()
+    return
+}
+
+// ❌ student hai but approved nahi → profile page
+if(role === "student" && done !== "yes"){
+    window.location.href = "student_profile.html"
+    return
 }
 
 })
@@ -682,7 +690,10 @@ btn.style.display = "none"
 }
 
 function logout(){
-    localStorage.clear()
+
+    // ❗ sirf login data hata
+    localStorage.removeItem("user_email")
+    localStorage.removeItem("user_name")
     window.location.href = "login.html"
 }
 
