@@ -655,7 +655,7 @@ def submit_profile():
     file = request.files["id_card"]
 
     filename = str(uuid.uuid4()) + ".jpg"
-    filepath = "uploads/" + filename
+    filepath = filename
     file.save(filepath)
 
     email = request.form.get("email")
@@ -688,7 +688,7 @@ def pending_users():
     cur = conn.cursor()
 
     cur.execute("""
-    SELECT id, name, email, college, id_card 
+    SELECT id, email, profile_data, id_card 
     FROM users 
     WHERE approval_status='pending'
     """)
@@ -699,12 +699,20 @@ def pending_users():
     result = []
 
     for r in rows:
+        profile = {}
+
+        if r[2]:
+            try:
+                profile = json.loads(r[2])
+            except:
+                profile = {}
+
         result.append({
             "id": r[0],
-            "name": r[1],        # ✅ direct column
-            "email": r[2],
-            "college": r[3],     # ✅ direct column
-            "id_card": r[4]
+            "email": r[1],
+            "name": profile.get("name"),
+            "college": profile.get("college"),
+            "id_card": r[3]
         })
 
     return jsonify(result)
@@ -715,7 +723,7 @@ def approve_user(id):
     conn = get_db()
     cur = conn.cursor()
 
-    cur.execute("UPDATE users SET approval_status='approved' WHERE id=%s", (id,))
+    cur.execute("""UPDATE users SET approval_status='approved' WHERE id=%s""", (id,))
 
     conn.commit()
     conn.close()
@@ -802,18 +810,19 @@ def verify_id():
     
 @app.route("/check-status/<email>")
 def check_status(email):
+
     conn = get_db()
     cur = conn.cursor()
 
-    cur.execute("SELECT is_approved FROM users WHERE email=%s", (email,))
-    result = cur.fetchone()
+    cur.execute("SELECT approval_status FROM users WHERE email=%s", (email,))
+    row = cur.fetchone()
 
     conn.close()
 
-    if result and result[0]:
-        return {"approved": True}
-    else:
-        return {"approved": False}
+    if not row:
+        return {"status": "not_found"}
+
+    return {"status": row[0]}
 
 @app.route("/reset-all")
 def reset_all():

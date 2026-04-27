@@ -316,6 +316,7 @@ Continue
 </div>
 
 <style>
+
 #roleOverlay{
 position:fixed;
 top:0;
@@ -350,36 +351,27 @@ background:linear-gradient(90deg,#ff7a18,#ffb347);
 color:white;
 cursor:pointer;
 }
+
 </style>
 
 <script>
 
-let popupOpen = false
-
-document.addEventListener("click", function(e){
+// 🔥 PAGE LOAD PE CHECK
+window.addEventListener("load", function(){
 
 let role = localStorage.getItem("user_role")
 
-// agar role set hai → kuch mat karo
-if(role) return
-
-// popup already open hai
-if(popupOpen){
-e.preventDefault()
-e.stopPropagation()
-return
+if(!role){
+    lockScreen()
 }
-
-e.preventDefault()
-e.stopPropagation()
-
-showRolePopup()
 
 })
 
-function showRolePopup(){
+// 🔥 LOCK SCREEN (FULL BLOCK)
+function lockScreen(){
 
-popupOpen = true
+// agar already hai to dubara mat banao
+if(document.getElementById("roleOverlay")) return
 
 let overlay = document.createElement("div")
 overlay.id = "roleOverlay"
@@ -387,33 +379,28 @@ overlay.id = "roleOverlay"
 overlay.innerHTML = `
 <div class="role-box">
 <h2>Select Your Role</h2>
-<button id="studentBtn">Student</button>
-<button id="ownerBtn">Owner</button>
+<button onclick="selectRole('student')">🎓 Student</button>
+<button onclick="selectRole('owner')">🏠 Owner</button>
 </div>
 `
 
 document.body.appendChild(overlay)
 
-document.getElementById("studentBtn").onclick = function(e){
-e.stopPropagation()
-selectRole("student")
 }
 
-document.getElementById("ownerBtn").onclick = function(e){
-e.stopPropagation()
-selectRole("owner")
-}
-
-}
-
+// 🔥 ROLE SELECT
 function selectRole(role){
 
 localStorage.setItem("user_role", role)
 
+// overlay remove
+let overlay = document.getElementById("roleOverlay")
+if(overlay) overlay.remove()
+
 if(role === "student"){
-window.location.href = "student_profile.html"
+    window.location.href = "student_profile.html"
 }else{
-window.location.href = "owner_dashboard.html"
+    window.location.href = "owner_dashboard.html"
 }
 
 }
