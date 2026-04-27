@@ -14,6 +14,9 @@ fetch("https://roomzy-czyc.onrender.com/check-status/" + email)
 
 // ✅ CORRECT CHECK
 if(data.status === "approved"){
+
+    localStorage.setItem("profile_done", "yes")
+    
     window.location.href = "student_home.html"
 }
 

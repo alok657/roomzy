@@ -651,10 +651,10 @@ container.innerHTML+=`
 function openPG(id){
 
 let role = localStorage.getItem("user_role")
-let email = localStorage.getItem("user_email")
-let profile = localStorage.getItem(email+"_profile")
+let done = localStorage.getItem("profile_done")
 
-if(role === "student" && !profile){
+// 🔥 NEW LOGIC
+if(role === "student" && done !== "yes"){
     window.location.href = "student_profile.html"
 }else{
     window.location.href = "pg_details.html?id=" + id
