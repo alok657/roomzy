@@ -366,14 +366,8 @@ if(!role){
     lockScreen()
     return
 }
-
-// ❌ student hai but approved nahi → profile page
-if(role === "student" && done !== "yes"){
-    window.location.href = "student_profile.html"
-    return
 }
-
-})
+)
 
 // 🔥 LOCK SCREEN (FULL BLOCK)
 function lockScreen(){
@@ -661,12 +655,20 @@ function openPG(id){
 let role = localStorage.getItem("user_role")
 let done = localStorage.getItem("profile_done")
 
-// 🔥 NEW LOGIC
+// ❌ role nahi hai → role popup dikhao
+if(!role){
+    lockScreen()   // ya showRolePopup()
+    return
+}
+
+// ❌ student hai but approved nahi → profile page
 if(role === "student" && done !== "yes"){
     window.location.href = "student_profile.html"
-}else{
-    window.location.href = "pg_details.html?id=" + id
+    return
 }
+
+// ✅ allowed
+window.location.href = "pg_details.html?id=" + id
 
 }
 
