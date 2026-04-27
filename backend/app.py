@@ -841,6 +841,8 @@ def reset_all():
     
 import os
 from werkzeug.utils import secure_filename
+import json
+import uuid
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -861,18 +863,25 @@ def upload_profile():
     if not file or file.filename == "":
         return {"error": "No file uploaded"}, 400
 
-    filename = secure_filename(file.filename)
+    # 🔥 UNIQUE FILE NAME
+    filename = str(uuid.uuid4()) + "_" + secure_filename(file.filename)
     path = os.path.join(UPLOAD_FOLDER, filename)
     file.save(path)
+
+    # 🔥 MAIN FIX (JSON SAVE)
+    profile = {
+        "name": name,
+        "college": college
+    }
 
     conn = get_db()
     cur = conn.cursor()
 
     cur.execute("""
     UPDATE users 
-    SET name=%s, college=%s, id_card=%s, approval_status=%s
+    SET profile_data=%s, id_card=%s, approval_status='pending'
     WHERE email=%s
-    """,(name, college, filename, "pending", email))
+    """,(json.dumps(profile), filename, email))
 
     conn.commit()
     conn.close()
