@@ -978,6 +978,21 @@ def fix_pending():
     conn.close()
 
     return "✅ fixed"
+
+import smtplib
+
+@app.route("/smtp-test")
+def smtp_test():
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(
+            os.environ.get("MAIL_USERNAME"),
+            os.environ.get("MAIL_PASSWORD")
+        )
+        return "LOGIN SUCCESS ✅"
+    except Exception as e:
+        return "LOGIN FAILED ❌ " + str(e)
 # ================= TEST =================
 @app.route("/")
 def home():
