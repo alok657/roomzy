@@ -7,11 +7,7 @@ import uuid
 import threading
 
 import pytesseract
-
-import platform
-
-if platform.system() == "Windows":
-    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 if not os.path.exists("uploads"):
     os.makedirs("uploads")
@@ -19,15 +15,14 @@ if not os.path.exists("uploads"):
 from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 
-app = Flask(__name__)
-CORS(app, origins="*")
+app = Flask(__name__, static_folder="static")
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")
-app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
-app.config['MAIL_TIMEOUT'] = 5 
+app.config['MAIL_USERNAME'] = 'roomzy.support@gmail.com'
+app.config['MAIL_PASSWORD'] = 'bobrhmpyogqcaaom'
 
 mail = Mail(app)
 
@@ -98,34 +93,25 @@ def setupdb():
 # ================= SIGNUP =================
 from werkzeug.security import generate_password_hash
 import re
-import uuid
-import threading
-
-# 🔥 Background mail sender
-def send_async_email(app, msg):
-    with app.app_context():
-        try:
-            print("📨 Sending email...")
-            mail.send(msg)
-            print("✅ Email sent")
-        except Exception as e:
-            print("❌ Email error:", e)
-
 
 @app.route("/signup", methods=["POST"])
 def signup():
     try:
         data = request.get_json()
 
-        email = data.get("email") or ""
-        password = data.get("password") or ""
+        name = data.get("name")
+        email = data.get("email")
+        password = data.get("password")
 
-        if email == "" or password == "":
-            return {"status":"error","message":"All fields required"}
+        # 🔥 NAME VALIDATION
+        if len(name) < 3 or not re.match(r'^[a-zA-Z\s]+$', name):
+            return {"status":"error","message":"Invalid name"}
 
+        # 🔥 EMAIL VALIDATION
         if not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
             return {"status":"error","message":"Invalid Email"}
 
+        # 🔥 PASSWORD VALIDATION
         if len(password) < 8:
             return {"status":"error","message":"Password too short"}
 
@@ -144,43 +130,46 @@ def signup():
         conn = get_db()
         cur = conn.cursor()
 
+        # 🔍 CHECK EXISTING USER
         cur.execute("SELECT is_verified, verify_token FROM users WHERE email=%s", (email,))
         existing = cur.fetchone()
 
-        # 🔁 EXISTING USER
         if existing:
             is_verified = existing[0]
             token = existing[1]
 
             if not is_verified:
-                print("🔁 RESENDING EMAIL")
+                # 🔥 RESEND EMAIL
+                try:
+                    print("RESENDING EMAIL")
 
-                msg = Message(
-                    "Verify your Roomzy Account",
-                    sender=os.environ.get("MAIL_USERNAME"),
-                    recipients=[email]
-                )
+                    msg = Message(
+                        "Verify your Roomzy Account",
+                        sender=("Roomzy Support", "roomzy.noreply@gmail.com"),
+                        recipients=[email]
+                    )
 
-                msg.body = f"Verify your account: https://roomzy.onrender.com/verify/{token}"
+                    msg.html = f"""
+                    <h2>Welcome Back 👋</h2>
+                    <p>Please verify your account:</p>
+                    <a href="https://roomzy-czyc.onrender.com/verify/{token}">
+                        Verify Now
+                    </a>
+                    """
 
-                msg.html = f"""
-                <h2>Welcome Back 👋</h2>
-                <p>Please verify your account:</p>
-                <a href="https://roomzy.onrender.com/verify/{token}">
-                Verify Now
-                </a>
-                """
+                    mail.send(msg)
 
-                threading.Thread(
-                   target=send_async_email,
-                   args=(app, msg)
-                ).start()
+                    print("RESEND SUCCESS")
+
+                except Exception as e:
+                    print("RESEND ERROR:", e)
 
                 conn.close()
                 return {
                     "status":"pending",
-                    "message":"Verification mail resent 📩"
+                    "message":"Email already registered but not verified. Verification mail resent 📩"
                 }
+
             else:
                 conn.close()
                 return {"status":"error","message":"Email already exists"}
@@ -191,33 +180,35 @@ def signup():
 
         cur.execute(
             """INSERT INTO users 
-            (email,password,role,is_verified,verify_token) 
-            VALUES (%s,%s,%s,%s,%s)""",
-            (email, hashed_password, "student", False, token)
+            (name,email,password,role,is_verified,verify_token) 
+            VALUES (%s,%s,%s,%s,%s,%s)""",
+            (name, email, hashed_password, "student", False, token)
         )
 
-        print("📨 SENDING EMAIL")
+        # 🔥 SEND EMAIL
+        try:
+            print("EMAIL SENDING START")
 
-        msg = Message(
-            "Verify your Roomzy Account",
-            sender=os.environ.get("MAIL_USERNAME"),
-            recipients=[email]
-        )
+            msg = Message(
+                "Verify your Roomzy Account",
+                sender=("Roomzy Support", "roomzy.noreply@gmail.com"),
+                recipients=[email]
+            )
 
-        msg.body = f"Verify your account: https://roomzy.onrender.com/verify/{token}"
+            msg.html = f"""
+            <h2>Welcome to Roomzy 🏠</h2>
+            <p>Click below to verify your account:</p>
+            <a href="https://roomzy-czyc.onrender.com/verify/{token}">
+                Verify Now
+            </a>
+            """
 
-        msg.html = f"""
-        <h2>Welcome to Roomzy 🏠</h2>
-        <p>Click below to verify your account:</p>
-        <a href="https://roomzy.onrender.com/verify/{token}">
-        Verify Now
-        </a>
-        """
+            mail.send(msg)
 
-        threading.Thread(
-            target=send_async_email,
-            args=(app, msg)
-        ).start()
+            print("EMAIL SENT SUCCESS")
+
+        except Exception as e:
+            print("EMAIL ERROR:", e)
 
         conn.commit()
         conn.close()
@@ -225,7 +216,7 @@ def signup():
         return {"status":"success","message":"Signup successful. Check your email 📩"}
 
     except Exception as e:
-        print("❌ ERROR:", e)
+        print("ERROR:", e)
         return {"status":"error","message":"Server error"}
     
 # ================= LOGIN =================
