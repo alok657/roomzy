@@ -16,7 +16,6 @@ from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__, static_folder="static")
-CORS(app, supports_credentials=True)
 
 @app.after_request
 def after_request(response):

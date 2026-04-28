@@ -130,8 +130,7 @@ Already have an account?
 setTimeout(()=>{
     const API_URL = "https://roomzy-c7d0.onrender.com"
 
-fetch(API_URL + "/signup")
-
+    fetch(API_URL + "/test")
 },1000)
 
 // 👁 TOGGLE PASSWORD FUNCTION
@@ -199,7 +198,9 @@ return
 }
 
 // ✅ API CALL
-fetch("https://roomzy.onrender.com/signup",{
+const API_URL = "https://roomzy-c7d0.onrender.com"
+
+fetch(API_URL + "/signup",{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
