@@ -156,10 +156,12 @@ def signup():
 
                     msg = Message(
                         "Verify your Roomzy Account",
-                        sender=("Roomzy Support", "roomzy.noreply@gmail.com"),
+                        sender=("Roomzy Support", os.environ.get("MAIL_USERNAME")),
                         recipients=[email]
                     )
-
+                    
+                    msg.body = f"Verify your account: https://roomzy-production.up.railway.app/verify/{token}"
+                    
                     msg.html = f"""
                     <h2>Welcome Back 👋</h2>
                     <p>Please verify your account:</p>
@@ -205,9 +207,11 @@ def signup():
 
             msg = Message(
                 "Verify your Roomzy Account",
-                sender=("Roomzy Support", "roomzy.noreply@gmail.com"),
+                sender=("Roomzy Support", os.environ.get("MAIL_USERNAME")),
                 recipients=[email]
             )
+            
+            msg.body = f"Verify your account: https://roomzy-production.up.railway.app/verify/{token}"
 
             msg.html = f"""
             <h2>Welcome to Roomzy 🏠</h2>
