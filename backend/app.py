@@ -99,13 +99,8 @@ def signup():
     try:
         data = request.get_json()
 
-        name = data.get("name")
         email = data.get("email")
         password = data.get("password")
-
-        # 🔥 NAME VALIDATION
-        if len(name) < 3 or not re.match(r'^[a-zA-Z\s]+$', name):
-            return {"status":"error","message":"Invalid name"}
 
         # 🔥 EMAIL VALIDATION
         if not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
@@ -181,8 +176,8 @@ def signup():
         cur.execute(
             """INSERT INTO users 
             (name,email,password,role,is_verified,verify_token) 
-            VALUES (%s,%s,%s,%s,%s,%s)""",
-            (name, email, hashed_password, "student", False, token)
+            VALUES (%s,%s,%s,%s,%s)""",
+            (email, hashed_password, "student", False, token)
         )
 
         # 🔥 SEND EMAIL
