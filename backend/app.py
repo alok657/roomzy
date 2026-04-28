@@ -16,7 +16,14 @@ from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__, static_folder="static")
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, supports_credentials=True)
+
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+    return response
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
@@ -94,8 +101,11 @@ def setupdb():
 from werkzeug.security import generate_password_hash
 import re
 
-@app.route("/signup", methods=["POST"])
+@app.route("/signup", methods=["POST", "OPTIONS"])
 def signup():
+
+    if request.method == "OPTIONS":
+        return{"status": "ok"}
     try:
         data = request.get_json()
 
@@ -176,8 +186,8 @@ def signup():
         cur.execute(
             """INSERT INTO users 
             (name,email,password,role,is_verified,verify_token) 
-            VALUES (%s,%s,%s,%s,%s)""",
-            (email, hashed_password, "student", False, token)
+            VALUES (%s,%s,%s,%s,%s,%s)""",
+            ("user", email, hashed_password, "student", False, token)
         )
 
         # 🔥 SEND EMAIL
