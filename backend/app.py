@@ -42,56 +42,52 @@ def setupdb():
     conn = get_db()
     cur = conn.cursor()
 
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS users(
-        id SERIAL PRIMARY KEY,
-        name TEXT,
-        email TEXT UNIQUE,
-        password TEXT,
-        role TEXT,
-        is_verified BOOLEAN DEFAULT FALSE,
-        verify_token TEXT,
-        profile_data TEXT,
-        id_card TEXT,
-        approval_status TEXT DEFAULT 'pending'
-    )
-    """)
-
-    # 🔥 ADD NEW COLUMNS (if not exist)
     try:
-        cur.execute("ALTER TABLE users ADD COLUMN profile_data TEXT")
-    except:
-        pass
+        cur.execute("""
+        CREATE TABLE IF NOT EXISTS users(
+            id SERIAL PRIMARY KEY,
+            name TEXT,
+            email TEXT UNIQUE,
+            password TEXT,
+            role TEXT,
+            is_verified BOOLEAN DEFAULT FALSE,
+            verify_token TEXT,
+            profile_data TEXT,
+            id_card TEXT,
+            approval_status TEXT DEFAULT 'pending'
+        )
+        """)
 
-    try:
-        cur.execute("ALTER TABLE users ADD COLUMN id_card TEXT")
-    except:
-        pass
+        # 🔥 SAFE ALTER
+        cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_data TEXT")
+        cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS id_card TEXT")
+        cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS approval_status TEXT DEFAULT 'pending'")
 
-    try:
-         cur.execute("ALTER TABLE users ADD COLUMN approval_status TEXT DEFAULT 'pending'")
-    except:
-        pass
+        cur.execute("""
+        CREATE TABLE IF NOT EXISTS pgs(
+            id SERIAL PRIMARY KEY,
+            pg_name TEXT,
+            city TEXT,
+            rent INTEGER,
+            description TEXT,
+            image TEXT,
+            owner_name TEXT,
+            owner_phone TEXT,
+            images TEXT,
+            owner_id INTEGER
+        )
+        """)
 
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS pgs(
-        id SERIAL PRIMARY KEY,
-        pg_name TEXT,
-        city TEXT,
-        rent INTEGER,
-        description TEXT,
-        image TEXT,
-        owner_name TEXT,
-        owner_phone TEXT,
-        images TEXT,
-        owner_id INTEGER
-    )
-    """)
+        conn.commit()
+        return "Database Ready ✅"
 
-    conn.commit()
-    conn.close()
+    except Exception as e:
+        conn.rollback()
+        print("DB ERROR:", e)
+        return str(e)
 
-    return "Database Ready ✅"
+    finally:
+        conn.close()
 
 # ================= SIGNUP =================
 from werkzeug.security import generate_password_hash
