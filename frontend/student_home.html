@@ -515,7 +515,7 @@ document.querySelector(".hero").appendChild(citySelect)
 
 function loadPG(){
 
-fetch("https://roomzy-production.up.railway.app/get_pgs")
+fetch("https://roomzy.onrender.com/get_pgs")
 .then(res=>res.json())
 .then(data=>{
 
@@ -560,7 +560,7 @@ let lon=cityCoords[citySelect.value][1]+(Math.random()-0.5)/40
 let marker=L.marker([lat,lon]).addTo(map)
 marker.on("click",()=>openPG(pg.id))   
 
-let img = `https://roomzy-production.up.railway.app/static/images/pg${index}.jpg`
+let img = `https://roomzy.onrender.com/static/images/pg${index}.jpg`
 
 container.innerHTML+=`
 <div class="card" onclick="openPG(${pg.id})">
@@ -604,7 +604,7 @@ map.on("click", function(e){
 let lat = e.latlng.lat
 let lng = e.latlng.lng
 
-fetch("https://roomzy-production.up.railway.app/get_pgs")
+fetch("https://roomzy.onrender.com/get_pgs")
 .then(res=>res.json())
 .then(data=>{
 

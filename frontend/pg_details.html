@@ -242,7 +242,7 @@ margin-top:10px;
 
 let id = new URLSearchParams(window.location.search).get("id")
 
-fetch("https://roomzy-production.up.railway.app/get_pg/" + id)
+fetch("https://roomzy.onrender.com/get_pg/" + id)
 .then(res => res.json())
 .then(data => {
 
@@ -252,7 +252,7 @@ let main = document.getElementById("mainImg")
 let gallery = document.getElementById("gallery")
 
 // ✅ MAIN IMAGE (FIXED AS PER YOUR FILES)
-main.src = `https://roomzy-production.up.railway.app/static/images/pg${id}.jpg`
+main.src = `https://roomzy.onrender.com/static/images/pg${id}.jpg`
 
 
 // ✅ GALLERY (pgX_1, pgX_2, pgX_3)
@@ -260,7 +260,7 @@ gallery.innerHTML = ""
 
 for(let i=1; i<=3; i++){
 
-let img = `https://roomzy-production.up.railway.app/static/images/pg${id}_${i}.jpg`
+let img = `https://roomzy.onrender.com/static/images/pg${id}_${i}.jpg`
 
 gallery.innerHTML += `
 <img src="${img}" onclick="changeImg('${img}')"
@@ -410,7 +410,7 @@ function deletePG(){
 
 let id = new URLSearchParams(window.location.search).get("id")
 
-fetch("https://roomzy-production.up.railway.app/delete_pg/" + id,{
+fetch("https://roomzy.onrender.com/delete_pg/" + id,{
 method:"DELETE"
 })
 .then(res=>res.json())

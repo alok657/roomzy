@@ -161,17 +161,20 @@ def signup():
                     recipients=[email]
                 )
 
-                msg.body = f"Verify your account: https://roomzy-production.up.railway.app/verify/{token}"
+                msg.body = f"Verify your account: https://roomzy.onrender.com/verify/{token}"
 
                 msg.html = f"""
                 <h2>Welcome Back 👋</h2>
                 <p>Please verify your account:</p>
-                <a href="https://roomzy-production.up.railway.app/verify/{token}">
+                <a href="https://roomzy.onrender.com/verify/{token}">
                 Verify Now
                 </a>
                 """
 
-                mail.send(msg)
+                threading.Thread(
+                   target=send_async_email,
+                   args=(app, msg)
+                ).start()
 
                 conn.close()
                 return {
@@ -201,12 +204,12 @@ def signup():
             recipients=[email]
         )
 
-        msg.body = f"Verify your account: https://roomzy-production.up.railway.app/verify/{token}"
+        msg.body = f"Verify your account: https://roomzy.onrender.com/verify/{token}"
 
         msg.html = f"""
         <h2>Welcome to Roomzy 🏠</h2>
         <p>Click below to verify your account:</p>
-        <a href="https://roomzy-production.up.railway.app/verify/{token}">
+        <a href="https://roomzy.onrender.com/verify/{token}">
         Verify Now
         </a>
         """
@@ -537,13 +540,13 @@ def add_bulk_pgs():
                 "Nice PG with good facilities",
 
                 # main image
-                f"https://roomzy-production.up.railway.app/static/images/pg{i+1}.jpg",
+                f"https://roomzy.onrender.com/static/images/pg{i+1}.jpg",
 
                 # multiple images array
                 [
-                    f"https://roomzy-production.up.railway.app/static/images/pg{i+1}_1.jpg",
-                    f"https://roomzy-production.up.railway.app/static/images/pg{i+1}_2.jpg",
-                    f"https://roomzy-production.up.railway.app/static/images/pg{i+1}_3.jpg"
+                    f"https://roomzy.onrender.com/static/images/pg{i+1}_1.jpg",
+                    f"https://roomzy.onrender.com/static/images/pg{i+1}_2.jpg",
+                    f"https://roomzy.onrender.com/static/images/pg{i+1}_3.jpg"
                 ]
             )
         )
