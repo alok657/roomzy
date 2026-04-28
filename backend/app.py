@@ -5,7 +5,6 @@ import json
 import os
 import uuid 
 import threading
-import requests
 
 import pytesseract
 
@@ -104,34 +103,6 @@ def setupdb():
     finally:
         conn.close()
 
-def send_email(email, token):
-    try:
-        url = "https://api.resend.com/emails"
-
-        headers = {
-            "Authorization": f"Bearer {os.environ.get('RESEND_API_KEY')}",
-            "Content-Type": "application/json"
-        }
-
-        data = {
-            "from": "onboarding@resend.dev",
-            "to": [email],
-            "subject": "Verify your Roomzy Account",
-            "html": f"""
-            <h2>Welcome to Roomzy 🏠</h2>
-            <p>Click below to verify:</p>
-            <a href="https://roomzy-production.up.railway.app/verify/{token}">
-            Verify Now
-            </a>
-            """
-        }
-
-        res = requests.post(url, json=data, headers=headers)
-        print("RESEND STATUS:", res.status_code, res.text)
-
-    except Exception as e:
-        print("EMAIL ERROR:", e)
-
 # ================= SIGNUP =================
 from werkzeug.security import generate_password_hash
 import re
@@ -179,7 +150,24 @@ def signup():
 
             if not is_verified:
                 print("🔁 RESENDING EMAIL")
-                send_email(email, token)
+
+                msg = Message(
+                    "Verify your Roomzy Account",
+                    sender=os.environ.get("MAIL_USERNAME"),
+                    recipients=[email]
+                )
+
+                msg.body = f"Verify your account: https://roomzy-production.up.railway.app/verify/{token}"
+
+                msg.html = f"""
+                <h2>Welcome Back 👋</h2>
+                <p>Please verify your account:</p>
+                <a href="https://roomzy-production.up.railway.app/verify/{token}">
+                Verify Now
+                </a>
+                """
+
+                mail.send(msg)
 
                 conn.close()
                 return {
@@ -202,7 +190,24 @@ def signup():
         )
 
         print("📨 SENDING EMAIL")
-        send_email(email, token)
+
+        msg = Message(
+            "Verify your Roomzy Account",
+            sender=os.environ.get("MAIL_USERNAME"),
+            recipients=[email]
+        )
+
+        msg.body = f"Verify your account: https://roomzy-production.up.railway.app/verify/{token}"
+
+        msg.html = f"""
+        <h2>Welcome to Roomzy 🏠</h2>
+        <p>Click below to verify your account:</p>
+        <a href="https://roomzy-production.up.railway.app/verify/{token}">
+        Verify Now
+        </a>
+        """
+
+        mail.send(msg)
 
         conn.commit()
         conn.close()
