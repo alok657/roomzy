@@ -156,7 +156,7 @@ def signup():
                     msg.html = f"""
                     <h2>Welcome Back 👋</h2>
                     <p>Please verify your account:</p>
-                    <a href="https://roomzy-czyc.onrender.com/verify/{token}">
+                    <a href="https://roomzy-c7d0.onrender.com/verify/{token}">
                         Verify Now
                     </a>
                     """
@@ -202,7 +202,7 @@ def signup():
             msg.html = f"""
             <h2>Welcome to Roomzy 🏠</h2>
             <p>Click below to verify your account:</p>
-            <a href="https://roomzy-czyc.onrender.com/verify/{token}">
+            <a href="https://roomzy-c7d0.onrender.com/verify/{token}">
                 Verify Now
             </a>
             """
@@ -516,9 +516,9 @@ def add_bulk_pgs():
     cur = conn.cursor()
 
     names = [
-    "Sunrise PG","Urban Nest","Royal Stay","Green View","City Comfort",
-    "Elite Stay","Happy Homes","Skyline PG","Comfort Zone","Dream Stay",
-    "Peaceful PG","Golden Nest","Blue Haven","Smart Living","Royal Comfort"
+        "Sunrise PG","Urban Nest","Royal Stay","Green View","City Comfort",
+        "Elite Stay","Happy Homes","Skyline PG","Comfort Zone","Dream Stay",
+        "Peaceful PG","Golden Nest","Blue Haven","Smart Living","Royal Comfort"
     ]
 
     for i in range(15):
@@ -528,21 +528,21 @@ def add_bulk_pgs():
             VALUES (%s,%s,%s,%s,%s,%s,%s,%s)""",
             (
                 names[i],
-                4000 + i*500,   # rent auto vary
+                4000 + i*500,
                 "Delhi",
-                "Owner "+str(i+1),
-                "99999999"+str(i).zfill(2),
+                "Owner " + str(i+1),
+                "99999999" + str(i).zfill(2),
                 "Nice PG with good facilities",
 
-                # main image
-                f"https://roomzy.onrender.com/static/images/pg{i+1}.jpg",
+                # ✅ FIXED f-string
+                f"https://roomzy-c7d0.onrender.com/static/images/pg{i+1}.jpg",
 
-                # multiple images array
-                [
-                    f"https://roomzy.onrender.com/static/images/pg{i+1}_1.jpg",
-                    f"https://roomzy.onrender.com/static/images/pg{i+1}_2.jpg",
-                    f"https://roomzy.onrender.com/static/images/pg{i+1}_3.jpg"
-                ]
+                # ✅ FIXED JSON
+                json.dumps([
+                    f"https://roomzy-c7d0.onrender.com/static/images/pg{i+1}_1.jpg",
+                    f"https://roomzy-c7d0.onrender.com/static/images/pg{i+1}_2.jpg",
+                    f"https://roomzy-c7d0.onrender.com/static/images/pg{i+1}_3.jpg"
+                ])
             )
         )
 
