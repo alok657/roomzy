@@ -990,9 +990,9 @@ def smtp_test():
             os.environ.get("MAIL_USERNAME"),
             os.environ.get("MAIL_PASSWORD")
         )
-        return "LOGIN SUCCESS ✅"
+        return "LOGIN SUCCESS "
     except Exception as e:
-        return "LOGIN FAILED ❌ " + str(e)
+        return "LOGIN FAILED: " + str(e)
 # ================= TEST =================
 @app.route("/")
 def home():
