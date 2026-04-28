@@ -33,10 +33,11 @@ mail = Mail(app)
 def send_async_email(app, msg):
     with app.app_context():
         try:
+            print("TRYING TO SEND EMAIL...")
             mail.send(msg)
-            print("EMAIL SENT ✅")
+            print("EMAIL SENT SUCCESS ✅")
         except Exception as e:
-            print("EMAIL ERROR:", e)
+            print("❌ EMAIL ERROR:", str(e))
 
 # ================= DB CONNECT =================
 def get_db():
@@ -161,7 +162,7 @@ def signup():
                     )
                     
                     msg.body = f"Verify your account: https://roomzy-production.up.railway.app/verify/{token}"
-                    
+
                     msg.html = f"""
                     <h2>Welcome Back 👋</h2>
                     <p>Please verify your account:</p>
