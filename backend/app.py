@@ -6,7 +6,7 @@ import os
 import uuid 
 
 import pytesseract
-#pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 if not os.path.exists("uploads"):
     os.makedirs("uploads")
@@ -20,8 +20,8 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'roomzy.support@gmail.com'
-app.config['MAIL_PASSWORD'] ='pjndzqwwnjwaiwjb'
+app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")
+app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
 
 mail = Mail(app)
 
@@ -154,7 +154,7 @@ def signup():
                     msg.html = f"""
                     <h2>Welcome Back 👋</h2>
                     <p>Please verify your account:</p>
-                    <a href="https://roomzy-czyc.onrender.com/verify/{token}">
+                    <a href="https://roomzy-production.up.railway.app/verify/{token}">
                         Verify Now
                     </a>
                     """
@@ -200,7 +200,7 @@ def signup():
             msg.html = f"""
             <h2>Welcome to Roomzy 🏠</h2>
             <p>Click below to verify your account:</p>
-            <a href="https://roomzy-czyc.onrender.com/verify/{token}">
+            <a href="https://roomzy-production.up.railway.app/verify/{token}">
                 Verify Now
             </a>
             """
@@ -533,13 +533,13 @@ def add_bulk_pgs():
                 "Nice PG with good facilities",
 
                 # main image
-                f"https://roomzy-czyc.onrender.com/static/images/pg{i+1}.jpg",
+                f"https://roomzy-production.up.railway.app/static/images/pg{i+1}.jpg",
 
                 # multiple images array
                 [
-                    f"https://roomzy-czyc.onrender.com/static/images/pg{i+1}_1.jpg",
-                    f"https://roomzy-czyc.onrender.com/static/images/pg{i+1}_2.jpg",
-                    f"https://roomzy-czyc.onrender.com/static/images/pg{i+1}_3.jpg"
+                    f"https://roomzy-production.up.railway.app/static/images/pg{i+1}_1.jpg",
+                    f"https://roomzy-production.up.railway.app/static/images/pg{i+1}_2.jpg",
+                    f"https://roomzy-production.up.railway.app/static/images/pg{i+1}_3.jpg"
                 ]
             )
         )

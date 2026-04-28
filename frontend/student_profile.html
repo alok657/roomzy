@@ -220,7 +220,7 @@ formData.append("email", email)
 // 🔥 UNIQUE FILE NAME
 formData.append("id_card", file, Date.now() + "_" + file.name)
 
-fetch("https://roomzy-czyc.onrender.com/upload_profile", {
+fetch("https://roomzy-production.up.railway.app/upload_profile", {
 method: "POST",
 body: formData
 })

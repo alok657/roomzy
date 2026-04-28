@@ -190,7 +190,7 @@ object-fit:cover;
 
 // USERS
 function loadUsers(){
-fetch("https://roomzy-czyc.onrender.com/all-users")
+fetch("https://roomzy-production.up.railway.app/all-users")
 .then(res=>res.json())
 .then(data=>{
 document.getElementById("totalUsers").innerText = data.length
@@ -210,7 +210,7 @@ table.innerHTML += `
 
 // PG COUNT
 function loadPG(){
-fetch("https://roomzy-czyc.onrender.com/get_pgs")
+fetch("https://roomzy-production.up.railway.app/get_pgs")
 .then(res=>res.json())
 .then(data=>{
 document.getElementById("totalPG").innerText = data.length
@@ -219,7 +219,7 @@ document.getElementById("totalPG").innerText = data.length
 
 // 🔥 UPDATED PENDING
 function loadPending(){
-fetch("https://roomzy-czyc.onrender.com/pending_users")
+fetch("https://roomzy-production.up.railway.app/pending_users")
 .then(res=>res.json())
 .then(data=>{
 
@@ -237,7 +237,7 @@ table.innerHTML += `
 <td>${u.college || "N/A"}</td>
 
 <td>
-<img src="https://roomzy-czyc.onrender.com/uploads/${u.id_card}" 
+<img src="https://roomzy-production.up.railway.app/uploads/${u.id_card}" 
 class="preview"
 onclick="viewImage('${u.id_card}')">
 </td>
@@ -255,14 +255,14 @@ onclick="viewImage('${u.id_card}')">
 
 // 🔥 IMAGE VIEW
 function viewImage(src){
-let full = "https://roomzy-czyc.onrender.com/uploads/" + src
+let full = "https://roomzy-production.up.railway.app/uploads/" + src
 let win = window.open("")
 win.document.write(`<img src="${full}" style="width:100%">`)
 }
 
 // APPROVE
 function approve(id){
-fetch("https://roomzy-czyc.onrender.com/approve_user/"+id,{method:"POST"})
+fetch("https://roomzy-production.up.railway.app/approve_user/"+id,{method:"POST"})
 .then(()=>{
 alert("✅ Approved")
 loadPending()
@@ -271,7 +271,7 @@ loadPending()
 
 // REJECT
 function reject(id){
-fetch("https://roomzy-czyc.onrender.com/reject_user/"+id,{method:"POST"})
+fetch("https://roomzy-production.up.railway.app/reject_user/"+id,{method:"POST"})
 .then(()=>{
 alert("❌ Rejected")
 loadPending()
@@ -286,7 +286,7 @@ document.getElementById("savedCount").innerText = saved.length
 
 // PG LIST
 function loadPGs(){
-fetch("https://roomzy-czyc.onrender.com/get_pgs")
+fetch("https://roomzy-production.up.railway.app/get_pgs")
 .then(res=>res.json())
 .then(data=>{
 let table = document.getElementById("pgTable")
