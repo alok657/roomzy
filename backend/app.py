@@ -4,6 +4,7 @@ import psycopg2
 import json
 import os
 import uuid 
+import threading
 
 import pytesseract
 
@@ -28,6 +29,14 @@ app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")
 app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
 
 mail = Mail(app)
+
+def send_async_email(app, msg):
+    with app.app_context():
+        try:
+            mail.send(msg)
+            print("EMAIL SENT ✅")
+        except Exception as e:
+            print("EMAIL ERROR:", e)
 
 # ================= DB CONNECT =================
 def get_db():
@@ -159,7 +168,10 @@ def signup():
                     </a>
                     """
 
-                    mail.send(msg)
+                    threading.Thread(
+                        target=send_async_email,
+                        args=(app, msg)
+                    ).start()
 
                     print("RESEND SUCCESS")
 
@@ -205,7 +217,10 @@ def signup():
             </a>
             """
 
-            mail.send(msg)
+            threading.Thread(
+                target=send_async_email,
+                args=(app, msg)
+            ).start()
 
             print("EMAIL SENT SUCCESS")
 
@@ -215,7 +230,7 @@ def signup():
         conn.commit()
         conn.close()
 
-        return {"status":"success","message":"Signup successful. Check your email 📩"}
+        return {"status":"success","message":"Signup successful. Email will arrive shortly 📩"}
 
     except Exception as e:
         print("ERROR:", e)
