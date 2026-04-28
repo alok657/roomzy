@@ -6,7 +6,7 @@ import os
 import uuid 
 
 import pytesseract
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+#pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 if not os.path.exists("uploads"):
     os.makedirs("uploads")
@@ -21,7 +21,7 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'roomzy.support@gmail.com'
-app.config['MAIL_PASSWORD'] = 'pjndzqwwnjwaiwjb'
+app.config['MAIL_PASSWORD'] ='pjndzqwwnjwaiwjb'
 
 mail = Mail(app)
 
@@ -50,8 +50,10 @@ def setupdb():
         password TEXT,
         role TEXT,
         is_verified BOOLEAN DEFAULT FALSE,
-        verify_token TEXT
-        profile_data TEXT, id_card TEXT, approval_status TEXT DEFAULT 'pending'
+        verify_token TEXT,
+        profile_data TEXT,
+        id_card TEXT,
+        approval_status TEXT DEFAULT 'pending'
     )
     """)
 
