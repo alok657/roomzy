@@ -3,6 +3,8 @@ from flask_cors import CORS
 import psycopg2
 import json
 import os
+import uuid 
+import threading
 
 import pytesseract
 
@@ -17,8 +19,8 @@ if not os.path.exists("uploads"):
 from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 
-app = Flask(__name__, static_folder="static")
-CORS(app, resources={r"/*": {"origins":["https://roomzy-mocha.vercel.app"]}})
+app = Flask(__name__)
+CORS(app, origins="*")
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
