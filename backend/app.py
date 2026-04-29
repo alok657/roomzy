@@ -32,6 +32,15 @@ app.config['MAIL_PASSWORD'] = 'bobrhmpyogqcaaom'
 
 mail = Mail(app)
 
+def send_email_async(app, msg):
+    with app.app_context():
+        try:
+            print("📩 EMAIL SENDING...")
+            mail.send(msg)
+            print("✅ EMAIL SENT SUCCESS")
+        except Exception as e:
+            print("❌ EMAIL FAILED:", e)
+            
 # ================= DB CONNECT =================
 def get_db():
     DATABASE_URL = os.environ.get("DATABASE_URL")
@@ -161,7 +170,7 @@ def signup():
                     </a>
                     """
 
-                    mail.send(msg)
+                    threading.Thread(target=send_email_async, args=(app, msg)).start()
 
                     print("RESEND SUCCESS")
 
@@ -207,7 +216,7 @@ def signup():
             </a>
             """
 
-            mail.send(msg)
+            threading.Thread(target=send_email_async, args=(app, msg)).start()
 
             print("EMAIL SENT SUCCESS")
 
