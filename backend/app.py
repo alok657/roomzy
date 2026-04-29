@@ -40,7 +40,7 @@ def send_email_async(app, msg):
             print("✅ EMAIL SENT SUCCESS")
         except Exception as e:
             print("❌ EMAIL FAILED:", e)
-            
+
 # ================= DB CONNECT =================
 def get_db():
     DATABASE_URL = os.environ.get("DATABASE_URL")
@@ -169,7 +169,9 @@ def signup():
                         Verify Now
                     </a>
                     """
-
+                    
+                    print(f"VERIFY LINK: https://roomzy-c7d0.onrender.com/verify/{token}")
+                    
                     threading.Thread(target=send_email_async, args=(app, msg)).start()
 
                     print("RESEND SUCCESS")
@@ -215,6 +217,8 @@ def signup():
                 Verify Now
             </a>
             """
+            
+            print(f"VERIFY LINK: https://roomzy-c7d0.onrender.com/verify/{token}")
 
             threading.Thread(target=send_email_async, args=(app, msg)).start()
 
