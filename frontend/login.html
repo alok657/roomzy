@@ -209,11 +209,21 @@ msg.style.color="#00ff88"
 msg.innerText="Login successful"
 
 // save user
+// save user
 localStorage.setItem("user_email", data.email)
 localStorage.setItem("user_name", data.name)
 
-localStorage.removeItem("user_role")
-localStorage.removeItem("profile_done")
+// 🔥 USER CHANGE CHECK
+let lastUser = localStorage.getItem("last_user")
+
+if(lastUser !== data.email){
+    // 🔥 new user → reset role & profile
+    localStorage.removeItem("user_role")
+    localStorage.removeItem("profile_done")
+}
+
+// save current user
+localStorage.setItem("last_user", data.email)
 
 if(data.role === "admin"){
     console.log("ADMIN LOGIN DETECTED")
@@ -239,6 +249,9 @@ btn.disabled = false
 })
 
 }
+
+let lastUser = localStorage.getItem("last_user")
+
 
 
 </script>

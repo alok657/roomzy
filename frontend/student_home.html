@@ -358,10 +358,22 @@ cursor:pointer;
 window.onload = function(){
 
 let role = localStorage.getItem("user_role")
+let done = localStorage.getItem("profile_done")
 
+// ❌ new user → role pucho
 if(!role){
     showRolePopup()
+    return
 }
+
+// ❌ profile incomplete → profile page
+if(role === "student" && done !== "yes"){
+    window.location.href = "student_profile.html"
+    return
+}
+
+// ✅ sab complete → direct use
+
 }
 
 document.addEventListener("click", function(e){
