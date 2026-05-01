@@ -24,12 +24,8 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
     return response
 
-import smtplib
-
-smtplib.SMTP_SSL = smtplib.SMTP
-
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
+app.config['MAIL_PORT'] = 465
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'roomzy.support@gmail.com'
 app.config['MAIL_PASSWORD'] = 'bobrhmpyogqcaaom'
@@ -43,7 +39,7 @@ def send_email_async(app, msg):
             mail.send(msg)
             print("✅ EMAIL SENT SUCCESS")
         except Exception as e:
-            print("❌ EMAIL FAILED:", e)
+            print("❌ EMAIL FAILED:",str(e))
 
 # ================= DB CONNECT =================
 def get_db():
