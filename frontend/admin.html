@@ -160,6 +160,7 @@ object-fit:cover;
 <th>Email</th>
 <th>College</th>
 <th>ID Card</th>
+<th>Role</th>
 <th>Action</th>
 </tr>
 </thead>
@@ -240,6 +241,10 @@ table.innerHTML += `
 <img src="https://roomzy-c7d0.onrender.com/uploads/${u.id_card}" 
 class="preview"
 onclick="viewImage('${u.id_card}')">
+</td>
+
+<td style="font-weight:bold; color:${u.role==='owner'?'orange':'blue'}">
+${u.role}
 </td>
 
 <td>

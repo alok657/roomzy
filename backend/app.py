@@ -185,7 +185,7 @@ def signup():
             """INSERT INTO users 
             (name,email,password,role,is_verified,verify_token) 
             VALUES (%s,%s,%s,%s,%s,%s)""",
-            ("user", email, hashed_password, "student", False, token)
+            ("user", email, hashed_password, None, False, token)
         )
 
         # 🔥 SEND EMAIL
@@ -232,10 +232,11 @@ def login():
     conn.close()
 
     # 🔥 ROLE
-    role = "admin" if data["email"] == "kushwah.al2020@gmail.com" else "student"
+    role = user[4]
 
     return {
         "status": "success",
+        "id": user[0], 
         "name": user[1],
         "email": user[2],
         "role": role
@@ -281,6 +282,18 @@ def add_pg():
 
     owner_id = data.get("owner_id")
 
+    # 🔥 OWNER APPROVAL CHECK
+    cur.execute("SELECT approval_status FROM users WHERE id=%s", (owner_id,))
+    result = cur.fetchone()
+
+    if not result:
+        conn.close()
+        return {"message": "Owner not found ❌"}
+
+    if result[0] != "approved":
+        conn.close()
+        return {"message": "Owner not approved ❌"}
+
     # 🔥 ensure images always list
     images = json.dumps(data.get("images", []))
 
@@ -292,7 +305,7 @@ def add_pg():
         data["city"],
         data["rent"],
         data["description"],
-        data["image"],   # should be "/static/images/pg1.jpg"
+        data["image"],
         data["owner_name"],
         data["owner_phone"],
         images,
@@ -302,8 +315,7 @@ def add_pg():
     conn.commit()
     conn.close()
 
-    return {"message": "PG added"}
-
+    return {"message": "PG added ✅"}
 
 # ================= DEMO DATA =================
 @app.route("/add_demo_pgs")
@@ -671,7 +683,7 @@ def pending_users():
     cur = conn.cursor()
 
     cur.execute("""
-    SELECT id, email, profile_data, id_card 
+    SELECT id, email, profile_data, id_card, role
     FROM users 
     WHERE approval_status='pending'
     """)
@@ -695,7 +707,8 @@ def pending_users():
             "email": r[1],
             "name": profile.get("name"),
             "college": profile.get("college"),
-            "id_card": r[3]
+            "id_card": r[3],
+            "role": r[4]
         })
 
     return jsonify(result)
@@ -954,6 +967,53 @@ def smtp_test():
         return "LOGIN SUCCESS "
     except Exception as e:
         return "LOGIN FAILED: " + str(e)
+    
+@app.route("/verify-owner", methods=["POST"])
+def verify_owner():
+
+    file = request.files["id_card"]
+    email = request.form.get("email")
+
+    filename = str(uuid.uuid4()) + ".jpg"
+    filepath = os.path.join("uploads", filename)
+    file.save(filepath)
+
+    profile = {
+        "name": request.form.get("name"),
+        "phone": request.form.get("phone"),
+        "aadhaar": request.form.get("aadhaar")
+    }
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+    UPDATE users
+    SET profile_data=%s, id_card=%s, approval_status='pending'
+    WHERE email=%s
+    """, (json.dumps(profile), filename, email))
+
+    conn.commit()
+    conn.close()
+
+    return {"status":"success"}
+
+@app.route("/set-role", methods=["POST"])
+def set_role():
+    data = request.json
+    email = data.get("email")
+    role = data.get("role")
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("UPDATE users SET role=%s WHERE email=%s", (role, email))
+
+    conn.commit()
+    conn.close()
+
+    return {"status":"success"}
+
 # ================= TEST =================
 @app.route("/")
 def home():

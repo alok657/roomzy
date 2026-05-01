@@ -208,10 +208,11 @@ if(data.status=="success"){
 msg.style.color="#00ff88"
 msg.innerText="Login successful"
 
-// save user
+
 // save user
 localStorage.setItem("user_email", data.email)
 localStorage.setItem("user_name", data.name)
+localStorage.setItem("owner_id", data.id)  
 
 // 🔥 USER CHANGE CHECK
 let lastUser = localStorage.getItem("last_user")
@@ -249,10 +250,6 @@ btn.disabled = false
 })
 
 }
-
-let lastUser = localStorage.getItem("last_user")
-
-
 
 </script>
 

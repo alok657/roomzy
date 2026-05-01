@@ -106,7 +106,22 @@ transition:0.3s;
 
 <body>
 
-<div class="container">
+<div class="container" id="pgBox" style="display:none;"></div>
+
+    <!-- 🔥 OWNER VERIFICATION -->
+<div id="verifyBox">
+
+<h2>Verify Yourself</h2>
+
+<input id="o_name" placeholder="Full Name">
+<input id="o_phone" placeholder="Phone Number">
+<input id="o_aadhaar" placeholder="Aadhaar Number">
+
+<label>📄 Upload Aadhaar</label>
+<input type="file" id="aadhaarFile">
+
+<button onclick="submitOwner()">Submit for Approval</button>
+</div>
 
 <h2>Add New PG</h2>
 
@@ -133,6 +148,53 @@ transition:0.3s;
 </div>
 
 <script>
+
+window.onload = function(){
+
+let role = localStorage.getItem("user_role")
+let done = localStorage.getItem("profile_done")
+
+// ❌ agar owner verify nahi hua
+if(role === "owner" && done !== "yes"){
+    document.getElementById("verifyBox").style.display = "block"
+    document.getElementById("pgBox").style.display = "none"
+}else{
+    document.getElementById("verifyBox").style.display = "none"
+    document.getElementById("pgBox").style.display = "block"
+}
+
+}
+
+function submitOwner(){
+
+let name = document.getElementById("o_name").value
+let phone = document.getElementById("o_phone").value
+let aadhaar = document.getElementById("o_aadhaar").value
+let file = document.getElementById("aadhaarFile").files[0]
+
+if(!name || !phone || !aadhaar || !file){
+    alert("Fill all details")
+    return
+}
+
+let formData = new FormData()
+
+formData.append("name", name)
+formData.append("phone", phone)
+formData.append("aadhaar", aadhaar)
+formData.append("email", localStorage.getItem("user_email"))
+formData.append("id_card", file)
+
+fetch("https://roomzy-c7d0.onrender.com/verify-owner", {
+method:"POST",
+body: formData
+})
+.then(res=>res.json())
+.then(data=>{
+alert("Sent for admin approval")
+window.location.href = "waiting.html"
+})
+}
 
 function addPG(){
 
