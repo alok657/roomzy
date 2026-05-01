@@ -185,7 +185,7 @@ def signup():
             """INSERT INTO users 
             (name,email,password,role,is_verified,verify_token) 
             VALUES (%s,%s,%s,%s,%s,%s)""",
-            ("user", email, hashed_password, None, False, token)
+            ("user", email, hashed_password, "student", False, token)
         )
 
         # 🔥 SEND EMAIL
@@ -280,20 +280,6 @@ def add_pg():
     conn = get_db()
     cur = conn.cursor()
 
-    owner_id = data.get("owner_id")
-
-    # 🔥 OWNER APPROVAL CHECK
-    cur.execute("SELECT approval_status FROM users WHERE id=%s", (owner_id,))
-    result = cur.fetchone()
-
-    if not result:
-        conn.close()
-        return {"message": "Owner not found ❌"}
-
-    if result[0] != "approved":
-        conn.close()
-        return {"message": "Owner not approved ❌"}
-
     # 🔥 ensure images always list
     images = json.dumps(data.get("images", []))
 
@@ -309,7 +295,7 @@ def add_pg():
         data["owner_name"],
         data["owner_phone"],
         images,
-        owner_id
+        data.get("owner_id")
     ))
 
     conn.commit()
@@ -968,35 +954,7 @@ def smtp_test():
     except Exception as e:
         return "LOGIN FAILED: " + str(e)
     
-@app.route("/verify-owner", methods=["POST"])
-def verify_owner():
 
-    file = request.files["id_card"]
-    email = request.form.get("email")
-
-    filename = str(uuid.uuid4()) + ".jpg"
-    filepath = os.path.join("uploads", filename)
-    file.save(filepath)
-
-    profile = {
-        "name": request.form.get("name"),
-        "phone": request.form.get("phone"),
-        "aadhaar": request.form.get("aadhaar")
-    }
-
-    conn = get_db()
-    cur = conn.cursor()
-
-    cur.execute("""
-    UPDATE users
-    SET profile_data=%s, id_card=%s, approval_status='pending'
-    WHERE email=%s
-    """, (json.dumps(profile), filename, email))
-
-    conn.commit()
-    conn.close()
-
-    return {"status":"success"}
 
 @app.route("/set-role", methods=["POST"])
 def set_role():
