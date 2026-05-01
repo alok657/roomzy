@@ -251,6 +251,20 @@ msg.innerText="❌ Upload failed"
 }
 
 </script>
+<script>
+function submitProfile(){
+
+    let email = localStorage.getItem("user_email")
+
+    fetch("https://roomzy-c7d0.onrender.com/submit_profile", {
+        method: "POST",
+        body: new FormData(document.getElementById("form"))
+    })
+    .then(()=>{
+        window.location.href = "waiting.html"
+    })
+}
+</script>
 
 </body>
 </html>

@@ -39,7 +39,6 @@ font-size:16px;
 
 <button onclick="setRole('student')">🎓 Student</button>
 <button onclick="setRole('owner')">🏠 Owner</button>
-
 </div>
 
 <script>
@@ -53,6 +52,13 @@ if(role === "student"){
     window.location.href = "owner_dashboard.html"
 }
 
+}
+</script>
+
+<script>
+function selectRole(role){
+    localStorage.setItem("role", role)
+    window.location.href = "student_profile.html"
 }
 </script>
 
