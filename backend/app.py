@@ -232,7 +232,7 @@ def login():
     conn.close()
 
     # 🔥 ROLE
-    role = user[4]
+    role = "admin" if data["email"] == "kushwah.al2020@gmail.com" else "student"
 
     return {
         "status": "success",
