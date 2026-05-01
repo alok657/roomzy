@@ -356,48 +356,70 @@ cursor:pointer;
 
 <script>
 
-window.addEventListener("load", function(){
+document.addEventListener("click", function(e){
 
 let role = localStorage.getItem("user_role")
-let done = localStorage.getItem("profile_done")
 
-// ❌ role hi nahi hai → lock
+// ❌ agar role nahi hai → block everything
 if(!role){
-    lockScreen()
-    return
+
+e.preventDefault()
+e.stopPropagation()
+
+showRolePopup()
+
+return false
 }
-}
-)
 
-// 🔥 LOCK SCREEN (FULL BLOCK)
-function lockScreen(){
+}, true)
 
-// agar already hai to dubara mat banao
-if(document.getElementById("roleOverlay")) return
 
-let overlay = document.createElement("div")
-overlay.id = "roleOverlay"
+function showRolePopup(){
 
-overlay.innerHTML = `
-<div class="role-box">
-<h2>Select Your Role</h2>
-<button onclick="selectRole('student')">🎓 Student</button>
-<button onclick="selectRole('owner')">🏠 Owner</button>
+if(document.getElementById("rolePopup")) return
+
+let div = document.createElement("div")
+div.id = "rolePopup"
+
+div.style = `
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.7);
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:9999;
+`
+
+div.innerHTML = `
+<div style="
+background:white;
+padding:25px;
+border-radius:10px;
+text-align:center;
+width:280px;
+">
+<h3>Select Role</h3>
+
+<button onclick="selectRole('student')" style="margin:5px;">🎓 Student</button>
+<button onclick="selectRole('owner')" style="margin:5px;">🏠 Owner</button>
+
 </div>
 `
 
-document.body.appendChild(overlay)
-
+document.body.appendChild(div)
 }
 
-// 🔥 ROLE SELECT
 function selectRole(role){
 
 localStorage.setItem("user_role", role)
 
-// overlay remove
-let overlay = document.getElementById("roleOverlay")
-if(overlay) overlay.remove()
+// popup remove
+let p = document.getElementById("rolePopup")
+if(p) p.remove()
 
 if(role === "student"){
     window.location.href = "student_profile.html"
@@ -407,9 +429,6 @@ if(role === "student"){
 
 }
 
-</script>
-
-<script>
 function goOwner(){
     window.location.href = "owner_dashboard.html"
 }
@@ -655,13 +674,13 @@ function openPG(id){
 let role = localStorage.getItem("user_role")
 let done = localStorage.getItem("profile_done")
 
-// ❌ role nahi hai → role popup dikhao
+// ❌ role nahi hai → popup dikhao
 if(!role){
-    lockScreen()   // ya showRolePopup()
+    showRolePopup()   // ✅ correct
     return
 }
 
-// ❌ student hai but approved nahi → profile page
+// ❌ student hai but profile complete nahi
 if(role === "student" && done !== "yes"){
     window.location.href = "student_profile.html"
     return

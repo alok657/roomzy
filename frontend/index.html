@@ -94,7 +94,6 @@ transform:scale(1);
 
 </div>
 
-<button onclick="openPG()">View PG</button>
 
 <script>
 
@@ -108,18 +107,6 @@ window.location.href="signup.html"
 
 </script>
 
-<script>
-function openPG(){
-
-    let profileDone = localStorage.getItem("profile_done")
-
-    if(profileDone !== "yes"){
-        window.location.href = "role.html"
-    }else{
-        window.location.href = "pg_list.html"
-    }
-}
-</script>
 
 </body>
 
