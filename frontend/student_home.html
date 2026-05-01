@@ -583,7 +583,18 @@ let lat=cityCoords[citySelect.value][0]+(Math.random()-0.5)/40
 let lon=cityCoords[citySelect.value][1]+(Math.random()-0.5)/40
 
 let marker=L.marker([lat,lon]).addTo(map)
-marker.on("click",()=>openPG(pg.id))   
+marker.on("click",()=>{
+
+let role = localStorage.getItem("user_role")
+
+if(!role){
+    showRolePopup()
+    return
+}
+
+openPG(pg.id)
+
+})
 
 let img = `https://roomzy-c7d0.onrender.com/static/images/pg${index}.jpg`
 
@@ -680,13 +691,13 @@ function openPG(id){
 let role = localStorage.getItem("user_role")
 let done = localStorage.getItem("profile_done")
 
-// ❌ role nahi hai → popup dikhao
+// ❌ role nahi hai → popup
 if(!role){
-    showRolePopup()   // ✅ correct
-    return
+    showRolePopup()
+    return   // 🔥 VERY IMPORTANT
 }
 
-// ❌ student hai but profile complete nahi
+// ❌ student but profile incomplete
 if(role === "student" && done !== "yes"){
     window.location.href = "student_profile.html"
     return
@@ -694,7 +705,6 @@ if(role === "student" && done !== "yes"){
 
 // ✅ allowed
 window.location.href = "pg_details.html?id=" + id
-
 }
 
 function openProfile(){
