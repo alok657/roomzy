@@ -355,6 +355,14 @@ cursor:pointer;
 </style>
 
 <script>
+window.onload = function(){
+
+let role = localStorage.getItem("user_role")
+
+if(!role){
+    showRolePopup()
+}
+}
 
 document.addEventListener("click", function(e){
 
@@ -665,7 +673,18 @@ let mlat = lat + (Math.random()-0.5)/20
 let mlng = lng + (Math.random()-0.5)/20
 
 let marker=L.marker([mlat,mlng]).addTo(map)
-marker.on("click",()=>openPG(pg.id))
+marker.on("click",()=>{
+
+let role = localStorage.getItem("user_role")
+
+if(!role){
+    showRolePopup()
+    return
+}
+
+openPG(pg.id)
+
+})
 
 let img = (pg.images && pg.images.length > 0) 
 ? pg.images[0] 

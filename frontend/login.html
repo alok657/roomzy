@@ -212,6 +212,9 @@ msg.innerText="Login successful"
 localStorage.setItem("user_email", data.email)
 localStorage.setItem("user_name", data.name)
 
+localStorage.removeItem("user_role")
+localStorage.removeItem("profile_done")
+
 if(data.role === "admin"){
     console.log("ADMIN LOGIN DETECTED")
     window.location.href = "admin.html"
