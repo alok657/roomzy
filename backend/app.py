@@ -24,6 +24,10 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
     return response
 
+import smtplib
+
+smtplib.SMTP_SSL = smtplib.SMTP
+
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
