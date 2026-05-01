@@ -360,19 +360,25 @@ document.addEventListener("click", function(e){
 
 let role = localStorage.getItem("user_role")
 
-// ❌ agar role nahi hai → block everything
 if(!role){
 
-e.preventDefault()
-e.stopPropagation()
+    console.log("🚨 BLOCKING CLICK")
 
-showRolePopup()
+    // 🔥 HARD BLOCK
+    e.preventDefault()
+    e.stopImmediatePropagation()
 
-return false
+    // extra safety
+    if(e.target.closest("a")){
+        e.target.closest("a").href = "#"
+    }
+
+    showRolePopup()
+
+    return false
 }
 
 }, true)
-
 
 function showRolePopup(){
 
