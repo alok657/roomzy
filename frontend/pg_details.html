@@ -239,28 +239,33 @@ margin-top:10px;
 </div>
 
 <script>
+const BASE = "https://roomzy-c7d0.onrender.com/static/images/"
 
 let id = new URLSearchParams(window.location.search).get("id")
+
+if(!id){
+    alert("No PG selected ❌")
+    window.location.href = "student_home.html"
+}
+
+let index = ((id - 1) % 15) + 1 
 
 fetch("https://roomzy-c7d0.onrender.com/get_pg/" + id)
 .then(res => res.json())
 .then(data => {
 
-console.log("DATA:", data)
-
 let main = document.getElementById("mainImg")
 let gallery = document.getElementById("gallery")
 
 // ✅ MAIN IMAGE (FIXED AS PER YOUR FILES)
-main.src = `https://roomzy-c7d0.onrender.com/static/images/pg${id}.jpg`
-
+main.src = BASE + `pg${index}.jpg`
 
 // ✅ GALLERY (pgX_1, pgX_2, pgX_3)
 gallery.innerHTML = ""
 
 for(let i=1; i<=3; i++){
 
-let img = `https://roomzy-c7d0.onrender.com/static/images/pg${id}_${i}.jpg`
+let img = BASE + `pg${index}_${i}.jpg`
 
 gallery.innerHTML += `
 <img src="${img}" onclick="changeImg('${img}')"
