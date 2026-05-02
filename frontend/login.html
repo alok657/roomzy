@@ -208,7 +208,7 @@ if(data.status=="success"){
 msg.style.color="#00ff88"
 msg.innerText="Login successful"
 
-
+localStorage.setItem("user_role", data.role)
 // save user
 localStorage.setItem("user_email", data.email)
 localStorage.setItem("user_name", data.name)

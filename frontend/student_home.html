@@ -760,7 +760,9 @@ btn.style.display = "none"
 }
 
 function logout(){
-    localStorage.clear()   // 🔥 sab clear
+    localStorage.removeItem("user_email")
+    localStorage.removeItem("user_name")
+    
     window.location.href = "login.html"
 }
 
