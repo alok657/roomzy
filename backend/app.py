@@ -972,27 +972,19 @@ def set_role():
 
     return {"status":"success"}
 
-@app.route("/reset_all_data")
-def reset_all_data():
+@app.route("/safe_reset")
+def safe_reset():
     conn = get_db()
     cur = conn.cursor()
 
-    # users delete
     cur.execute("DELETE FROM users")
-
-    # pgs delete (optional)
-    cur.execute("DELETE FROM pgs")
+    # ❌ PGs mat delete karo
+    # ❌ uploads mat delete karo
 
     conn.commit()
     conn.close()
 
-    # 🔥 uploads folder clean
-    import shutil
-    shutil.rmtree("uploads")
-    os.makedirs("uploads")
-
-    return "🔥 FULL RESET DONE"
-
+    return "Users reset only ✅"
 # ================= TEST =================
 @app.route("/")
 def home():
