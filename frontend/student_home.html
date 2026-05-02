@@ -355,30 +355,15 @@ cursor:pointer;
 </style>
 
 <script>
-
-document.addEventListener("click", function(e){
+window.onload = function(){
 
 let role = localStorage.getItem("user_role")
 
-if(role === "admin") return
-
-// ❌ role nahi hai
-if(!role){
-
-    // 🔥 agar click popup ke andar hai → allow karo
-    if(e.target.closest("#rolePopup")){
-        return
-    }
-
-    e.preventDefault()
-    e.stopImmediatePropagation()
-
+if(!role && role !== "admin"){
     showRolePopup()
-
-    return false
 }
 
-}, true)
+}
 
 function showRolePopup(){
 
@@ -452,6 +437,7 @@ document.body.appendChild(div)
 function selectRole(role){
 
 localStorage.setItem("user_role", role)
+localStorage.setItem("profile_done", "no")
 
 // popup remove
 let p = document.getElementById("rolePopup")
@@ -732,6 +718,12 @@ function openPG(id){
 let role = localStorage.getItem("user_role")
 let done = localStorage.getItem("profile_done")
 
+// ✅ admin ko kabhi block mat karo
+if(role === "admin"){
+    window.location.href = "pg_details.html?id=" + id
+    return
+}
+
 // ❌ role nahi hai → popup
 if(!role){
     showRolePopup()
@@ -768,10 +760,7 @@ btn.style.display = "none"
 }
 
 function logout(){
-
-    // ❗ sirf login data hata
-    localStorage.removeItem("user_email")
-    localStorage.removeItem("user_name")
+    localStorage.clear()   // 🔥 sab clear
     window.location.href = "login.html"
 }
 

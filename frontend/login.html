@@ -214,16 +214,16 @@ localStorage.setItem("user_email", data.email)
 localStorage.setItem("user_name", data.name)
 localStorage.setItem("owner_id", data.id)  
 
+localStorage.setItem("user_role", data.role)
+
 // 🔥 USER CHANGE CHECK
 let lastUser = localStorage.getItem("last_user")
 
-if(lastUser !== data.email){
-    // 🔥 new user → reset role & profile
+if(lastUser && lastUser !== data.email){
     localStorage.removeItem("user_role")
     localStorage.removeItem("profile_done")
 }
 
-// save current user
 localStorage.setItem("last_user", data.email)
 
 if(data.role === "admin"){
